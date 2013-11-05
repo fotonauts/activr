@@ -49,17 +49,17 @@ module Activr
         class_eval <<-EOS, __FILE__, __LINE__
           # eg: actor_entity
           def #{name}_entity
-            @entities['#{name}'.to_sym]
+            @entities[:#{name}]
           end
 
           # eg: actor_id
           def #{name}_id
-            @entities['#{name}'.to_sym] && @entities['#{name}'.to_sym].model_id
+            @entities[:#{name}] && @entities[:#{name}].model_id
           end
 
           # eg: actor
           def #{name}
-            @entities['#{name}'.to_sym] && @entities['#{name}'.to_sym].model
+            @entities[:#{name}] && @entities[:#{name}].model
           end
         EOS
 
@@ -67,10 +67,10 @@ module Activr
         class_eval <<-EOS, __FILE__, __LINE__
           # eg: actor = ...
           def #{name}=(value)
-            if value.nil?
-              @entities.delete('#{name}'.to_sym)
-            else
-              @entities['#{name}'.to_sym] = value
+            @entities.delete(:#{name})
+
+            if (value != nil)
+              @entities[:#{name}] = Activr::Entity.new(:#{name}, value, self.allowed_entities[:#{name}])
             end
           end
         EOS

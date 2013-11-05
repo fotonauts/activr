@@ -61,6 +61,18 @@ describe Activr::Activity do
     activity.at.should_not be_nil
   end
 
+  it "sets entities" do
+    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
+    activity.humanize.should == "Jean PALE added photo Me myself and I to the Selfies album"
+
+    activity.actor = buddy
+    activity.humanize.should == "Justine CHTITEGOUTE added photo Me myself and I to the Selfies album"
+
+    activity.actor_entity.should_not be_nil
+    activity.actor.should == buddy
+    activity.actor_id.should == buddy._id
+  end
+
   it "gets and sets meta" do
     activity = AddPhoto.new(:actor => user, :photo => photo, :album => album, :foo => 'bar')
     activity[:foo].should == 'bar'
