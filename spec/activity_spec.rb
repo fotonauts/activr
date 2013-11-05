@@ -90,8 +90,10 @@ describe Activr::Activity do
 
   it "humanizes" do
     activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
-
     activity.humanize.should == "Jean PALE added photo Me myself and I to the Selfies album"
+
+    activity = FollowBuddyActivity.new(:actor => user, :buddy => buddy)
+    activity.humanize.should == "Jean PALE is now following Justine CHTITEGOUTE"
   end
 
   it "checks for validity" do
@@ -162,13 +164,13 @@ describe Activr::Activity do
   context "when class have an Activity suffix" do
 
     it "have a kind computed from class" do
-      AddBuddyActivity.kind.should == 'add_buddy'
+      FollowBuddyActivity.kind.should == 'follow_buddy'
     end
 
     it "exports to a hash" do
-      activity = AddBuddyActivity.new(:actor => user, :buddy => buddy)
+      activity = FollowBuddyActivity.new(:actor => user, :buddy => buddy)
       activity.to_hash.should == {
-        'kind'  => 'add_buddy',
+        'kind'  => 'follow_buddy',
         'at'    => activity.at,
         'actor' => user._id,
         'buddy' => buddy._id,
@@ -179,13 +181,13 @@ describe Activr::Activity do
       now = Time.now.utc
 
       activity = Activr::Activity.from_hash({
-        'kind'  => 'add_buddy',
+        'kind'  => 'follow_buddy',
         'at'    => now,
         'actor' => user._id,
         'buddy' => buddy._id,
       })
 
-      activity.class.should == AddBuddyActivity
+      activity.class.should == FollowBuddyActivity
     end
 
   end

@@ -1,5 +1,5 @@
 # a class with an Activity suffix
-class AddBuddyActivity < Activr::Activity
+class FollowBuddyActivity < Activr::Activity
 
   entity :actor, :class => User
   entity :buddy, :class => User
