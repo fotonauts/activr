@@ -4,4 +4,9 @@ class Album
 
   field :name
 
+  def owner
+    # @todo
+    raise "not implemented"
+  end
+
 end

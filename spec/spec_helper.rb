@@ -3,14 +3,26 @@ require 'mongoid'
 require 'rspec'
 require 'database_cleaner'
 
+
 $:.unshift(File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib')))
 require 'activr'
 
-MODELS = File.join(File.dirname(__FILE__), "app/models")
-$:.unshift(MODELS)
+MODELS_PATH = File.join(File.dirname(__FILE__), "app/models")
+$:.unshift(MODELS_PATH)
 
-ACTIVITIES = File.join(File.dirname(__FILE__), "app/activities")
-$:.unshift(ACTIVITIES)
+ACTIVITIES_PATH = File.join(File.dirname(__FILE__), "app/activities")
+$:.unshift(ACTIVITIES_PATH)
+
+TIMELINES_PATH = File.join(File.dirname(__FILE__), "app/timelines")
+$:.unshift(TIMELINES_PATH)
+
+# autoload classes
+[ MODELS_PATH, ACTIVITIES_PATH, TIMELINES_PATH ].each do |dir_path|
+  Dir[ File.join(dir_path, "*.rb") ].sort.each do |file|
+    name = File.basename(file, ".rb")
+    autoload(name.camelize.to_sym, name)
+  end
+end
 
 
 def tmp_mongo_db
@@ -19,17 +31,6 @@ end
 
 Mongoid.configure do |config|
   config.connect_to(tmp_mongo_db)
-end
-
-# autoload models
-Dir[ File.join(MODELS, "*.rb") ].sort.each do |file|
-  name = File.basename(file, ".rb")
-  autoload(name.camelize.to_sym, name)
-end
-
-# require activities
-Dir[ File.join(ACTIVITIES, "*.rb") ].each do |file|
-  require File.basename(file)
 end
 
 RSpec.configure do |config|

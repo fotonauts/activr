@@ -10,12 +10,16 @@ class Activr::Timeline::Route
 
   # route kind
   def kind
-    @kind ||= self.settings[:kind] || "#{self.routing_kind.underscore}_#{self.activity_class.kind}"
+    @kind ||= self.settings[:kind] || "#{self.routing_kind.to_s.underscore}_#{self.activity_class.kind}"
   end
 
   # routing kind
   def routing_kind
     @routing_kind ||= begin
+      if self.settings[:with] && self.settings[:to]
+        raise "Several routing kinds specified: #{self.settings.inspect}"
+      end
+
       result = self.settings[:with] || self.settings[:to]
       raise "Missing routing for #{self.activity_class}: #{self.settings.inspect}" if result.blank?
 
