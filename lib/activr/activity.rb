@@ -45,15 +45,27 @@ module Activr
         # NOTE: always use a setter on a class_attribute (cf. http://apidock.com/rails/Class/class_attribute)
         self.allowed_entities = self.allowed_entities.merge(name => options)
 
-        # create entity getter
+        # create entity getters
         class_eval <<-EOS, __FILE__, __LINE__
-          def #{name}
+          # eg: actor_entity
+          def #{name}_entity
             @entities['#{name}'.to_sym]
+          end
+
+          # eg: actor_id
+          def #{name}_id
+            @entities['#{name}'.to_sym] && @entities['#{name}'.to_sym].model_id
+          end
+
+          # eg: actor
+          def #{name}
+            @entities['#{name}'.to_sym] && @entities['#{name}'.to_sym].model
           end
         EOS
 
         # create entity setter
         class_eval <<-EOS, __FILE__, __LINE__
+          # eg: actor = ...
           def #{name}=(value)
             if value.nil?
               @entities.delete('#{name}'.to_sym)
@@ -94,7 +106,7 @@ module Activr
 
         if (self.allowed_entities[data_name] != nil)
           # entity
-          @entities[data_name] = Activr::Entity.new(data_name, data_value, self, self.allowed_entities[data_name])
+          @entities[data_name] = Activr::Entity.new(data_name, data_value, self.allowed_entities[data_name].merge(:activity => self))
         elsif (data_name == :_id)
           # article _id
           @_id = data_value
@@ -174,10 +186,14 @@ module Activr
       end
     end
 
-    # sugar so that we can try to fetch all entities from all activities
+    # sugar so that we can try to fetch an entity defined for another activity
     # yes, I hate myself for that...
     def method_missing(sym, *args, &blk)
-      if Activr.registry.entities.include?(sym)
+      # match: actor_entity | actor_id | actor
+      match_data = sym.to_s.match(/(.+)_(entity|id)$/)
+      entity_name = match_data ? match_data[1].to_sym : sym
+
+      if Activr.registry.entities.include?(entity_name)
         # ok, don't worry...
         # define an instance method so that future calls on that method do not rely on method_missing
         self.instance_eval <<-RUBY

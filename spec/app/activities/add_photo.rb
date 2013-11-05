@@ -11,7 +11,7 @@ class AddPhoto < Activr::Activity
     bindings = {
       :actor => self.actor.fullname,
       :photo => self.photo.title,
-      :album => self.album.model.name,
+      :album => self.album.name,
     }
 
     Activr.sentence("{{{actor}}} added photo {{{photo}}} to the {{{album}}} album", bindings)

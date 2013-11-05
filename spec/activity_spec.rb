@@ -2,10 +2,10 @@ require File.join(File.dirname(__FILE__), 'spec_helper')
 
 describe Activr::Activity do
 
-  let(:user)  { User.create(:_id => 'user_a', :first_name => "Jean", :last_name => "PALE") }
-  let(:photo) { Picture.create(:_id => 'picture_x', :title => "Me myself and I") }
-  let(:album) { Album.create(:_id => 'album_1', :name => "Selfies") }
-  let(:buddy) { User.create(:_id => 'user_b', :first_name => "Justine", :last_name => "CHTITEGOUTE") }
+  let(:user)  { User.create(:first_name => "Jean", :last_name => "PALE") }
+  let(:photo) { Picture.create(:title => "Me myself and I") }
+  let(:album) { Album.create(:name => "Selfies") }
+  let(:buddy) { User.create(:first_name => "Justine", :last_name => "CHTITEGOUTE") }
 
   it "have allowed entities and meta" do
     AddPhoto.allowed_entities.should == {
@@ -22,17 +22,33 @@ describe Activr::Activity do
   it "instanciates with entity models" do
     activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
 
-    activity.actor.model.should == user
-    activity.photo.model.should == photo
-    activity.album.model.should == album
+    activity.actor_entity.should_not be_nil
+    activity.actor.should == user
+    activity.actor_id.should == user._id
+
+    activity.photo_entity.should_not be_nil
+    activity.photo.should == photo
+    activity.photo_id.should == photo._id
+
+    activity.album_entity.should_not be_nil
+    activity.album.should == album
+    activity.album_id.should == album._id
   end
 
   it "instanciates with entities ids" do
     activity = AddPhoto.new(:actor => user._id, :photo => photo._id, :album => album._id)
 
-    activity.actor.model.should == user
-    activity.photo.model.should == photo
-    activity.album.model.should == album
+    activity.actor_entity.should_not be_nil
+    activity.actor.should == user
+    activity.actor_id.should == user._id
+
+    activity.photo_entity.should_not be_nil
+    activity.photo.should == photo
+    activity.photo_id.should == photo._id
+
+    activity.album_entity.should_not be_nil
+    activity.album.should == album
+    activity.album_id.should == album._id
   end
 
   it "instanciates with meta" do
@@ -78,8 +94,15 @@ describe Activr::Activity do
 
   it "does not raise if trying to access an entity defined for another activity" do
     activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
+
+    lambda { activity.buddy_entity }.should_not raise_error
+    activity.buddy_entity.should be_nil
+
     lambda { activity.buddy }.should_not raise_error
     activity.buddy.should be_nil
+
+    lambda { activity.buddy_id }.should_not raise_error
+    activity.buddy_id.should be_nil
   end
 
   context "when class have NO suffix" do
@@ -115,9 +138,9 @@ describe Activr::Activity do
       activity.class.should == AddPhoto
       activity.at.should == now
 
-      activity.actor.model.should == user
-      activity.photo.model.should == photo
-      activity.album.model.should == album
+      activity.actor.should == user
+      activity.photo.should == photo
+      activity.album.should == album
 
       activity[:foo].should == 'bar'
     end
