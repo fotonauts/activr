@@ -17,7 +17,7 @@ describe Activr::Timeline::Route do
   end
 
   it "handle 'predefined' routing kind" do
-    settings = { :with => :actor_follower }
+    settings = { :using => :actor_follower }
     route = Activr::Timeline::Route.new(AddPhoto, settings)
     route.routing_kind.should == :actor_follower
   end

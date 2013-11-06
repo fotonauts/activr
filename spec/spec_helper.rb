@@ -18,12 +18,11 @@ $:.unshift(TIMELINES_PATH)
 
 # autoload classes
 [ MODELS_PATH, ACTIVITIES_PATH, TIMELINES_PATH ].each do |dir_path|
-  Dir[ File.join(dir_path, "*.rb") ].sort.each do |file|
-    name = File.basename(file, ".rb")
+  Dir[ File.join(dir_path, "*.rb") ].sort.each do |file_path|
+    name = File.basename(file_path, ".rb")
     autoload(name.camelize.to_sym, name)
   end
 end
-
 
 def tmp_mongo_db
   "activr_spec"

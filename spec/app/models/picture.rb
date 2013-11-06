@@ -4,4 +4,9 @@ class Picture
 
   field :title
 
+  def owner
+    # @todo
+    raise "not implemented"
+  end
+
 end

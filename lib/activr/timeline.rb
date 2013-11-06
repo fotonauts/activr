@@ -16,11 +16,16 @@ module Activr
 
     class << self
 
+      # get route defined with given kind
+      def route_for_kind(route_kind)
+        self.routes.find do |defined_route|
+          (defined_route.kind == route_kind)
+        end
+      end
+
       # check if given route was already defined
       def have_route?(route_to_check)
-        !self.routes.find do |defined_route|
-          (defined_route.kind == route_to_check.kind)
-        end.nil?
+        !self.route_for_kind(route_to_check.kind).blank?
       end
 
 
@@ -30,7 +35,7 @@ module Activr
 
       # define a routing
       def routing(routing_name, settings = { }, &block)
-        raise "Routing already defined" unless self.routings[routing_name].blank?
+        raise "Routing already defined: #{routing_name}" unless self.routings[routing_name].blank?
 
         if block
           raise "Forbidden to provide a block AND a :to setting" if settings[:to]
@@ -38,7 +43,7 @@ module Activr
         end
 
         # NOTE: always use a setter on a class_attribute (cf. http://apidock.com/rails/Class/class_attribute)
-        self.routings = self.routings.merge(routing_name => settings)
+        self.routings = self.routings.merge(routing_name.to_sym => settings)
       end
 
       # define a route for an activity
