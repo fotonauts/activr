@@ -1,5 +1,4 @@
 module Activr
-
   class Timeline
 
     autoload :Entry, 'activr/timeline/entry'
@@ -15,6 +14,11 @@ module Activr
 
 
     class << self
+
+      # timeline kind
+      def kind
+        @kind ||= Activr::Utils.kind_for_class(self, 'timeline')
+      end
 
       # get route defined with given kind
       def route_for_kind(route_kind)
@@ -53,13 +57,15 @@ module Activr
 
         # NOTE: always use a setter on a class_attribute (cf. http://apidock.com/rails/Class/class_attribute)
         self.routes += [ new_route ]
-
-        # register used timeline
-        Activr.registry.add_timeline(self)
       end
 
     end # class << self
 
-  end # class Timeline
 
+    # activity kind
+    def kind
+      self.class.kind
+    end
+
+  end # class Timeline
 end # module Activr

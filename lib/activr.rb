@@ -15,11 +15,27 @@ require 'activr/registry'
 require 'activr/entity'
 require 'activr/activity'
 require 'activr/timeline'
-
+require 'activr/railtie' if defined?(Rails)
 
 module Activr
 
   class << self
+
+    attr_writer :app_path
+
+    def app_path
+      @app_path || Dir.pwd
+    end
+
+    # path to activities classes
+    def activities_path
+      File.join(self.app_path, "activities")
+    end
+
+    # path to timelines classes
+    def timelines_path
+      File.join(self.app_path, "timelines")
+    end
 
     # global registry
     #

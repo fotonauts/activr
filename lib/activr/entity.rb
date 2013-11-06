@@ -1,5 +1,4 @@
 module Activr
-
   class Entity
 
     attr_reader :name, :options, :activity
@@ -42,5 +41,4 @@ module Activr
     end
 
   end # class Entity
-
 end # module Activr

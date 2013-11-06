@@ -1,5 +1,4 @@
 module Activr
-
   class Activity
 
     # Exception: a mandatory entity is missing
@@ -75,7 +74,7 @@ module Activr
         EOS
 
         # register used entity
-        Activr.registry.add_entity(name)
+        Activr.registry.add_entity(name, self)
       end
 
       # define humanization template
@@ -232,5 +231,4 @@ module Activr
     end
 
   end # class Activity
-
 end # module Activr

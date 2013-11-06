@@ -7,13 +7,15 @@ require 'database_cleaner'
 $:.unshift(File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib')))
 require 'activr'
 
-MODELS_PATH = File.join(File.dirname(__FILE__), "app/models")
+Activr.app_path = File.join(File.dirname(__FILE__), "app")
+
+MODELS_PATH = File.join(Activr.app_path, "models")
 $:.unshift(MODELS_PATH)
 
-ACTIVITIES_PATH = File.join(File.dirname(__FILE__), "app/activities")
+ACTIVITIES_PATH = File.join(Activr.app_path, "activities")
 $:.unshift(ACTIVITIES_PATH)
 
-TIMELINES_PATH = File.join(File.dirname(__FILE__), "app/timelines")
+TIMELINES_PATH = File.join(Activr.app_path, "timelines")
 $:.unshift(TIMELINES_PATH)
 
 # autoload classes

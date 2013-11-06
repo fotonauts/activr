@@ -1,48 +1,72 @@
 module Activr
-
   class Registry
-
-    attr_reader :entities, :activities, :timelines, :timeline_entries
 
     # init
     def initialize
-      @entities   = [ ]
-      @activities = [ ]
-      @timelines  = [ ]
-      @timeline_entries = [ ]
+      @timelines  = nil
+      @activities = nil
+      @entities   = nil
     end
 
-    def add_entity(entity_name)
-      @entities << entity_name unless @entities.include?(entity_name)
+    # Get all registered timelines
+    #
+    # returns a hash of:
+    # {
+    #   :<timeline_kind> => <TimelineClass>,
+    #   ...
+    # }
+    def timelines
+      @timelines ||= self._classes_from_path(Activr.timelines_path)
     end
 
-    def add_activity(activity_class)
-      @activities << activity_class unless @activities.include?(activity_class)
+    # Get all registered activities
+    #
+    # returns a hash of:
+    # {
+    #   <activity_kind> => <ActivityClass>,
+    #   ...
+    # }
+    def activities
+      @activities ||= self._classes_from_path(Activr.activities_path)
     end
 
-    def add_activities_for_path(dir_path)
-      # @todo !!!
-      raise "not implemented"
+    # Get all registered entities
+    #
+    # returns a hash of:
+    # {
+    #   :<entity_name> => [ <ActivityClass>, <ActivityClass>, ... ],
+    #   ...
+    # }
+    def entities
+      # loading activities triggers calls to #add_entity method
+      self.activities if @entities.blank?
+
+      @entities
     end
 
-    def add_timeline(timeline_class)
-      @timelines << timeline_class unless @timelines.include?(timeline_class)
+    # Register an entity
+    #
+    # @param entity_name    [Symbole] Entity name
+    # @param activity_klass [Class]   Activity class that uses that entity
+    def add_entity(entity_name, activity_klass)
+      @entities ||= { }
+      @entities[entity_name] ||= [ ]
+      @entities[entity_name] << activity_klass
     end
 
-    def add_timelines_for_path(dir_path)
-      # @todo !!!
-      raise "not implemented"
-    end
 
-    def add_timeline_entry(timeline_entry_class)
-      @timeline_entries << timeline_entry_class unless @timeline_entries.include?(timeline_entry_class)
-    end
+    #
+    # Private
+    #
 
-    def add_timeline_entries_for_path(dir_path)
-      # @todo !!!
-      raise "not implemented"
+    def _classes_from_path(dir_path)
+      Dir["#{dir_path}/*.rb"].sort.inject({ }) do |memo, file_path|
+        klass = File.basename(file_path, '.rb').camelize.constantize
+        memo[klass.kind] = klass
+
+        memo
+      end
     end
 
   end # class Registry
-
 end # module Activr
