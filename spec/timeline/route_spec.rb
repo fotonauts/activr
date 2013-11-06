@@ -28,7 +28,7 @@ describe Activr::Timeline::Route do
     route.kind.should == 'my_route'
   end
 
-  it "generates a default kind" do
+  it "have a default kind" do
     settings = { :to => :buddy }
     route = Activr::Timeline::Route.new(FollowBuddyActivity, settings)
     route.kind.should == 'buddy_follow_buddy'

@@ -1,4 +1,3 @@
-# a class with an Activity suffix
 class FollowBuddyActivity < Activr::Activity
 
   entity :actor, :class => User
