@@ -7,15 +7,16 @@ describe Activr::Activity do
   let(:album) { Album.create(:name => "Selfies") }
   let(:buddy) { User.create(:first_name => "Justine", :last_name => "CHTITEGOUTE") }
 
-  it "have allowed entities and meta" do
+  it "have allowed entities" do
     AddPhoto.allowed_entities.should == {
       :actor => { :class => User },
       :photo => { :class => Picture },
       :album => { :class => Album },
     }
 
-    AddPhoto.allowed_meta.should == {
-      :foo => { },
+    FollowBuddyActivity.allowed_entities.should == {
+      :actor => { :class => User },
+      :buddy => { :class => User },
     }
   end
 
@@ -33,22 +34,22 @@ describe Activr::Activity do
     activity.album_entity.should_not be_nil
     activity.album.should == album
     activity.album_id.should == album._id
+
+    activity.humanize.should == "Jean PALE added photo Me myself and I to the Selfies album"
   end
 
   it "instanciates with entities ids" do
-    activity = AddPhoto.new(:actor => user._id, :photo => photo._id, :album => album._id)
+    activity = FollowBuddyActivity.new(:actor => user._id, :buddy => buddy._id)
 
     activity.actor_entity.should_not be_nil
     activity.actor.should == user
     activity.actor_id.should == user._id
 
-    activity.photo_entity.should_not be_nil
-    activity.photo.should == photo
-    activity.photo_id.should == photo._id
+    activity.buddy_entity.should_not be_nil
+    activity.buddy.should == buddy
+    activity.buddy_id.should == buddy._id
 
-    activity.album_entity.should_not be_nil
-    activity.album.should == album
-    activity.album_id.should == album._id
+    activity.humanize.should == "Jean PALE is now following Justine CHTITEGOUTE"
   end
 
   it "instanciates with meta" do
@@ -86,14 +87,6 @@ describe Activr::Activity do
     hsh = activity.to_hash
     hsh['foo'].should == 'meuh'
     hsh['bar'].should == 'baz'
-  end
-
-  it "humanizes" do
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
-    activity.humanize.should == "Jean PALE added photo Me myself and I to the Selfies album"
-
-    activity = FollowBuddyActivity.new(:actor => user, :buddy => buddy)
-    activity.humanize.should == "Jean PALE is now following Justine CHTITEGOUTE"
   end
 
   it "checks for validity" do

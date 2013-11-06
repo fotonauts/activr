@@ -27,14 +27,14 @@ module Activr
 
       # get a compiled mustache template
       #
-      # @param tmpl [String] Template
+      # @param tpl [String] Template
       # @return [String] Compiled template
-      def compiled_mustache_template(tmpl)
+      def compiled_mustache_template(tpl)
         @compiled_mustache_templates ||= {}
-        @compiled_mustache_templates[tmpl] ||= begin
+        @compiled_mustache_templates[tpl] ||= begin
           view = Mustache.new
           view.raise_on_context_miss = true
-          view.template = tmpl # will compile and store template once for all
+          view.template = tpl # will compile and store template once for all
           view
         end
       end

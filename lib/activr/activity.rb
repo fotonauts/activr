@@ -6,14 +6,13 @@ module Activr
     class MissingEntityError < StandardError; end
 
 
-    # allowed entities for that activity class
+    # allowed entities
     class_attribute :allowed_entities
     self.allowed_entities = { }
 
-    # @todo REMOVE THAT IF NOT REALLY NEEDED !
-    # allowed metas infos for that activity class
-    class_attribute :allowed_meta
-    self.allowed_meta = { }
+    # humanization template
+    class_attribute :humanize_tpl
+    self.humanize_tpl = nil
 
 
     class << self
@@ -79,12 +78,11 @@ module Activr
         Activr.registry.add_entity(name)
       end
 
-      # define a meta for that activity
-      def meta(name, options = { })
-        raise "Meta already defined: #{name}" unless self.allowed_meta[name].blank?
+      # define humanization template
+      def humanize(tpl)
+        raise "Humanize already defined: #{self.humanize_tpl}" unless self.humanize_tpl.blank?
 
-        # NOTE: always use a setter on a class_attribute (cf. http://apidock.com/rails/Class/class_attribute)
-        self.allowed_meta = self.allowed_meta.merge(name => options)
+        self.humanize_tpl = tpl
       end
 
     end # class << self
@@ -176,6 +174,28 @@ module Activr
       self.class.kind
     end
 
+    # returns all entities models in a hash:
+    # {
+    #   :<entity_name> => <entity_model>,
+    #   ...
+    # }
+    def entities_models
+      @entities.inject({ }) do |memo, (entity_name, entity)|
+        memo[entity_name] = entity.model
+        memo
+      end
+    end
+
+    # humanization
+    def humanize
+      raise "No humanize_tpl defined" if self.humanize_tpl.blank?
+
+      # merge entities models and meta
+      bindings = entities_models.merge(@meta)
+
+      Activr.sentence(self.humanize_tpl, bindings)
+    end
+
     # raise exception if activity is not valid
     def check!
       # check mandatory entities
@@ -207,12 +227,6 @@ module Activr
         # super Michel !
         super
       end
-    end
-
-    # humanize activity
-    def humanize(options = { })
-      # MUST be implemented by child class
-      raise "not implemented"
     end
 
   end # class Activity
