@@ -35,7 +35,6 @@ describe Activr::Activity do
     activity.album.should == album
     activity.album_id.should == album._id
 
-    activity.humanize.should == "Jean PALE added photo Me myself and I to the Selfies album"
   end
 
   it "instanciates with entities ids" do
@@ -48,7 +47,15 @@ describe Activr::Activity do
     activity.buddy_entity.should_not be_nil
     activity.buddy.should == buddy
     activity.buddy_id.should == buddy._id
+  end
 
+  it "humanizes thanks to :humanize setting" do
+    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
+    activity.humanize.should == "Jean PALE added photo Me myself and I to the Selfies album"
+  end
+
+  it "humanizes thanks to :humanize method in subclass" do
+    activity = FollowBuddyActivity.new(:actor => user._id, :buddy => buddy._id)
     activity.humanize.should == "Jean PALE is now following Justine CHTITEGOUTE"
   end
 

@@ -187,6 +187,8 @@ module Activr
     end
 
     # humanization
+    #
+    # MAY be overriden by child class for more complicated humanizations
     def humanize
       raise "No humanize_tpl defined" if self.humanize_tpl.blank?
 
