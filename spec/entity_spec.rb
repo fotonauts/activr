@@ -2,7 +2,7 @@ require File.join(File.dirname(__FILE__), 'spec_helper')
 
 describe Activr::Entity do
 
-  let(:user) { User.create(:first_name => "Jean", :last_name => "PALE") }
+  let(:user) { User.create(:_id => 'jpale', :first_name => "Jean", :last_name => "PALE") }
 
   it "instanciates with model instance" do
     entity = Activr::Entity.new(:actor, user)

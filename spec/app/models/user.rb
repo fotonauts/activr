@@ -2,6 +2,8 @@ class User
 
   include Mongoid::Document
 
+  field :_id, :type => String
+
   field :first_name
   field :last_name
 

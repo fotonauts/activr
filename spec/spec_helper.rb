@@ -3,19 +3,27 @@ require 'mongoid'
 require 'rspec'
 require 'database_cleaner'
 
-
 $:.unshift(File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib')))
 require 'activr'
 
-Activr.app_path = File.join(File.dirname(__FILE__), "app")
+def tmp_mongo_db
+  "activr_spec"
+end
 
-MODELS_PATH = File.join(Activr.app_path, "models")
+
+Activr.configure do |config|
+  config.sync          = true
+  config.app_path      = File.join(File.dirname(__FILE__), "app")
+  config.mongodb[:uri] = "mongodb://127.0.0.1/#{tmp_mongo_db}"
+end
+
+MODELS_PATH = File.join(Activr.config.app_path, "models")
 $:.unshift(MODELS_PATH)
 
-ACTIVITIES_PATH = File.join(Activr.app_path, "activities")
+ACTIVITIES_PATH = File.join(Activr.config.app_path, "activities")
 $:.unshift(ACTIVITIES_PATH)
 
-TIMELINES_PATH = File.join(Activr.app_path, "timelines")
+TIMELINES_PATH = File.join(Activr.config.app_path, "timelines")
 $:.unshift(TIMELINES_PATH)
 
 # autoload classes
@@ -26,12 +34,9 @@ $:.unshift(TIMELINES_PATH)
   end
 end
 
-def tmp_mongo_db
-  "activr_spec"
-end
 
 Mongoid.configure do |config|
-  config.connect_to(tmp_mongo_db)
+  config.master = Mongo::Connection.new.db(tmp_mongo_db)
 end
 
 RSpec.configure do |config|

@@ -2,10 +2,10 @@ require File.join(File.dirname(__FILE__), 'spec_helper')
 
 describe Activr::Activity do
 
-  let(:user)  { User.create(:first_name => "Jean", :last_name => "PALE") }
+  let(:user)  { User.create(:_id => 'jpale', :first_name => "Jean", :last_name => "PALE") }
   let(:photo) { Picture.create(:title => "Me myself and I") }
   let(:album) { Album.create(:name => "Selfies") }
-  let(:buddy) { User.create(:first_name => "Justine", :last_name => "CHTITEGOUTE") }
+  let(:buddy) { User.create(:_id => 'justine', :first_name => "Justine", :last_name => "CHTITEGOUTE") }
 
   it "have allowed entities" do
     AddPhoto.allowed_entities.should == {
@@ -117,6 +117,25 @@ describe Activr::Activity do
 
     lambda { activity.buddy_id }.should_not raise_error
     activity.buddy_id.should be_nil
+  end
+
+  it "stores in database" do
+    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
+    activity._id.should be_nil
+
+    # test
+    activity.store!
+
+    # check
+    activity._id.should_not be_nil
+
+    fetched_activity = Activr.storage.fetch_activity(activity._id)
+    fetched_activity.should_not be_nil
+    fetched_activity.class.should == AddPhoto
+
+    fetched_activity.actor.should == activity.actor
+    fetched_activity.photo.should == activity.photo
+    fetched_activity.album.should == activity.album
   end
 
   context "when class have NO suffix" do

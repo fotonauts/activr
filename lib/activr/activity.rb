@@ -207,6 +207,24 @@ module Activr
       end
     end
 
+    # check if already stored
+    def stored?
+      !@_id.nil?
+    end
+
+    # Store in database
+    #
+    # This method can raise an exception if activity is not valid
+    #
+    # SIDE EFFECT: The `_id` field is set
+    def store!
+      # check validity
+      self.check!
+
+      # store
+      self._id = Activr.storage.insert_activity(self)
+    end
+
     # sugar so that we can try to fetch an entity defined for another activity
     # yes, I hate myself for that...
     def method_missing(sym, *args, &blk)

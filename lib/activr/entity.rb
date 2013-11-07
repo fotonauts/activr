@@ -18,7 +18,7 @@ module Activr
       @activity    = @options.delete(:activity)
       @model_class = @options.delete(:class)
 
-      if value.is_a?(String) || (defined?(Moped) && value.is_a?(Moped::BSON::ObjectId))
+      if self._is_valid_id?(value)
         @model_id = value
 
         raise "Missing :class option: #{options.inspect}" if @model_class.blank?
@@ -38,6 +38,16 @@ module Activr
     # memoized model
     def model
       @model ||= self.model_class.find(self.model_id)
+    end
+
+
+    #
+    # Private
+    #
+
+    # helper
+    def _is_valid_id?(value)
+      value.is_a?(String) || (defined?(::BSON) && value.is_a?(::BSON::ObjectId))
     end
 
   end # class Entity

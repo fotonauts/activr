@@ -1,40 +1,49 @@
 require 'rubygems'
 
 require 'mustache'
-require 'mongo'
+require 'fwissr'
 
 # activesupport
 require 'active_support/core_ext/class'
 require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/object/blank'
+require 'active_support/concern'
+require 'active_support/configurable'
 
 # activr
 require 'activr/version'
 require 'activr/utils'
+require 'activr/configuration'
+require 'activr/storage'
 require 'activr/registry'
 require 'activr/entity'
 require 'activr/activity'
 require 'activr/timeline'
+require 'activr/dispatcher'
+
 require 'activr/railtie' if defined?(Rails)
+
 
 module Activr
 
+  # access configuration with `Activr.config`
+  include Activr::Configuration
+
   class << self
 
-    attr_writer :app_path
-
-    def app_path
-      @app_path || Dir.pwd
+    # configuration sugar
+    def configure
+      yield self.config
     end
 
     # path to activities classes
     def activities_path
-      File.join(self.app_path, "activities")
+      File.join(Activr.config.app_path, "activities")
     end
 
     # path to timelines classes
     def timelines_path
-      File.join(self.app_path, "timelines")
+      File.join(Activr.config.app_path, "timelines")
     end
 
     # global registry
@@ -42,6 +51,38 @@ module Activr
     # @return [Activr::Registry] Global registry
     def registry
       @registy ||= Activr::Registry.new
+    end
+
+    # storage singleton
+    #
+    # @return [Activr::Storage] Storage instance
+    def storage
+      @storage ||= Activr::Storage.new
+    end
+
+    # dispatcher singleton
+    #
+    # @return [Activr::Dispatcher] Dispatcher instance
+    def dispatcher
+      @dispatcher ||= Activr::Dispatcher.new
+    end
+
+    # dispatch an activity
+    #
+    # @param activity [Activr::Activity] Activity instance to dispatch
+    # @return The activity id in main activities collection
+    def dispatch!(activity)
+      # store activity in main collection
+      activity.store! unless activity.stored?
+
+      if Activr.config.sync
+        self.dispatcher.route(activity)
+      else
+        # @todo !!!
+        raise "not implemented"
+      end
+
+      activity
     end
 
     # render a sentence
