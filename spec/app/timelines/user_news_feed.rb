@@ -5,6 +5,9 @@ class UserNewsFeed < Activr::Timeline
   autoload :CustomFeaturePhoto,  'user_news_feed/custom_feature_photo'
   autoload :PhotoOwnerLikePhoto, 'user_news_feed/photo_owner_like_photo'
 
+  # set recipient class
+  self.recipient_class = User
+
 
   #
   # Pre-defined Routings

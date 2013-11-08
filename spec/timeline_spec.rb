@@ -17,8 +17,8 @@ describe Activr::Timeline do
   end
 
   it "checkss for route presence" do
-    UserNewsFeed.have_route?(Activr::Timeline::Route.new(FollowBuddyActivity, { :to => :buddy })).should be_true
-    UserNewsFeed.have_route?(Activr::Timeline::Route.new(FollowBuddyActivity, { :to => :foobarbaz })).should be_false
+    UserNewsFeed.have_route?(Activr::Timeline::Route.new(UserNewsFeed, FollowBuddyActivity, { :to => :buddy })).should be_true
+    UserNewsFeed.have_route?(Activr::Timeline::Route.new(UserNewsFeed, FollowBuddyActivity, { :to => :foobarbaz })).should be_false
   end
 
   it "defines route to activity path" do

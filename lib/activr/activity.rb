@@ -163,11 +163,6 @@ module Activr
       result
     end
 
-    # inspect
-    def inspect
-      self.to_hash.inspect
-    end
-
     # activity kind
     def kind
       self.class.kind

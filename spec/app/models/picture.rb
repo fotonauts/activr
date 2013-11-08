@@ -4,9 +4,7 @@ class Picture
 
   field :title
 
-  def owner
-    # @todo
-    raise "not implemented"
-  end
+  # @todo change to a real field
+  attr_accessor :owner
 
 end

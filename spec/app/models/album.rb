@@ -4,9 +4,8 @@ class Album
 
   field :name
 
-  def owner
-    # @todo
-    raise "not implemented"
-  end
+  # @todo change to real fields
+  attr_accessor :owner
+  attr_accessor :followers
 
 end
