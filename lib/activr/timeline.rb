@@ -84,10 +84,44 @@ module Activr
     end # class << self
 
 
+    # init
+    #
+    # @param rcpt Recipient instance or recipient id
+    def initialize(rcpt)
+      if rcpt.is_a?(self.recipient_class)
+        @recipient    = rcpt
+        @recipient_id = rcpt._id
+      else
+        @recipient    = nil
+        @recipient_id = rcpt
+      end
+    end
+
+    # get recipient instance
+    def recipient
+      @recipient ||= self.recipient_class.find(@recipient_id)
+    end
+
     # activity kind
     def kind
       self.class.kind
     end
+
+    # @todo Add methods:
+    #   should_route_activity
+    #   will_route_activity
+    #   did_route_activity
+
+    # @todo Add methods:
+    #   should_handle_activity
+    #   will_handle_activity
+    #   did_handle_activity
+    #
+    #   OR:
+    #
+    #   should_store_activity
+    #   will_store_activity
+    #   did_store_activity
 
   end # class Timeline
 end # module Activr
