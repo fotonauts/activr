@@ -29,9 +29,10 @@ describe Activr::Timeline::Route do
   end
 
   it "uses provided :kind setting" do
-    settings = { :to => :buddy, :kind => 'my_route' }
+    settings = { :to => :buddy, :kind => 'my_routing' }
     route = Activr::Timeline::Route.new(UserNewsFeed, FollowBuddyActivity, settings)
-    route.kind.should == 'my_route'
+    route.routing_kind.should == :my_routing
+    route.kind.should == 'my_routing_follow_buddy'
   end
 
   it "have a default kind" do

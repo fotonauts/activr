@@ -2,6 +2,16 @@ class Activr::Timeline::Route
 
   attr_reader :timeline_class, :activity_class, :settings
 
+
+  class << self
+
+    def kind_for_routing_and_activity(routing_kind, activity_kind)
+      "#{routing_kind}_#{activity_kind}"
+    end
+
+  end # class << self
+
+
   # init
   def initialize(timeline_class, activity_class, settings)
     @timeline_class = timeline_class
@@ -16,12 +26,12 @@ class Activr::Timeline::Route
 
   # route kind
   def kind
-    @kind ||= self.settings[:kind] || "#{self.routing_kind}_#{self.activity_class.kind}"
+    @kind ||= self.class.kind_for_routing_and_activity(self.routing_kind, self.activity_class.kind)
   end
 
   # routing kind
   def routing_kind
-    @routing_kind ||= begin
+    @routing_kind ||= (self.settings[:kind] && self.settings[:kind].to_sym) || begin
       if self.settings[:using] && self.settings[:to]
         raise "Several routing kinds specified for #{self.activity_class}: #{self.settings.inspect}"
       end

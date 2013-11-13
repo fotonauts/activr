@@ -5,14 +5,14 @@ module Activr
     autoload :Route, 'activr/timeline/route'
 
     # recipient class
-    class_attribute :recipient_class
+    class_attribute :recipient_class, :instance_writer => false
 
     # routings
-    class_attribute :routings
+    class_attribute :routings, :instance_writer => false
     self.routings = { }
 
     # routes (ordered by priority)
-    class_attribute :routes
+    class_attribute :routes, :instance_writer => false
     self.routes = [ ]
 
 
@@ -95,6 +95,10 @@ module Activr
         @recipient    = nil
         @recipient_id = rcpt
       end
+
+      if (@recipient.blank? && @recipient_id.blank?)
+        raise "No recipient provided"
+      end
     end
 
     # get recipient instance
@@ -102,26 +106,34 @@ module Activr
       @recipient ||= self.recipient_class.find(@recipient_id)
     end
 
+    # get recipient id
+    def recipient_id
+      @recipient_id ||= @recipient._id
+    end
+
     # activity kind
     def kind
       self.class.kind
     end
 
-    # @todo Add methods:
-    #   should_route_activity
-    #   will_route_activity
-    #   did_route_activity
+    # store activity
+    #
+    # @param activity [Activr::Activity] Activity to store
+    # @param route [Activr::Timeline::Route] The route that caused that activity storing
+    # @return [Activr::Timeline::Entry] The created timeline entry
+    def store_activity(activity, route)
+      # create timeline entry
+      timeline_entry = Activr::Timeline::Entry.new({
+        :timeline     => self,
+        :activity     => activity,
+        :routing_kind => route.routing_kind,
+      })
 
-    # @todo Add methods:
-    #   should_handle_activity
-    #   will_handle_activity
-    #   did_handle_activity
-    #
-    #   OR:
-    #
-    #   should_store_activity
-    #   will_store_activity
-    #   did_store_activity
+      # store
+      timeline_entry.store!
+
+      timeline_entry
+    end
 
   end # class Timeline
 end # module Activr

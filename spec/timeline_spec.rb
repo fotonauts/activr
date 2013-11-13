@@ -32,13 +32,13 @@ describe Activr::Timeline do
   end
 
   it "defines route with custom route kind" do
-    route = UserNewsFeed.route_for_kind('my_custom_route')
+    route = UserNewsFeed.route_for_kind('my_custom_routing_follow_album')
     route.should_not be_nil
-    route.kind.should == 'my_custom_route'
+    route.kind.should == 'my_custom_routing_follow_album'
 
-    route.routing_kind.should == :album_owner
+    route.routing_kind.should == :my_custom_routing
     route.activity_class.should == FollowAlbum
-    route.settings.should == { :to => 'album.owner', :kind => 'my_custom_route' }
+    route.settings.should == { :to => 'album.owner', :kind => :my_custom_routing }
   end
 
   it "defines route to pre-defined routing" do

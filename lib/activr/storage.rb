@@ -23,7 +23,6 @@ module Activr
     # @param activity [Activr::Activity] Activity to insert
     # @return The `_id` of the document in collection
     def insert_activity(activity)
-      puts activity.to_hash['actor'].class.name
       self.collection.insert(activity.to_hash)
     end
 
@@ -36,6 +35,14 @@ module Activr
 
       activity_hash = self.collection.find_one({ '_id' => activity_id })
       activity_hash &&  Activr::Activity.from_hash(activity_hash)
+    end
+
+    # Insert a new timeline entry
+    #
+    # @param timeline_entry [Activr::Timeline::Entry] Timeline entry to insert
+    # @return The `_id` of the document in collection
+    def insert_timeline_entry(timeline_entry)
+      self.timeline_collection(timeline_entry.timeline.kind).insert(timeline_entry.to_hash)
     end
 
 
@@ -56,6 +63,12 @@ module Activr
     # handler on main activities collection
     def collection
       @collection ||= self.conn.db(@db_name).collection(self.config[:collection])
+    end
+
+    # handler on given timeline collection
+    def timeline_collection(timeline_kind)
+      @timeline_collections ||= { }
+      @timeline_collections[timeline_kind.to_s] ||= self.conn.db(@db_name).collection("#{timeline_kind}_timelines")
     end
 
   end # class Storage

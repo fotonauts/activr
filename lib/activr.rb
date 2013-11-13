@@ -3,12 +3,15 @@ require 'rubygems'
 require 'mustache'
 require 'fwissr'
 
-# activesupport
+# active support
 require 'active_support/core_ext/class'
 require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/object/blank'
 require 'active_support/concern'
 require 'active_support/configurable'
+
+# active model
+require 'active_model/callbacks'
 
 # activr
 require 'activr/version'

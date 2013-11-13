@@ -5,4 +5,14 @@ class LikePhoto < Activr::Activity
 
   humanize "{{actor.fullname}} liked the {{photo.title}} photo"
 
+  before_store :set_foo_meta
+
+  def set_foo_meta
+    return false if (self[:bar] == 'baz')
+
+    self[:foo] = 'bar'
+
+    true
+  end
+
 end

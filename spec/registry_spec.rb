@@ -8,6 +8,15 @@ describe Activr::Registry do
     }
   end
 
+  it "registers timeline entries" do
+    Activr.registry.timeline_entries.should == {
+      "user_news_feed" => {
+        "my_custom_routing_follow_album" => UserNewsFeed::MyCustomRoutingFollowAlbum,
+        "photo_owner_like_photo"         => UserNewsFeed::PhotoOwnerLikePhoto,
+      },
+    }
+  end
+
   it "registers activities" do
     Activr.registry.activities.should == {
       "add_photo"     => AddPhoto,
@@ -19,12 +28,21 @@ describe Activr::Registry do
   end
 
   it "registers entities" do
-    Activr.registry.entities.should == {
-      :actor => [ AddPhoto, FollowBuddyActivity, LikePhoto, FeaturePhoto, FollowAlbum ],
-      :photo => [ AddPhoto, LikePhoto, FeaturePhoto ],
-      :album => [ AddPhoto, FollowAlbum ],
-      :buddy => [ FollowBuddyActivity ],
-    }
+    [ AddPhoto, FollowBuddyActivity, LikePhoto, FeaturePhoto, FollowAlbum ].each do |klass|
+      Activr.registry.entities[:actor].should include(klass)
+    end
+
+    [ AddPhoto, LikePhoto, FeaturePhoto ].each do |klass|
+      Activr.registry.entities[:photo].should include(klass)
+    end
+
+    [ AddPhoto, FollowAlbum ].each do |klass|
+      Activr.registry.entities[:album].should include(klass)
+    end
+
+    [ FollowBuddyActivity ].each do |klass|
+      Activr.registry.entities[:buddy].should include(klass)
+    end
   end
 
 end

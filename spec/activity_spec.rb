@@ -138,6 +138,38 @@ describe Activr::Activity do
     fetched_activity.album.should == activity.album
   end
 
+  it "run before_store callback before storing in database" do
+    activity = LikePhoto.new(:actor => user, :photo => photo)
+
+    activity.store!
+
+    activity[:foo].should == 'bar'
+
+    fetched_activity = Activr.storage.fetch_activity(activity._id)
+    fetched_activity.should_not be_nil
+    fetched_activity[:foo].should == 'bar'
+  end
+
+  it "is not stored if before_store callback returns false" do
+    activity = LikePhoto.new(:actor => user, :photo => photo, :bar => 'baz')
+
+    activity.store!
+
+    activity._id.should be_nil
+    fetched_activity = Activr.storage.fetch_activity(activity._id)
+    fetched_activity.should be_nil
+  end
+
+  it "run before_route callback before routing to timelines" do
+    # @todo !!!
+    pending('todo')
+  end
+
+  it "is not routed to timelines if before_route callback returns false" do
+    # @todo !!!
+    pending('todo')
+  end
+
   context "when class have NO suffix" do
 
     it "have a kind computed from class" do

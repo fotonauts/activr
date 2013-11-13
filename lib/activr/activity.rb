@@ -1,16 +1,22 @@
 module Activr
   class Activity
 
+    extend ActiveModel::Callbacks
+
+    # callbacks when an activity is stored, and routed in timelines
+    define_model_callbacks :store, :route
+
+
     # Exception: a mandatory entity is missing
     class MissingEntityError < StandardError; end
 
 
     # allowed entities
-    class_attribute :allowed_entities
+    class_attribute :allowed_entities, :instance_writer => false
     self.allowed_entities = { }
 
     # humanization template
-    class_attribute :humanize_tpl
+    class_attribute :humanize_tpl, :instance_writer => false
     self.humanize_tpl = nil
 
 
@@ -26,7 +32,7 @@ module Activr
         activity_kind = hash['kind'] || hash[:kind]
         raise "No kind found in activity hash: #{hash.inspect}" unless activity_kind
 
-        klass = Activr::Utils.class_for_kind(activity_kind, 'activity') rescue Activr::Utils.class_for_kind(activity_kind)
+        klass = Activr.registry.class_for_activity(activity_kind)
         klass.new(hash)
       end
 
@@ -117,6 +123,8 @@ module Activr
         elsif (data_name == :kind)
           # ignore it
         else
+          # @todo Use a field 'meta' => { ... }
+
           # meta data
           self[data_name] = data_value
         end
@@ -141,10 +149,8 @@ module Activr
       result = { }
 
       # meta data (with stringified keys)
-      result = @meta.inject({ }) do |memo, (meta_name, meta_value)|
-        memo[meta_name.to_s] = meta_value
-        memo
-      end
+      # @todo Use a field 'meta' => { ... }
+      result = @meta.stringify_keys
 
       # entities
       @entities.each do |entity_name, entity|
@@ -213,11 +219,13 @@ module Activr
     #
     # SIDE EFFECT: The `_id` field is set
     def store!
-      # check validity
-      self.check!
+      run_callbacks(:store) do
+        # check validity
+        self.check!
 
-      # store
-      self._id = Activr.storage.insert_activity(self)
+        # store
+        self._id = Activr.storage.insert_activity(self)
+      end
     end
 
     # sugar so that we can try to fetch an entity defined for another activity
