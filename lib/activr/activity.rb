@@ -122,10 +122,11 @@ module Activr
           self.send("#{data_name}=", data_value)
         elsif (data_name == :kind)
           # ignore it
+        elsif (data_name == :meta)
+          # meta
+          @meta.merge!(data_value.symbolize_keys)
         else
-          # @todo Use a field 'meta' => { ... }
-
-          # meta data
+          # sugar for meta data
           self[data_name] = data_value
         end
       end
@@ -148,15 +149,6 @@ module Activr
     def to_hash
       result = { }
 
-      # meta data (with stringified keys)
-      # @todo Use a field 'meta' => { ... }
-      result = @meta.stringify_keys
-
-      # entities
-      @entities.each do |entity_name, entity|
-        result[entity_name.to_s] = entity.model_id
-      end
-
       # id
       result['_id'] = @_id if @_id
 
@@ -165,6 +157,14 @@ module Activr
 
       # kind
       result['kind'] = kind.to_s
+
+      # entities
+      @entities.each do |entity_name, entity|
+        result[entity_name.to_s] = entity.model_id
+      end
+
+      # meta
+      result['meta'] = @meta.stringify_keys unless @meta.blank?
 
       result
     end

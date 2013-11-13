@@ -82,7 +82,7 @@ describe Activr::Activity do
   end
 
   it "gets and sets meta" do
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album, :foo => 'bar')
+    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album, :meta => { :foo => 'bar' })
     activity[:foo].should == 'bar'
 
     activity[:foo] = 'meuh'
@@ -92,8 +92,20 @@ describe Activr::Activity do
     activity[:bar].should == 'baz'
 
     hsh = activity.to_hash
-    hsh['foo'].should == 'meuh'
-    hsh['bar'].should == 'baz'
+    hsh['meta'].should == {
+      'foo' => 'meuh',
+      'bar' => 'baz',
+    }
+  end
+
+  it "initialize with meta sugar" do
+    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album, :foo => 'bar')
+    activity[:foo].should == 'bar'
+
+    hsh = activity.to_hash
+    hsh['meta'].should == {
+      'foo' => 'bar',
+    }
   end
 
   it "checks for validity" do
@@ -184,7 +196,7 @@ describe Activr::Activity do
         'actor' => user._id,
         'photo' => photo._id,
         'album' => album._id,
-        'foo'   => 'bar',
+        'meta'  => { 'foo'   => 'bar' },
       }
     end
 
