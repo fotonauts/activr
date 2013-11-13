@@ -2,6 +2,10 @@ require File.join(File.dirname(__FILE__), 'spec_helper')
 
 describe Activr::Registry do
 
+  after(:each) do
+    Activr.registry.clear_hooks!
+  end
+
   it "registers timelines" do
     Activr.registry.timelines.should == {
       "user_news_feed" => UserNewsFeed,
@@ -43,6 +47,34 @@ describe Activr::Registry do
     [ FollowBuddyActivity ].each do |klass|
       Activr.registry.entities[:buddy].should include(klass)
     end
+  end
+
+  it "registers hooks" do
+    Activr.registry.clear_hooks!
+
+    Activr.registry.hooks.should be_blank
+
+    # test
+    Activr.will_insert_activity do |activity_hash|
+      activity_hash['foo'] = 'bar'
+    end
+
+    Activr.did_fetch_activity do |activity_hash|
+      activity_hash['foo'] = 'bar'
+    end
+
+    Activr.did_fetch_activity do |activity_hash|
+      activity_hash['bar'] = 'baz'
+    end
+
+    # check
+    Activr.registry.hooks.should_not be_blank
+    Activr.registry.hooks(:will_insert_activity).size.should == 1
+    Activr.registry.hooks(:did_fetch_activity).size.should == 2
+
+    Activr.registry.clear_hooks!
+    Activr.registry.hooks(:will_insert_activity).should be_blank
+    Activr.registry.hooks(:did_fetch_activity).should be_blank
   end
 
 end

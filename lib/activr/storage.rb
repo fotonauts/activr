@@ -23,7 +23,14 @@ module Activr
     # @param activity [Activr::Activity] Activity to insert
     # @return The `_id` of the document in collection
     def insert_activity(activity)
-      self.collection.insert(activity.to_hash)
+      # serialize
+      activity_hash = activity.to_hash
+
+      # run hook
+      Activr.registry.run_hook(:will_insert_activity, activity_hash)
+
+      # insert
+      self.collection.insert(activity_hash)
     end
 
     # Fetch an activity
@@ -33,8 +40,17 @@ module Activr
     def fetch_activity(activity_id)
       activity_id = ::BSON::ObjectId.from_string(activity_id) if activity_id.is_a?(String)
 
+      # fetch
       activity_hash = self.collection.find_one({ '_id' => activity_id })
-      activity_hash &&  Activr::Activity.from_hash(activity_hash)
+      if activity_hash
+        # run hook
+        Activr.registry.run_hook(:did_fetch_activity, activity_hash)
+
+        # unserialize
+        Activr::Activity.from_hash(activity_hash)
+      else
+        nil
+      end
     end
 
     # Insert a new timeline entry
@@ -42,7 +58,14 @@ module Activr
     # @param timeline_entry [Activr::Timeline::Entry] Timeline entry to insert
     # @return The `_id` of the document in collection
     def insert_timeline_entry(timeline_entry)
-      self.timeline_collection(timeline_entry.timeline.kind).insert(timeline_entry.to_hash)
+      # serialize
+      timeline_entry_hash = timeline_entry.to_hash
+
+      # run hook
+      Activr.registry.run_hook(:will_insert_timeline_entry, timeline_entry_hash)
+
+      # insert
+      self.timeline_collection(timeline_entry.timeline.kind).insert(timeline_entry_hash)
     end
 
 

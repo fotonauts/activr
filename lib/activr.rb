@@ -3,6 +3,8 @@ require 'rubygems'
 require 'mustache'
 require 'fwissr'
 
+require 'forwardable'
+
 # active support
 require 'active_support/core_ext/class'
 require 'active_support/core_ext/string/inflections'
@@ -23,7 +25,6 @@ require 'activr/entity'
 require 'activr/activity'
 require 'activr/timeline'
 require 'activr/dispatcher'
-
 require 'activr/railtie' if defined?(Rails)
 
 
@@ -33,6 +34,15 @@ module Activr
   include Activr::Configuration
 
   class << self
+
+    extend Forwardable
+
+    # forward hook declarations to registry
+    def_delegators :registry,
+      :will_insert_activity,
+      :did_fetch_activity,
+      :will_insert_timeline_entry,
+      :did_fetch_timeline_entry
 
     # configuration sugar
     def configure
