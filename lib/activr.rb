@@ -98,6 +98,15 @@ module Activr
       activity
     end
 
+    # get a timeline
+    #
+    # @param timeline_class [Class] Timeline class
+    # @param recipient [String|Object] Recipient instance or recipient id
+    # @return [Activr::Timeline] Timeline instance
+    def timeline(timeline_class, recipient)
+      timeline_class.new(recipient)
+    end
+
     # render a sentence
     #
     # @param text     [String] Sentence to render

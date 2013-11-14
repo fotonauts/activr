@@ -1,102 +1,116 @@
 class Activr::Timeline::Entry
 
-    extend ActiveModel::Callbacks
+  extend ActiveModel::Callbacks
 
-    # callbacks when timeline entry is stored
-    define_model_callbacks :store
+  # callbacks when timeline entry is stored
+  define_model_callbacks :store
 
 
-    class << self
+  class << self
 
-      # instanciate an timeline entry from a hash
-      def from_hash(hash, timeline = nil)
-        activity_hash = hash['activity'] || hash[:activity]
-        raise "No activity found in timeline entry hash: #{hash.inspect}" if activity.blank?
+    # instanciate an timeline entry from a hash
+    def from_hash(hash, timeline = nil)
+      activity_hash = hash['activity'] || hash[:activity]
+      raise "No activity found in timeline entry hash: #{hash.inspect}" if activity_hash.blank?
 
-        activity_kind = activity_hash['kind'] || activity_hash[:kind]
-        raise "No activity kind in timeline entry activity: #{activity_hash.inspect}" if activity_kind.blank?
+      activity_kind = activity_hash['kind'] || activity_hash[:kind]
+      raise "No activity kind in timeline entry activity: #{activity_hash.inspect}" if activity_kind.blank?
 
-        timeline ||= begin
-          tl_kind = hash['tl_kind'] || hash[:tl_kind]
-          raise "No tl_kind found in timeline entry hash: #{hash.inspect}" if tl_kind.blank?
+      timeline ||= begin
+        tl_kind = hash['tl_kind'] || hash[:tl_kind]
+        raise "No tl_kind found in timeline entry hash: #{hash.inspect}" if tl_kind.blank?
 
-          rcpt = hash['rcpt'] || hash[:rcpt]
-          raise "No rcpt found in timeline entry hash: #{hash.inspect}" if rcpt.blank?
+        rcpt = hash['rcpt'] || hash[:rcpt]
+        raise "No rcpt found in timeline entry hash: #{hash.inspect}" if rcpt.blank?
 
-          timeline_class = Activr.registry.class_for_timeline(tl_kind)
-          timeline_class.new(rcpt)
-        end
-
-        routing_kind = hash['routing'] || hash[:routing]
-        raise "No routing_kind found in timeline entry hash: #{hash.inspect}" if routing_kind.blank?
-
-        route_kind = Activr::Timeline::Route.kind_for_routing_and_activity(routing_kind, activity_kind)
-
-        klass = Activr.registry.class_for_timeline_entry(timeline.kind, route_kind)
-        klass.new({
-          :timeline     => timeline,
-          :routing_kind => routing_kind,
-          :activity     => activity,
-          :meta         => hash['meta'] || hash[:meta],
-        })
+        timeline_class = Activr.registry.class_for_timeline(tl_kind)
+        timeline_class.new(rcpt)
       end
 
-    end # class << self
+      routing_kind = hash['routing'] || hash[:routing]
+      raise "No routing_kind found in timeline entry hash: #{hash.inspect}" if routing_kind.blank?
 
+      activity   = Activr::Activity.from_hash(activity_hash)
+      route_kind = Activr::Timeline::Route.kind_for_routing_and_activity(routing_kind, activity_kind)
 
-    attr_accessor :_id
-    attr_reader :timeline, :routing_kind, :activity, :meta
-
-    # init
-    def initialize(timeline, routing_kind, activity, meta = { })
-      @timeline     = timeline
-      @routing_kind = routing_kind
-      @activity     = activity
-      @meta         = meta
+      klass = Activr.registry.class_for_timeline_entry(timeline.kind, route_kind)
+      klass.new(timeline, routing_kind, activity, hash['meta'] || hash[:meta])
     end
 
-    # get a meta
-    def [](key)
-      @meta[key.to_sym]
+  end # class << self
+
+
+  attr_accessor :_id
+  attr_reader :timeline, :routing_kind, :activity, :meta
+
+  # init
+  def initialize(timeline, routing_kind, activity, meta = { })
+    @timeline     = timeline
+    @routing_kind = routing_kind
+    @activity     = activity
+    @meta         = meta
+  end
+
+  # get a meta
+  def [](key)
+    @meta[key.to_sym]
+  end
+
+  # set a meta
+  def []=(key, value)
+    @meta[key.to_sym] = value
+  end
+
+  # hashify
+  def to_hash
+    # fields
+    result = {
+      'tl_kind'  => @timeline.kind,
+      'rcpt'     => @timeline.recipient_id,
+      'routing'  => @routing_kind,
+      'activity' => @activity.to_hash,
+    }
+
+    result['meta'] = @meta.stringify_keys unless @meta.blank?
+
+    result
+  end
+
+  # get timeline route
+  def timeline_route
+    @timeline_route ||= @timeline.route_for_kind(Activr::Timeline::Route.kind_for_routing_and_activity(@routing_kind, @activity.kind))
+  end
+
+  # humanization
+  #
+  # MAY be overriden by child class for specialized humanization
+  def humanize
+    if timeline_route.settings[:humanize].blank?
+      # default humanization
+      @activity.humanize
+    else
+      # specialized humanization
+      Activr.sentence(timeline_route.settings[:humanize], @activity.humanization_bindings)
     end
+  end
 
-    # set a meta
-    def []=(key, value)
-      @meta[key.to_sym] = value
+  # check if already stored
+  def stored?
+    !@_id.nil?
+  end
+
+  # Store in database
+  #
+  # This method can raise an exception if activity is not valid
+  #
+  # SIDE EFFECT: The `_id` field is set
+  def store!
+    run_callbacks(:store) do
+      # @todo Check validity ?
+
+      # store
+      @_id = Activr.storage.insert_timeline_entry(self)
     end
-
-    # hashify
-    def to_hash
-      # fields
-      result = {
-        'tl_kind'  => self.timeline.kind,
-        'rcpt'     => self.timeline.recipient_id,
-        'routing'  => self.routing_kind,
-        'activity' => self.activity.to_hash,
-      }
-
-      result['meta'] = @meta.stringify_keys unless @meta.blank?
-
-      result
-    end
-
-    # check if already stored
-    def stored?
-      !@_id.nil?
-    end
-
-    # Store in database
-    #
-    # This method can raise an exception if activity is not valid
-    #
-    # SIDE EFFECT: The `_id` field is set
-    def store!
-      run_callbacks(:store) do
-        # @todo Check validity ?
-
-        # store
-        self._id = Activr.storage.insert_timeline_entry(self)
-      end
-    end
+  end
 
 end # class Activr::Timeline::Entry

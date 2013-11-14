@@ -4,6 +4,12 @@ module Activr
     autoload :Entry, 'activr/timeline/entry'
     autoload :Route, 'activr/timeline/route'
 
+    extend ActiveModel::Callbacks
+
+    # callback when a timeline entry is stored
+    define_model_callbacks :store_timeline_entry
+
+
     # recipient class
     class_attribute :recipient_class, :instance_writer => false
 
@@ -39,6 +45,31 @@ module Activr
       def routes_for_activity(activity)
         self.routes.find_all do |defined_route|
           (defined_route.activity_class == activity.class)
+        end
+      end
+
+      # callback just before trying to route given activity
+      #
+      # @param activity [Activr::Activity] Activity to route
+      # @return [Boolean] `false` to skip activity
+      def should_route_activity?(activity)
+        # MAY be overriden by child class
+        true
+      end
+
+      # is it a valid recipient ?
+      def valid_recipient?(recipient)
+        (self.recipient_class && recipient.is_a?(self.recipient_class)) || recipient.is_a?(String) || (defined?(::BSON) && recipient.is_a?(::BSON::ObjectId))
+      end
+
+      # get recipient id for given recipient
+      def recipient_id(recipient)
+        if self.recipient_class && recipient.is_a?(self.recipient_class)
+          recipient.id
+        elsif recipient.is_a?(String) || (defined?(::BSON) && recipient.is_a?(::BSON::ObjectId))
+          recipient
+        else
+          raise "Invalid recipient #{recipient.inspect} for timeline #{self}"
         end
       end
 
@@ -84,10 +115,22 @@ module Activr
     end # class << self
 
 
+    extend Forwardable
+
+    # forward methods to class
+    def_delegators "self.class",
+      :kind,
+      :route_for_kind, :have_route?, :routes_for_activity
+
+
     # init
     #
     # @param rcpt Recipient instance or recipient id
     def initialize(rcpt)
+      if self.recipient_class.nil?
+        raise "Missing recipient_class attribute for timeline: #{self}"
+      end
+
       if rcpt.is_a?(self.recipient_class)
         @recipient    = rcpt
         @recipient_id = rcpt._id
@@ -111,28 +154,45 @@ module Activr
       @recipient_id ||= @recipient._id
     end
 
-    # activity kind
-    def kind
-      self.class.kind
+    # handle activity
+    #
+    # @param activity [Activr::Activity] Activity to handle
+    # @param route [Activr::Timeline::Route] The route that caused that activity handling
+    # @return [Activr::Timeline::Entry] The created timeline entry
+    def handle_activity(activity, route)
+      # create timeline entry
+      timeline_entry = Activr::Timeline::Entry.new(self, route.routing_kind, activity)
+
+      run_callbacks(:store_timeline_entry, timeline_entry) do
+        # store
+        timeline_entry.store!
+      end
+
+      timeline_entry._id.blank? ? nil :timeline_entry
     end
 
-    # store activity
+    # callback just before trying to handle given activity
     #
-    # @param activity [Activr::Activity] Activity to store
-    # @param route [Activr::Timeline::Route] The route that caused that activity storing
-    # @return [Activr::Timeline::Entry] The created timeline entry
-    def store_activity(activity, route)
-      # create timeline entry
-      timeline_entry = Activr::Timeline::Entry.new({
-        :timeline     => self,
-        :activity     => activity,
-        :routing_kind => route.routing_kind,
-      })
+    # @param activity [Activr::Activity] Activity to handle
+    # @param activity [Activr::Timeline::Route] Route that caused that handling
+    # @return [Boolean] `false` to skip activity
+    def should_handle_activity?(activity, route)
+      # MAY be overriden by child class
+      true
+    end
 
-      # store
-      timeline_entry.store!
+    # Fetch timeline entries by descending timestamp
+    #
+    # @param limit [Integer] Max number of entries to fetch
+    # @param skip  [Integer] Number of entries to skip (default: 0)
+    # @return [Array] An array of Activr::Timeline::Entry instances
+    def fetch(limit, skip = 0)
+      Activr.storage.fetch_timeline(self.kind, self.recipient_id, limit, skip)
+    end
 
-      timeline_entry
+    # Dump humanization of last timeline entries
+    def dump(limit = 10)
+      self.fetch(limit).map{ |tl_entry| tl_entry.humanize }
     end
 
   end # class Timeline

@@ -10,27 +10,41 @@ module Activr
       activity.run_callbacks(:route) do
         # iterate on all timelines
         Activr.registry.timelines.values.each do |timeline_class|
-          # find routes for that activity
-          routes = timeline_class.routes_for_activity(activity)
-          routes.each do |route|
-            # resolve recipients
-            recipients = route.resolve(activity)
+          # check if timeline refuses that activity
+          next unless timeline_class.should_route_activity?(activity)
 
-            # @todo Store in only one timeline
-            # @todo Timelines ordered by priority
-
-            # store activity in timelines
-            recipients.each do |recipient|
-              if Activr.config.sync
-                timeline = timeline_class.new(recipient)
-                timeline.store_activity(activity, route)
-              else
-                # @todo !!!
-                raise "not implemented"
-              end
+          # store activity in timelines
+          self.recipients_for_timeline(timeline_class, activity).each do |recipient, route|
+            if Activr.config.sync
+              timeline = timeline_class.new(recipient)
+              timeline.handle_activity(activity, route)
+            else
+              # @todo !!!
+              raise "not implemented"
             end
           end
         end
+      end
+    end
+
+    def recipients_for_timeline(timeline_class, activity)
+      result = { }
+
+      routes = timeline_class.routes_for_activity(activity)
+      routes.each do |route|
+        route.resolve(activity).each do |recipient|
+          recipient_id = timeline_class.recipient_id(recipient)
+
+          # keep only one route per recipient
+          if result[recipient_id].nil?
+            result[recipient_id] = { :rcpt => recipient, :route => route }
+          end
+        end
+      end
+
+      result.inject({ }) do |memo, (recipient_id, infos)|
+        memo[infos[:rcpt]] = infos[:route]
+        memo
       end
     end
 

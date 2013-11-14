@@ -2,10 +2,12 @@ require File.join(File.dirname(__FILE__), 'spec_helper')
 
 describe Activr::Dispatcher do
 
-  let(:user)  { User.create(:_id => 'jpale', :first_name => "Jean", :last_name => "PALE") }
-  let(:buddy) { User.create(:_id => 'justine', :first_name => "Justine", :last_name => "CHTITEGOUTE") }
-  let(:photo) { Picture.create(:title => "Me myself and I") }
-  let(:album) { Album.create(:name => "Selfies") }
+  let(:user)     { User.create(:_id => 'jpale', :first_name => "Jean", :last_name => "PALE") }
+  let(:buddy)    { User.create(:_id => 'justine', :first_name => "Justine", :last_name => "CHTITEGOUTE") }
+  let(:photo)    { Picture.create(:title => "Me myself and I") }
+  let(:album)    { Album.create(:name => "Selfies") }
+  let(:owner)    { User.create(:_id => 'corinne', :first_name => "Corinne", :last_name => "CHTITEGOUTE") }
+  let(:follower) { User.create(:_id => 'anne', :first_name => "Anne", :last_name => "CHTITEGOUTE") }
 
   it "instanciates" do
     dispatcher = Activr::Dispatcher.new
@@ -15,42 +17,86 @@ describe Activr::Dispatcher do
   it "raises an exception if activity was not previously stored" do
     dispatcher = Activr::Dispatcher.new
 
-    activity = FollowBuddyActivity.new(:actor => user._id, :buddy => buddy._id)
+    activity = FollowBuddyActivity.new(:actor => user, :buddy => buddy)
 
     lambda{ self.dispatcher.route(activity) }.should raise_error
+  end
+
+  it "routes to activity entity" do
+    dispatcher = Activr::Dispatcher.new
+
+    activity = FollowBuddyActivity.new(:actor => user, :buddy => buddy)
+    activity.store!
+
+    # test
+    recipients = dispatcher.recipients_for_timeline(UserNewsFeed, activity)
+
+    # check
+    recipients[buddy].should == UserNewsFeed.route_for_kind('buddy_follow_buddy')
   end
 
   it "routes to activity path" do
     dispatcher = Activr::Dispatcher.new
 
-    activity = FollowBuddyActivity.new(:actor => user._id, :buddy => buddy._id)
+    # @todo FIXME
+    album.owner = owner
+
+    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
     activity.store!
 
-    # check
-    pending("todo")
-
     # test
-    dispatcher.route(activity)
- end
+    recipients = dispatcher.recipients_for_timeline(UserNewsFeed, activity)
 
-  it "routes to activity entity" do
-    # @todo !!!
-    pending("todo")
+    # check
+    recipients[owner].should == UserNewsFeed.route_for_kind('album_owner_add_photo')
   end
 
-  it "routes with a custom route kind" do
-    # @todo !!!
-    pending("todo")
+  it "routes with a custom routing kind" do
+    dispatcher = Activr::Dispatcher.new
+
+    # @todo FIXME
+    album.owner = owner
+
+    activity = FollowAlbum.new(:actor => user, :album => album)
+    activity.store!
+
+    # test
+    recipients = dispatcher.recipients_for_timeline(UserNewsFeed, activity)
+
+    # check
+    recipients[owner].should == UserNewsFeed.route_for_kind('my_custom_routing_follow_album')
   end
 
   it "routes with predefined routing" do
-    # @todo !!!
-    pending("todo")
+    dispatcher = Activr::Dispatcher.new
+
+    # @todo FIXME
+    user.followers = [ buddy ]
+
+    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
+    activity.store!
+
+    # test
+    recipients = dispatcher.recipients_for_timeline(UserNewsFeed, activity)
+
+    # check
+    recipients[buddy].should == UserNewsFeed.route_for_kind('actor_follower_add_photo')
   end
 
   it "routes with timeline's class method" do
-    # @todo !!!
-    pending("todo")
+    dispatcher = Activr::Dispatcher.new
+
+    # @todo FIXME
+    album.followers = [ follower ]
+
+    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
+    activity.store!
+
+    # test
+    recipients = dispatcher.recipients_for_timeline(UserNewsFeed, activity)
+
+    # check
+    recipients[follower].should == UserNewsFeed.route_for_kind('album_follower_add_photo')
   end
 
 end

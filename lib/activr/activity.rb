@@ -186,16 +186,18 @@ module Activr
       end
     end
 
+    # bindings for humanization sentence
+    def humanization_bindings
+      self.entities_models.merge(@meta)
+    end
+
     # humanization
     #
-    # MAY be overriden by child class for more complicated humanizations
+    # MAY be overriden by child class for more complicated humanization
     def humanize
       raise "No humanize_tpl defined" if self.humanize_tpl.blank?
 
-      # merge entities models and meta
-      bindings = entities_models.merge(@meta)
-
-      Activr.sentence(self.humanize_tpl, bindings)
+      Activr.sentence(self.humanize_tpl, self.humanization_bindings)
     end
 
     # raise exception if activity is not valid
@@ -224,7 +226,7 @@ module Activr
         self.check!
 
         # store
-        self._id = Activr.storage.insert_activity(self)
+        @_id = Activr.storage.insert_activity(self)
       end
     end
 

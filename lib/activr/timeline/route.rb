@@ -17,11 +17,6 @@ class Activr::Timeline::Route
     @timeline_class = timeline_class
     @activity_class = activity_class
     @settings       = settings
-
-    # check timeline settings
-    if @timeline_class.recipient_class.nil?
-      raise "Missing recipient_class attribute for timeline: #{@timeline_class}"
-    end
   end
 
   # route kind
@@ -67,7 +62,7 @@ class Activr::Timeline::Route
     recipients.compact!
 
     # check recipients
-    bad_recipient = recipients.find{ |recipient| !self.valid_recipient?(recipient) }
+    bad_recipient = recipients.find{ |recipient| !self.timeline_class.valid_recipient?(recipient) }
     if bad_recipient
       raise "Invalid recipient resolved by route #{self.inspect}: #{bad_recipient.inspect}"
     end
@@ -104,11 +99,6 @@ class Activr::Timeline::Route
   #
   # Private
   #
-
-  # helper
-  def valid_recipient?(recipient)
-    recipient.is_a?(self.timeline_class.recipient_class) || recipient.is_a?(String) || (defined?(::BSON) && recipient.is_a?(::BSON::ObjectId))
-  end
 
   # helper
   def apply_meth(receiver, meth, activity)

@@ -68,6 +68,41 @@ module Activr
       self.timeline_collection(timeline_entry.timeline.kind).insert(timeline_entry_hash)
     end
 
+    # Fetch timeline entries by descending timestamp
+    #
+    # @param timeline_kind [String] Timeline kind
+    # @param recipient_id  [String] Recipient id
+    # @param limit         [Integer] Max number of entries to fetch
+    # @param skip          [Integer] Number of entries to skip (default: 0)
+    # @return [Array] An array of Activr::Timeline::Entry instances
+    def fetch_timeline(timeline_kind, recipient_id, limit, skip = 0)
+      # compute selector hash
+      selector_hash = {
+        'tl_kind' => timeline_kind,
+        'rcpt'    => recipient_id,
+      }
+
+      # compute options hash
+      options = {
+        :sort  => [ 'at', ::Mongo::DESCENDING ],
+        :limit => limit,
+        :skip  => skip,
+      }
+
+      options[:batch_size] = 100 if (limit > 100)
+
+      # find
+      result = self.timeline_collection(timeline_kind).find(selector_hash, options).to_a.map do |timeline_entry_hash|
+        # run hook
+        Activr.registry.run_hook(:did_fetch_timeline_entry, timeline_entry_hash)
+
+        # unserialize
+        Activr::Timeline::Entry.from_hash(timeline_entry_hash)
+      end
+
+      result
+    end
+
 
     #
     # Private
