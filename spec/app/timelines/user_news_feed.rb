@@ -57,4 +57,16 @@ class UserNewsFeed < Activr::Timeline
 
   end # class << self
 
+  # callback to check if given timeline entry should be stored
+  def should_store_timeline_entry?(timeline_entry)
+    timeline_entry.activity[:bar] != 'baz'
+  end
+
+  # callback before storing timeline entry in database
+  def will_store_timeline_entry(timeline_entry)
+    if timeline_entry.activity[:foo] == 'bar'
+      timeline_entry.activity[:foo] = 'tag'
+    end
+  end
+
 end

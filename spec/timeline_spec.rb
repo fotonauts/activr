@@ -68,32 +68,48 @@ describe Activr::Timeline do
   it "handles activity" do
     activity = FollowBuddyActivity.new(:actor => user, :buddy => buddy)
 
-    # check
+    # test
     timeline = UserNewsFeed.new(buddy)
-    timeline.handle_activity(activity, UserNewsFeed.route_for_kind('buddy_follow_buddy'))
+    tl_entry = timeline.handle_activity(activity, UserNewsFeed.route_for_kind('buddy_follow_buddy'))
+
+    # check
+    tl_entry.should_not be_blank
 
     ary = timeline.fetch(10)
     ary.size.should == 1
 
-    tl_entry = ary.first
-    tl_entry.activity.kind.should == 'follow_buddy'
-    tl_entry.activity.actor.should == user
-    tl_entry.activity.buddy.should == buddy
+    ary.first.activity.kind.should == 'follow_buddy'
+    ary.first.activity.actor.should == user
+    ary.first.activity.buddy.should == buddy
   end
 
-  it "run before_store_timeline_entry callback before storing a new timeline entry in timeline" do
-    # @todo
-    pending("todo")
+  it "does not store timeline entry if should_store_timeline_entry callback returns false" do
+    activity = FollowBuddyActivity.new(:actor => user, :buddy => buddy, :bar => 'baz')
+
+    # test
+    timeline = UserNewsFeed.new(buddy)
+    tl_entry = timeline.handle_activity(activity, UserNewsFeed.route_for_kind('buddy_follow_buddy'))
+
+    # check
+    tl_entry.should be_nil
+    timeline.fetch(10).should be_blank
   end
 
-  it "does not store timeline entry if before_store_timeline_entry callback returns false" do
-    # @todo
-    pending("todo")
-  end
+  it "run will_store_timeline_entry callback before storing a new timeline entry in timeline" do
+    activity = FollowBuddyActivity.new(:actor => user, :buddy => buddy, :foo => 'bar')
 
-  it "run after_store_timeline_entry callback after storing a new timeline entry in timeline" do
-    # @todo
-    pending("todo")
+    # test
+    timeline = UserNewsFeed.new(buddy)
+    tl_entry = timeline.handle_activity(activity, UserNewsFeed.route_for_kind('buddy_follow_buddy'))
+
+    # check
+    tl_entry.should_not be_blank
+    tl_entry.activity[:foo].should == 'tag'
+
+    ary = timeline.fetch(10)
+    ary.size.should == 1
+
+    ary.first.activity[:foo].should == 'tag'
   end
 
   it "fetches entries from database" do

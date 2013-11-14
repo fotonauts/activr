@@ -208,7 +208,6 @@ module Activr
     #     timeline_entry_hash.delete('bar')
     #   end
     #
-    # @todo Use that !
     def did_fetch_timeline_entry(&block)
       register_hook(:did_fetch_timeline_entry, block)
     end

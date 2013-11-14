@@ -4,11 +4,6 @@ module Activr
     autoload :Entry, 'activr/timeline/entry'
     autoload :Route, 'activr/timeline/route'
 
-    extend ActiveModel::Callbacks
-
-    # callback when a timeline entry is stored
-    define_model_callbacks :store_timeline_entry
-
 
     # recipient class
     class_attribute :recipient_class, :instance_writer => false
@@ -163,22 +158,17 @@ module Activr
       # create timeline entry
       timeline_entry = Activr::Timeline::Entry.new(self, route.routing_kind, activity)
 
-      run_callbacks(:store_timeline_entry, timeline_entry) do
+      # store with callbacks
+      if self.should_store_timeline_entry?(timeline_entry)
+        self.will_store_timeline_entry(timeline_entry)
+
         # store
         timeline_entry.store!
+
+        self.did_store_timeline_entry(timeline_entry)
       end
 
       timeline_entry._id.blank? ? nil :timeline_entry
-    end
-
-    # callback just before trying to handle given activity
-    #
-    # @param activity [Activr::Activity] Activity to handle
-    # @param activity [Activr::Timeline::Route] Route that caused that handling
-    # @return [Boolean] `false` to skip activity
-    def should_handle_activity?(activity, route)
-      # MAY be overriden by child class
-      true
     end
 
     # Fetch timeline entries by descending timestamp
@@ -193,6 +183,44 @@ module Activr
     # Dump humanization of last timeline entries
     def dump(limit = 10)
       self.fetch(limit).map{ |tl_entry| tl_entry.humanize }
+    end
+
+
+    #
+    # Callbacks
+    #
+
+    # callback just before trying to handle given activity
+    #
+    # @param activity [Activr::Activity] Activity to handle
+    # @param activity [Activr::Timeline::Route] Route that caused that handling
+    # @return [Boolean] `false` to skip activity
+    def should_handle_activity?(activity, route)
+      # MAY be overriden by child class
+      true
+    end
+
+    # callback to check if given timeline entry should be stored
+    #
+    # @param activity [Activr::Timeline::Entry] The timeline entry that should be stored
+    # @return [Boolean] `false` to cancel storing
+    def should_store_timeline_entry?(timeline_entry)
+      # MAY be overriden by child class
+      true
+    end
+
+    # callback just before storing timeline entry in database
+    #
+    # @param activity [Activr::Timeline::Entry] The timeline entry that will be stored
+    def will_store_timeline_entry(timeline_entry)
+      # MAY be overriden by child class
+    end
+
+    # callback just after storing timeline entry in database
+    #
+    # @param activity [Activr::Timeline::Entry] The timeline entry that have been stored
+    def did_store_timeline_entry(timeline_entry)
+      # MAY be overriden by child class
     end
 
   end # class Timeline

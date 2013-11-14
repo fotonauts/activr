@@ -48,7 +48,7 @@ class Activr::Timeline::Entry
     @timeline     = timeline
     @routing_kind = routing_kind
     @activity     = activity
-    @meta         = meta
+    @meta         = meta && meta.symbolize_keys
   end
 
   # get a meta

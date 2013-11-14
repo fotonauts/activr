@@ -5,6 +5,7 @@ describe Activr::Storage do
   let(:user)  { User.create(:_id => 'jpale', :first_name => "Jean", :last_name => "PALE") }
   let(:photo) { Picture.create(:title => "Me myself and I") }
   let(:album) { Album.create(:name => "Selfies") }
+  let(:owner) { User.create(:_id => 'corinne', :first_name => "Corinne", :last_name => "CHTITEGOUTE") }
 
   after(:each) do
     Activr.registry.clear_hooks!
@@ -60,7 +61,51 @@ describe Activr::Storage do
   end
 
   it "runs :will_insert_timeline_entry hook" do
-    pending("todo")
+    Activr.will_insert_timeline_entry do |timeline_entry_hash|
+      timeline_entry_hash['meta'] ||= { }
+      timeline_entry_hash['meta']['foo'] = 'bar'
+    end
+
+    Activr.will_insert_timeline_entry do |timeline_entry_hash|
+      timeline_entry_hash['meta'] ||= { }
+      timeline_entry_hash['meta']['bar'] = 'baz'
+    end
+
+    # test
+    timeline = UserNewsFeed.new(owner)
+    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
+    timeline_entry = Activr::Timeline::Entry.new(timeline, 'album_owner_add_photo', activity)
+    timeline_entry.store!
+
+    # check
+    timeline_entry_hash = Activr.storage.timeline_collection(timeline.kind).find_one({ '_id' => timeline_entry._id })
+    timeline_entry_hash['meta'].should == {
+      'foo' => 'bar',
+      'bar' => 'baz',
+    }
+  end
+
+  it "runs :did_fetch_timeline_entry hook" do
+    Activr.did_fetch_timeline_entry do |timeline_entry_hash|
+      timeline_entry_hash['meta'] ||= { }
+      timeline_entry_hash['meta']['foo'] = 'bar'
+    end
+
+    Activr.did_fetch_timeline_entry do |timeline_entry_hash|
+      timeline_entry_hash['meta'] ||= { }
+      timeline_entry_hash['meta']['bar'] = 'baz'
+    end
+
+    # test
+    timeline = UserNewsFeed.new(owner)
+    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
+    timeline_entry = Activr::Timeline::Entry.new(timeline, 'album_owner_add_photo', activity)
+    timeline_entry.store!
+
+    # check
+    tl_entries = timeline.fetch(10)
+    tl_entries.first[:foo].should == 'bar'
+    tl_entries.first[:bar].should == 'baz'
   end
 
 end

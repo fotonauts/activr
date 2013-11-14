@@ -6,6 +6,8 @@ describe Activr::Activity do
   let(:buddy) { User.create(:_id => 'justine', :first_name => "Justine", :last_name => "CHTITEGOUTE") }
   let(:photo) { Picture.create(:title => "Me myself and I") }
   let(:album) { Album.create(:name => "Selfies") }
+  let(:owner) { User.create(:_id => 'corinne', :first_name => "Corinne", :last_name => "CHTITEGOUTE") }
+
 
   it "have allowed entities" do
     AddPhoto.allowed_entities.should == {
@@ -173,13 +175,30 @@ describe Activr::Activity do
   end
 
   it "run before_route callback before routing to timelines" do
-    # @todo !!!
-    pending('todo')
+    # @todo FIXME
+    photo.owner = owner
+
+    activity = LikePhoto.new(:actor => user, :photo => photo)
+
+    Activr.dispatch!(activity)
+
+    activity[:tag].should == 'eul'
+
+    tl_entries = UserNewsFeed.new(owner).fetch(10)
+    tl_entries.size.should == 1
+    tl_entries.first.activity[:tag].should == 'eul'
   end
 
   it "is not routed to timelines if before_route callback returns false" do
-    # @todo !!!
-    pending('todo')
+    # @todo FIXME
+    photo.owner = owner
+
+    activity = LikePhoto.new(:actor => user, :photo => photo, :baz => 'belongtous')
+
+    Activr.dispatch!(activity)
+
+    tl_entries = UserNewsFeed.new(owner).fetch(10)
+    tl_entries.should be_blank
   end
 
   context "when class have NO suffix" do
