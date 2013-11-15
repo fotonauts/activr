@@ -68,6 +68,27 @@ module Activr
       self.timeline_collection(timeline_entry.timeline.kind).insert(timeline_entry_hash)
     end
 
+    # Fetch a timeline entry
+    #
+    # @param timeline_kind [String] Timeline kind
+    # @param tl_entry_id   [String|BSON::ObjectId] Timeline entry id
+    # @return [Array] An array of Activr::Timeline::Entry instances
+    def fetch_timeline_entry(timeline_kind, tl_entry_id)
+      tl_entry_id = ::BSON::ObjectId.from_string(tl_entry_id) if tl_entry_id.is_a?(String)
+
+      # fetch
+      timeline_entry_hash = self.timeline_collection(timeline_kind).find_one({ '_id' => tl_entry_id })
+      if timeline_entry_hash
+        # run hook
+        Activr.registry.run_hook(:did_fetch_timeline_entry, timeline_entry_hash)
+
+        # unserialize
+        Activr::Timeline::Entry.from_hash(timeline_entry_hash)
+      else
+        nil
+      end
+    end
+
     # Fetch timeline entries by descending timestamp
     #
     # @param timeline_kind [String] Timeline kind

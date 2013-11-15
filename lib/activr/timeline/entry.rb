@@ -34,7 +34,10 @@ class Activr::Timeline::Entry
       route_kind = Activr::Timeline::Route.kind_for_routing_and_activity(routing_kind, activity_kind)
 
       klass = Activr.registry.class_for_timeline_entry(timeline.kind, route_kind)
-      klass.new(timeline, routing_kind, activity, hash['meta'] || hash[:meta])
+      result = klass.new(timeline, routing_kind, activity, hash['meta'] || hash[:meta])
+      result._id = hash['_id'] || hash[:_id]
+
+      result
     end
 
   end # class << self
@@ -78,19 +81,23 @@ class Activr::Timeline::Entry
 
   # get timeline route
   def timeline_route
-    @timeline_route ||= @timeline.route_for_kind(Activr::Timeline::Route.kind_for_routing_and_activity(@routing_kind, @activity.kind))
+    @timeline_route ||= begin
+      result = @timeline.route_for_kind(Activr::Timeline::Route.kind_for_routing_and_activity(@routing_kind, @activity.kind))
+      raise "Failed to find a route for #{@routing_kind} / #{@activity.kind}: #{self.inspect}" if result.nil?
+      result
+    end
   end
 
   # humanization
   #
   # MAY be overriden by child class for specialized humanization
   def humanize
-    if timeline_route.settings[:humanize].blank?
+    if !self.timeline_route.settings[:humanize].blank?
+      # specialized humanization
+      Activr.sentence(self.timeline_route.settings[:humanize], @activity.humanization_bindings)
+    else
       # default humanization
       @activity.humanize
-    else
-      # specialized humanization
-      Activr.sentence(timeline_route.settings[:humanize], @activity.humanization_bindings)
     end
   end
 
