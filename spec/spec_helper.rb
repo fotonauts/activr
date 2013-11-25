@@ -34,15 +34,16 @@ $:.unshift(TIMELINES_PATH)
   end
 end
 
+# Uncomment that line if you want to see Moped log
+# Moped.logger = Activr.logger if defined?(Moped)
 
 Mongoid.configure do |config|
-  config.master = Mongo::Connection.new.db(tmp_mongo_db)
+  config.connect_to(tmp_mongo_db)
 end
 
 RSpec.configure do |config|
   config.before(:each) do
     DatabaseCleaner.start
-    Mongoid::IdentityMap.clear
   end
 
   config.after(:each) do

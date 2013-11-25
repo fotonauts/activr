@@ -17,13 +17,11 @@ spec = Gem::Specification.new do |s|
   s.files         = %w( LICENSE Rakefile README.md ) + Dir["{lib}/**/*"]
 
   s.add_dependency("mustache")
-  s.add_dependency("mongo")
-  s.add_dependency("bson_ext")
   s.add_dependency("fwissr")
   s.add_dependency("activesupport")
   s.add_dependency("activemodel")
 
   s.add_development_dependency("rspec")
-  s.add_development_dependency("mongoid", "~> 2.8")
+  s.add_development_dependency("mongoid")
   s.add_development_dependency("database_cleaner")
 end

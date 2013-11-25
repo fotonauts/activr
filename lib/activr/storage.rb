@@ -1,21 +1,14 @@
-require 'mongo'
-require 'uri'
-
 module Activr
 
   class Storage
 
+    autoload :MongoDriver, 'activr/storage/mongo_driver'
+
+    attr_reader :driver
+
     # init
     def initialize
-      # check settings
-      [ :uri, :collection ].each do |setting|
-        raise "Missing setting #{setting} in config: #{self.config.inspect}" if self.config[setting].blank?
-      end
-
-      uri = URI.parse(self.config[:uri])
-
-      @db_name = uri.path[1..-1]
-      raise "Missing database name in setting uri: #{config[:uri]}" if @db_name.blank?
+      @driver = Activr::Storage::MongoDriver.new
     end
 
     # Insert a new activity
@@ -30,7 +23,7 @@ module Activr
       Activr.registry.run_hook(:will_insert_activity, activity_hash)
 
       # insert
-      self.collection.insert(activity_hash)
+      self.driver.insert_activity(activity_hash)
     end
 
     # Fetch an activity
@@ -41,7 +34,7 @@ module Activr
       activity_id = ::BSON::ObjectId.from_string(activity_id) if activity_id.is_a?(String)
 
       # fetch
-      activity_hash = self.collection.find_one({ '_id' => activity_id })
+      activity_hash = self.driver.find_activity(activity_id)
       if activity_hash
         # run hook
         Activr.registry.run_hook(:did_fetch_activity, activity_hash)
@@ -65,7 +58,7 @@ module Activr
       Activr.registry.run_hook(:will_insert_timeline_entry, timeline_entry_hash)
 
       # insert
-      self.timeline_collection(timeline_entry.timeline.kind).insert(timeline_entry_hash)
+      self.driver.insert_timeline_entry(timeline_entry.timeline.kind, timeline_entry_hash)
     end
 
     # Fetch a timeline entry
@@ -77,7 +70,7 @@ module Activr
       tl_entry_id = ::BSON::ObjectId.from_string(tl_entry_id) if tl_entry_id.is_a?(String)
 
       # fetch
-      timeline_entry_hash = self.timeline_collection(timeline_kind).find_one({ '_id' => tl_entry_id })
+      timeline_entry_hash = self.driver.find_timeline_entry(timeline_kind, tl_entry_id)
       if timeline_entry_hash
         # run hook
         Activr.registry.run_hook(:did_fetch_timeline_entry, timeline_entry_hash)
@@ -97,23 +90,8 @@ module Activr
     # @param skip          [Integer] Number of entries to skip (default: 0)
     # @return [Array] An array of Activr::Timeline::Entry instances
     def fetch_timeline(timeline_kind, recipient_id, limit, skip = 0)
-      # compute selector hash
-      selector_hash = {
-        'tl_kind' => timeline_kind,
-        'rcpt'    => recipient_id,
-      }
-
-      # compute options hash
-      options = {
-        :sort  => [ 'at', ::Mongo::DESCENDING ],
-        :limit => limit,
-        :skip  => skip,
-      }
-
-      options[:batch_size] = 100 if (limit > 100)
-
       # find
-      result = self.timeline_collection(timeline_kind).find(selector_hash, options).to_a.map do |timeline_entry_hash|
+      result = self.driver.find_timeline_entries(timeline_kind, recipient_id, limit, skip).map do |timeline_entry_hash|
         # run hook
         Activr.registry.run_hook(:did_fetch_timeline_entry, timeline_entry_hash)
 
@@ -122,32 +100,6 @@ module Activr
       end
 
       result
-    end
-
-
-    #
-    # Private
-    #
-
-    # mongodb connection
-    def conn
-      @conn ||= ::Mongo::MongoClient.from_uri(self.config[:uri])
-    end
-
-    # sugar
-    def config
-      Activr.config.mongodb
-    end
-
-    # handler on main activities collection
-    def collection
-      @collection ||= self.conn.db(@db_name).collection(self.config[:collection])
-    end
-
-    # handler on given timeline collection
-    def timeline_collection(timeline_kind)
-      @timeline_collections ||= { }
-      @timeline_collections[timeline_kind.to_s] ||= self.conn.db(@db_name).collection("#{timeline_kind}_timelines")
     end
 
   end # class Storage
