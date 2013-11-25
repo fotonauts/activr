@@ -4,6 +4,7 @@ require 'mustache'
 require 'fwissr'
 
 require 'forwardable'
+require 'logger'
 
 # active support
 require 'active_support/core_ext/class'
@@ -35,6 +36,8 @@ module Activr
 
   class << self
 
+    attr_accessor :logger
+
     extend Forwardable
 
     # forward hook declarations to registry
@@ -47,6 +50,17 @@ module Activr
     # configuration sugar
     def configure
       yield self.config
+    end
+
+    # logger
+    def logger
+      @logger ||= begin
+        result = Logger.new(STDOUT)
+        result.formatter = proc do |severity, datetime, progname, msg|
+          "#{datetime} [activr][#{severity}] #{msg}\n"
+        end
+        result
+      end
     end
 
     # path to activities classes
