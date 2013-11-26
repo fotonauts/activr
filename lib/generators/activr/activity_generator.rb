@@ -20,11 +20,13 @@ module Activr
       def entities_infos
         entities.map do |str|
           ary = str.split(':')
-          raise "Erroneous entity argument: #{str}" unless (ary.size == 2)
+
+          name  = ary[0].underscore
+          klass = (ary[1] || ary[0]).camelize
 
           {
-            :name  => ary[0].underscore,
-            :class => ary[1].camelize,
+            :name  => name,
+            :class => klass,
           }
         end
       end
