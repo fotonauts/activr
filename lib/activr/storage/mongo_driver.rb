@@ -154,6 +154,35 @@ class Activr::Storage::MongoDriver
     self.find_one(self.activity_collection, activity_id)
   end
 
+  # fetch activities
+  #
+  # cf. Activr::Storage.fetch_activities
+  def find_activities(limit, options = { })
+    selector_hash = { }
+
+    # compute selector
+    if options[:before]
+      selector_hash['at'] ||= { }
+      selector_hash['at']["$lt"] = options[:before]
+    end
+
+    if options[:after]
+      selector_hash['at'] ||= { }
+      selector_hash['at']["$gt"] = options[:after]
+    end
+
+    (options[:entities] || { }).each do |name, value|
+      selector_hash[name.to_s] = value
+    end
+
+    if !options[:classes].blank?
+      selector_hash['kind'] = { '$in' => options[:classes].map(&:kind) }
+    end
+
+    # query
+    self.find(self.activity_collection, selector_hash, limit, options[:skip])
+  end
+
   # insert a timeline entry
   def insert_timeline_entry(timeline_kind, timeline_entry_hash)
     self.insert(self.timeline_collection(timeline_kind), timeline_entry_hash)

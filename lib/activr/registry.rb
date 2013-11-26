@@ -128,6 +128,11 @@ module Activr
       @entities
     end
 
+    # Get all registered entities names
+    def entities_names
+      @entities_names ||= self.entities.keys
+    end
+
     # Register an entity
     #
     # @param entity_name    [Symbole] Entity name

@@ -112,6 +112,27 @@ module Activr
       activity
     end
 
+    # fetch last activities
+    #
+    # cf. Activr::Storage.fetch_activities
+    def activities(limit, options = { })
+      query_options = { }
+
+      options.each do |key, value|
+        key = key.to_sym
+
+        if Activr.registry.entities_names.include?(key)
+          # extract entities from options
+          query_options[:entities] ||= { }
+          query_options[:entities][key] = value
+        else
+          query_options[key] = value
+        end
+      end
+
+      Activr.storage.fetch_activities(limit, query_options)
+    end
+
     # get a timeline
     #
     # @param timeline_class [Class] Timeline class

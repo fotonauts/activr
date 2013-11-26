@@ -46,6 +46,43 @@ module Activr
       end
     end
 
+    # Fetch last activities
+    #
+    # Please note that if you use others selectors then 'limit' argument and 'skip' option
+    # then you have to setup corresponding indexes in database.
+    #
+    # @todo Add doc explaining howto setup indexes
+    #
+    # @param limit [Integer] Max number of activities to fetch
+    # @param options [Hash] Options hash:
+    #   :skip     => [Integer] Number of activities to skip (default: 0)
+    #   :before   => [Time] Fetch activities generated before that datetime (excluding)
+    #   :after    => [Time] Fetch activities generated after that datetime (excluding)
+    #   :entities => [Hash of Sym => String] Filter by entities values (empty means 'all values')
+    #   :classes  => [Array of Class] Fetch only those activities (empty means 'all classes')
+    # @return [Array] An array of Activr::Activity instances
+    def fetch_activities(limit, options = { })
+      # default options
+      options = {
+        :skip     => 0,
+        :before   => nil,
+        :after    => nil,
+        :entities => { },
+        :classes  => [ ],
+      }.merge(options)
+
+      # find
+      result = self.driver.find_activities(limit, options).map do |activity_hash|
+        # run hook
+        Activr.registry.run_hook(:did_fetch_activity, activity_hash)
+
+        # unserialize
+        Activr::Activity.from_hash(activity_hash)
+      end
+
+      result
+    end
+
     # Insert a new timeline entry
     #
     # @param timeline_entry [Activr::Timeline::Entry] Timeline entry to insert
