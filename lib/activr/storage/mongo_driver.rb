@@ -175,8 +175,14 @@ class Activr::Storage::MongoDriver
       selector_hash[name.to_s] = value
     end
 
-    if !options[:classes].blank?
-      selector_hash['kind'] = { '$in' => options[:classes].map(&:kind) }
+    if !options[:only].blank?
+      selector_hash['kind'] ||= { }
+      selector_hash['kind']['$in'] = options[:only].map(&:kind)
+    end
+
+    if !options[:except].blank?
+      selector_hash['kind'] ||= { }
+      selector_hash['kind']['$nin'] = options[:except].map(&:kind)
     end
 
     # query

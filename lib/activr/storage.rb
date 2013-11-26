@@ -59,7 +59,8 @@ module Activr
     #   :before   => [Time] Fetch activities generated before that datetime (excluding)
     #   :after    => [Time] Fetch activities generated after that datetime (excluding)
     #   :entities => [Hash of Sym => String] Filter by entities values (empty means 'all values')
-    #   :classes  => [Array of Class] Fetch only those activities (empty means 'all classes')
+    #   :only     => [Array of Class] Fetch only those activities
+    #   :except   => [Array of Class] Skip those activities
     # @return [Array] An array of Activr::Activity instances
     def fetch_activities(limit, options = { })
       # default options
@@ -68,7 +69,8 @@ module Activr
         :before   => nil,
         :after    => nil,
         :entities => { },
-        :classes  => [ ],
+        :only     => [ ],
+        :except   => [ ],
       }.merge(options)
 
       # find
