@@ -197,7 +197,7 @@ class Activr::Storage::MongoDriver
   def find_timeline_entries(timeline_kind, recipient_id, limit, skip = 0)
     # compute selector hash
     selector_hash = {
-      'tl_kind' => timeline_kind,
+      'tl_kind' => timeline_kind, # @todo Not needed, move that to hook if all timelines kinds are stored in the same collection
       'rcpt'    => recipient_id,
     }
 

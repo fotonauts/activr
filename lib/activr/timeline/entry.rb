@@ -17,6 +17,7 @@ class Activr::Timeline::Entry
       raise "No activity kind in timeline entry activity: #{activity_hash.inspect}" if activity_kind.blank?
 
       timeline ||= begin
+        # @todo Not needed, move that to hook if all timelines kinds are stored in the same collection
         tl_kind = hash['tl_kind'] || hash[:tl_kind]
         raise "No tl_kind found in timeline entry hash: #{hash.inspect}" if tl_kind.blank?
 
@@ -68,7 +69,7 @@ class Activr::Timeline::Entry
   def to_hash
     # fields
     result = {
-      'tl_kind'  => @timeline.kind,
+      'tl_kind'  => @timeline.kind, # @todo Not needed, move that to hook if all timelines kinds are stored in the same collection
       'rcpt'     => @timeline.recipient_id,
       'routing'  => @routing_kind,
       'activity' => @activity.to_hash,
