@@ -14,7 +14,7 @@ class <%= class_name %>Activity < Activr::Activity
 <% end -%>
 
   def humanize
-    Activr.sentence("<%= humanization %>")
+    Activr.sentence("<%= humanization %>", self.humanization_bindings)
   end
 <% end %><% if options[:full] %>
   #
