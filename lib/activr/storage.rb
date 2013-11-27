@@ -85,6 +85,34 @@ module Activr
       result
     end
 
+    # Count number of activities
+    #
+    # Please note that if you use one of options selector then you have to setup
+    # corresponding indexes in database.
+    #
+    # @todo Add doc explaining howto setup indexes
+    #
+    # @param options [Hash] Options hash:
+    #   :before   => [Time] Fetch activities generated before that datetime (excluding)
+    #   :after    => [Time] Fetch activities generated after that datetime (excluding)
+    #   :entities => [Hash of Sym => String] Filter by entities values (empty means 'all values')
+    #   :only     => [Array of Class] Fetch only those activities
+    #   :except   => [Array of Class] Skip those activities
+    # @return [Array] An array of Activr::Activity instances
+    def count_activities(options = { })
+      # default options
+      options = {
+        :before   => nil,
+        :after    => nil,
+        :entities => { },
+        :only     => [ ],
+        :except   => [ ],
+      }.merge(options)
+
+      # count
+      self.driver.count_activities(options)
+    end
+
     # Insert a new timeline entry
     #
     # @param timeline_entry [Activr::Timeline::Entry] Timeline entry to insert
@@ -139,6 +167,14 @@ module Activr
       end
 
       result
+    end
+
+    # Count number of timeline entries
+    #
+    # @param timeline_kind [String] Timeline kind
+    # @param recipient_id  [String] Recipient id
+    def count_timeline(timeline_kind, recipient_id)
+      self.driver.count_timeline_entries(timeline_kind, recipient_id)
     end
 
   end # class Storage

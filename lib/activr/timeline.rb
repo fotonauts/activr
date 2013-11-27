@@ -180,6 +180,11 @@ module Activr
       Activr.storage.fetch_timeline(self.kind, self.recipient_id, limit, skip)
     end
 
+    # Get total number of timeline entries
+    def count
+      Activr.storage.count_timeline(self.kind, self.recipient_id)
+    end
+
     # Dump humanization of last timeline entries
     def dump(limit = 10)
       self.fetch(limit).map{ |tl_entry| tl_entry.humanize }

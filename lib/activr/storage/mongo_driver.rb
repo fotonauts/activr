@@ -131,6 +131,14 @@ class Activr::Storage::MongoDriver
     end
   end
 
+  # count documents from given collection
+  def count(col, selector_hash)
+    case @kind
+    when :moped, :mongo
+      col.find(selector_hash).count()
+    end
+  end
+
   def activity_collection
     self.collection(self.config[:collection])
   end
@@ -154,39 +162,50 @@ class Activr::Storage::MongoDriver
     self.find_one(self.activity_collection, activity_id)
   end
 
+  # helper
+  def _activities_selector(options)
+    result = { }
+
+    # compute selector
+    if options[:before]
+      result['at'] ||= { }
+      result['at']["$lt"] = options[:before]
+    end
+
+    if options[:after]
+      result['at'] ||= { }
+      result['at']["$gt"] = options[:after]
+    end
+
+    (options[:entities] || { }).each do |name, value|
+      result[name.to_s] = value
+    end
+
+    if !options[:only].blank?
+      result['kind'] ||= { }
+      result['kind']['$in'] = options[:only].map(&:kind)
+    end
+
+    if !options[:except].blank?
+      result['kind'] ||= { }
+      result['kind']['$nin'] = options[:except].map(&:kind)
+    end
+
+    result
+  end
+
   # fetch activities
   #
   # cf. Activr::Storage.fetch_activities
   def find_activities(limit, options = { })
-    selector_hash = { }
+    self.find(self.activity_collection, self._activities_selector(options), limit, options[:skip])
+  end
 
-    # compute selector
-    if options[:before]
-      selector_hash['at'] ||= { }
-      selector_hash['at']["$lt"] = options[:before]
-    end
-
-    if options[:after]
-      selector_hash['at'] ||= { }
-      selector_hash['at']["$gt"] = options[:after]
-    end
-
-    (options[:entities] || { }).each do |name, value|
-      selector_hash[name.to_s] = value
-    end
-
-    if !options[:only].blank?
-      selector_hash['kind'] ||= { }
-      selector_hash['kind']['$in'] = options[:only].map(&:kind)
-    end
-
-    if !options[:except].blank?
-      selector_hash['kind'] ||= { }
-      selector_hash['kind']['$nin'] = options[:except].map(&:kind)
-    end
-
-    # query
-    self.find(self.activity_collection, selector_hash, limit, options[:skip])
+  # count activities
+  #
+  # cf. Activr::Storage.count_activities
+  def count_activities(options = { })
+    self.count(self.activity_collection, self._activities_selector(options))
   end
 
   # insert a timeline entry
@@ -199,15 +218,25 @@ class Activr::Storage::MongoDriver
     self.find_one(self.timeline_collection(timeline_kind), tl_entry_id)
   end
 
-  # fetch timeline entries
-  def find_timeline_entries(timeline_kind, recipient_id, limit, skip = 0)
-    # compute selector hash
-    selector_hash = {
+  # helper
+  def _timeline_selector(timeline_kind, recipient_id)
+    {
       'tl_kind' => timeline_kind, # @todo Not needed, move that to hook if all timelines kinds are stored in the same collection
       'rcpt'    => recipient_id,
     }
+  end
 
-    self.find(self.timeline_collection(timeline_kind), selector_hash, limit, skip)
+  # fetch timeline entries
+  def find_timeline_entries(timeline_kind, recipient_id, limit, skip = 0)
+    self.find(self.timeline_collection(timeline_kind), self._timeline_selector(timeline_kind, recipient_id), limit, skip)
+  end
+
+  # Count number of timeline entries
+  #
+  # @param timeline_kind [String] Timeline kind
+  # @param recipient_id  [String] Recipient id
+  def count_timeline_entries(timeline_kind, recipient_id)
+    self.count(self.timeline_collection(timeline_kind), self._timeline_selector(timeline_kind, recipient_id))
   end
 
 end # class Activr::Storage::MongoDriver

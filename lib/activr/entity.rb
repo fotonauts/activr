@@ -1,6 +1,8 @@
 module Activr
   class Entity
 
+    autoload :ModelMixin, 'activr/entity/model_mixin'
+
     attr_reader :name, :options, :activity
     attr_reader :model_class, :model_id
 

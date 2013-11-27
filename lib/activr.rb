@@ -112,25 +112,41 @@ module Activr
       activity
     end
 
-    # fetch last activities
-    #
-    # cf. Activr::Storage.fetch_activities
-    def activities(limit, options = { })
-      query_options = { }
+    # helper
+    def _normalize_query_options(options)
+      result = { }
 
       options.each do |key, value|
         key = key.to_sym
 
         if Activr.registry.entities_names.include?(key)
           # extract entities from options
-          query_options[:entities] ||= { }
-          query_options[:entities][key] = value
+          result[:entities] ||= { }
+          result[:entities][key] = value
         else
-          query_options[key] = value
+          result[key] = value
         end
       end
 
-      Activr.storage.fetch_activities(limit, query_options)
+      result
+    end
+
+    # fetch last activities
+    #
+    # cf. Activr::Storage.fetch_activities
+    def activities(limit, options = { })
+      options = self._normalize_query_options(options)
+
+      Activr.storage.fetch_activities(limit, options)
+    end
+
+    # count total number of activities
+    #
+    # cf. Activr::Storage.count_activities
+    def count_activities(options = { })
+      options = self._normalize_query_options(options)
+
+      Activr.storage.count_activities(options)
     end
 
     # get a timeline
