@@ -7,8 +7,6 @@ module Activr
       @timeline_entries = nil
       @activities       = nil
       @entities         = nil
-
-      @hooks = { }
     end
 
 
@@ -151,98 +149,6 @@ module Activr
 
         memo
       end
-    end
-
-
-    #
-    # Hooks
-    #
-
-    # The `will_insert_activity` hook will be run just before inserting
-    # an activity document in the database
-    #
-    # Example:
-    #
-    #   # insert the 'foo' meta for all activities
-    #   Activr.will_insert_activity do |activity_hash|
-    #     activity_hash['meta'] ||= { }
-    #     activity_hash['meta']['foo'] = 'bar'
-    #   end
-    #
-    def will_insert_activity(&block)
-      register_hook(:will_insert_activity, block)
-    end
-
-    # The `did_fetch_activity` hook will be run just after fetching
-    # an activity document from the database
-    #
-    # Example:
-    #
-    #   # ignore the 'foo' meta
-    #   Activr.did_fetch_activity do |activity_hash|
-    #     if activity_hash['meta']
-    #       activity_hash['meta'].delete('foo')
-    #     end
-    #   end
-    #
-    def did_fetch_activity(&block)
-      register_hook(:did_fetch_activity, block)
-    end
-
-    # The `will_insert_activity` hook will be run just before inserting
-    # a timeline entry document in the database
-    #
-    # Example:
-    #
-    #   # insert the 'bar' field to all timeline entries documents
-    #   Activr.will_insert_timeline_entry do |timeline_entry_hash|
-    #     timeline_entry_hash['bar'] = 'baz'
-    #   end
-    #
-    def will_insert_timeline_entry(&block)
-      register_hook(:will_insert_timeline_entry, block)
-    end
-
-    # The `did_fetch_timeline_entry` hook will be run just after fetching
-    # a timeline entry document from the database
-    #
-    # Example:
-    #
-    #   # ignore the 'bar' field
-    #   Activr.did_fetch_timeline_entry do |timeline_entry_hash|
-    #     timeline_entry_hash.delete('bar')
-    #   end
-    #
-    def did_fetch_timeline_entry(&block)
-      register_hook(:did_fetch_timeline_entry, block)
-    end
-
-
-    # register a hook
-    def register_hook(name, block)
-      @hooks[name] ||= [ ]
-      @hooks[name] << block
-    end
-
-    # get hooks
-    #
-    # Returns all hooks if name is nil
-    def hooks(name = nil)
-      name ? (@hooks[name] || [ ]) : @hooks
-    end
-
-    # run a hook
-    def run_hook(name, *args)
-      return if @hooks[name].blank?
-
-      @hooks[name].each do |hook|
-        args.any? ? hook.call(*args) : hook.call
-      end
-    end
-
-    # reset all hooks
-    def clear_hooks!
-      @hooks = { }
     end
 
   end # class Registry

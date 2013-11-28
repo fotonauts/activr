@@ -9,6 +9,8 @@ module Activr
     # init
     def initialize
       @driver = Activr::Storage::MongoDriver.new
+
+      @hooks = { }
     end
 
     # Insert a new activity
@@ -20,7 +22,7 @@ module Activr
       activity_hash = activity.to_hash
 
       # run hook
-      Activr.registry.run_hook(:will_insert_activity, activity_hash)
+      self.run_hook(:will_insert_activity, activity_hash)
 
       # insert
       self.driver.insert_activity(activity_hash)
@@ -37,7 +39,7 @@ module Activr
       activity_hash = self.driver.find_activity(activity_id)
       if activity_hash
         # run hook
-        Activr.registry.run_hook(:did_fetch_activity, activity_hash)
+        self.run_hook(:did_fetch_activity, activity_hash)
 
         # unserialize
         Activr::Activity.from_hash(activity_hash)
@@ -76,7 +78,7 @@ module Activr
       # find
       result = self.driver.find_activities(limit, options).map do |activity_hash|
         # run hook
-        Activr.registry.run_hook(:did_fetch_activity, activity_hash)
+        self.run_hook(:did_fetch_activity, activity_hash)
 
         # unserialize
         Activr::Activity.from_hash(activity_hash)
@@ -122,7 +124,7 @@ module Activr
       timeline_entry_hash = timeline_entry.to_hash
 
       # run hook
-      Activr.registry.run_hook(:will_insert_timeline_entry, timeline_entry_hash)
+      self.run_hook(:will_insert_timeline_entry, timeline_entry_hash)
 
       # insert
       self.driver.insert_timeline_entry(timeline_entry.timeline.kind, timeline_entry_hash)
@@ -140,7 +142,7 @@ module Activr
       timeline_entry_hash = self.driver.find_timeline_entry(timeline_kind, tl_entry_id)
       if timeline_entry_hash
         # run hook
-        Activr.registry.run_hook(:did_fetch_timeline_entry, timeline_entry_hash)
+        self.run_hook(:did_fetch_timeline_entry, timeline_entry_hash)
 
         # unserialize
         Activr::Timeline::Entry.from_hash(timeline_entry_hash)
@@ -160,7 +162,7 @@ module Activr
       # find
       result = self.driver.find_timeline_entries(timeline_kind, recipient_id, limit, skip).map do |timeline_entry_hash|
         # run hook
-        Activr.registry.run_hook(:did_fetch_timeline_entry, timeline_entry_hash)
+        self.run_hook(:did_fetch_timeline_entry, timeline_entry_hash)
 
         # unserialize
         Activr::Timeline::Entry.from_hash(timeline_entry_hash)
@@ -175,6 +177,98 @@ module Activr
     # @param recipient_id  [String] Recipient id
     def count_timeline(timeline_kind, recipient_id)
       self.driver.count_timeline_entries(timeline_kind, recipient_id)
+    end
+
+
+    #
+    # Hooks
+    #
+
+    # The `will_insert_activity` hook will be run just before inserting
+    # an activity document in the database
+    #
+    # Example:
+    #
+    #   # insert the 'foo' meta for all activities
+    #   Activr.storage.will_insert_activity do |activity_hash|
+    #     activity_hash['meta'] ||= { }
+    #     activity_hash['meta']['foo'] = 'bar'
+    #   end
+    #
+    def will_insert_activity(&block)
+      register_hook(:will_insert_activity, block)
+    end
+
+    # The `did_fetch_activity` hook will be run just after fetching
+    # an activity document from the database
+    #
+    # Example:
+    #
+    #   # ignore the 'foo' meta
+    #   Activr.storage.did_fetch_activity do |activity_hash|
+    #     if activity_hash['meta']
+    #       activity_hash['meta'].delete('foo')
+    #     end
+    #   end
+    #
+    def did_fetch_activity(&block)
+      register_hook(:did_fetch_activity, block)
+    end
+
+    # The `will_insert_timeline_entry` hook will be run just before inserting
+    # a timeline entry document in the database
+    #
+    # Example:
+    #
+    #   # insert the 'bar' field to all timeline entries documents
+    #   Activr.storage.will_insert_timeline_entry do |timeline_entry_hash|
+    #     timeline_entry_hash['bar'] = 'baz'
+    #   end
+    #
+    def will_insert_timeline_entry(&block)
+      register_hook(:will_insert_timeline_entry, block)
+    end
+
+    # The `did_fetch_timeline_entry` hook will be run just after fetching
+    # a timeline entry document from the database
+    #
+    # Example:
+    #
+    #   # ignore the 'bar' field
+    #   Activr.storage.did_fetch_timeline_entry do |timeline_entry_hash|
+    #     timeline_entry_hash.delete('bar')
+    #   end
+    #
+    def did_fetch_timeline_entry(&block)
+      register_hook(:did_fetch_timeline_entry, block)
+    end
+
+
+    # register a hook
+    def register_hook(name, block)
+      @hooks[name] ||= [ ]
+      @hooks[name] << block
+    end
+
+    # get hooks
+    #
+    # Returns all hooks if name is nil
+    def hooks(name = nil)
+      name ? (@hooks[name] || [ ]) : @hooks
+    end
+
+    # run a hook
+    def run_hook(name, *args)
+      return if @hooks[name].blank?
+
+      @hooks[name].each do |hook|
+        args.any? ? hook.call(*args) : hook.call
+      end
+    end
+
+    # reset all hooks
+    def clear_hooks!
+      @hooks = { }
     end
 
   end # class Storage

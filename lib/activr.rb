@@ -3,7 +3,6 @@ require 'rubygems'
 require 'mustache'
 require 'fwissr'
 
-require 'forwardable'
 require 'logger'
 
 # active support
@@ -38,14 +37,6 @@ module Activr
 
     attr_accessor :logger
 
-    extend Forwardable
-
-    # forward hook declarations to registry
-    def_delegators :registry,
-      :will_insert_activity,
-      :did_fetch_activity,
-      :will_insert_timeline_entry,
-      :did_fetch_timeline_entry
 
     # configuration sugar
     def configure

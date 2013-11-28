@@ -8,15 +8,15 @@ describe Activr::Storage do
   let(:owner) { User.create(:_id => 'corinne', :first_name => "Corinne", :last_name => "CHTITEGOUTE") }
 
   after(:each) do
-    Activr.registry.clear_hooks!
+    Activr.storage.clear_hooks!
   end
 
   it "runs :will_insert_activity hook" do
-    Activr.will_insert_activity do |activity_hash|
+    Activr.storage.will_insert_activity do |activity_hash|
       activity_hash['foo'] = 'bar'
     end
 
-    Activr.will_insert_activity do |activity_hash|
+    Activr.storage.will_insert_activity do |activity_hash|
       activity_hash['meta'] ||= { }
       activity_hash['meta']['bar'] = 'baz'
     end
@@ -37,11 +37,11 @@ describe Activr::Storage do
   end
 
   it "runs :did_fetch_activity hook" do
-    Activr.did_fetch_activity do |activity_hash|
+    Activr.storage.did_fetch_activity do |activity_hash|
       activity_hash['foo'] = 'bar'
     end
 
-    Activr.did_fetch_activity do |activity_hash|
+    Activr.storage.did_fetch_activity do |activity_hash|
       activity_hash['meta'] ||= { }
       activity_hash['meta']['bar'] = 'baz'
     end
@@ -61,12 +61,12 @@ describe Activr::Storage do
   end
 
   it "runs :will_insert_timeline_entry hook" do
-    Activr.will_insert_timeline_entry do |timeline_entry_hash|
+    Activr.storage.will_insert_timeline_entry do |timeline_entry_hash|
       timeline_entry_hash['meta'] ||= { }
       timeline_entry_hash['meta']['foo'] = 'bar'
     end
 
-    Activr.will_insert_timeline_entry do |timeline_entry_hash|
+    Activr.storage.will_insert_timeline_entry do |timeline_entry_hash|
       timeline_entry_hash['meta'] ||= { }
       timeline_entry_hash['meta']['bar'] = 'baz'
     end
@@ -86,12 +86,12 @@ describe Activr::Storage do
   end
 
   it "runs :did_fetch_timeline_entry hook" do
-    Activr.did_fetch_timeline_entry do |timeline_entry_hash|
+    Activr.storage.did_fetch_timeline_entry do |timeline_entry_hash|
       timeline_entry_hash['meta'] ||= { }
       timeline_entry_hash['meta']['foo'] = 'bar'
     end
 
-    Activr.did_fetch_timeline_entry do |timeline_entry_hash|
+    Activr.storage.did_fetch_timeline_entry do |timeline_entry_hash|
       timeline_entry_hash['meta'] ||= { }
       timeline_entry_hash['meta']['bar'] = 'baz'
     end
