@@ -4,6 +4,6 @@ class AddPhoto < Activr::Activity
   entity :photo, :class => Picture, :humanize => :title
   entity :album, :class => Album,   :humanize => :name
 
-  humanize "{{actor}} added photo {{photo}} to the {{album}} album"
+  humanize "{{{actor}}} added photo {{{photo}}} to the {{{album}}} album"
 
 end
