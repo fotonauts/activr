@@ -20,12 +20,12 @@ module Activr
 
       # fetch activities
       def activities(limit, skip = 0)
-        Activr.activities(limit, :skip => skip, self.activr_entity_name => self._id)
+        Activr.activities(limit, :skip => skip, self.activr_entity_name => self.id)
       end
 
       # get total number of activities
       def activities_count
-        Activr.count_activities(self.activr_entity_name  => self._id)
+        Activr.count_activities(self.activr_entity_name => self.id)
       end
 
     end # module ModelMixin
