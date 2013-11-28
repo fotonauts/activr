@@ -14,8 +14,6 @@ module Activr
             fake_controller
           end
 
-          raise "rails_controller: #{rails_controller.inspect}"
-
           rails_controller.view_context
         end
       end
