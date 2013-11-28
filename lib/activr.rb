@@ -53,7 +53,7 @@ module Activr
       @logger ||= begin
         result = Logger.new(STDOUT)
         result.formatter = proc do |severity, datetime, progname, msg|
-          "#{datetime} [activr][#{severity}] #{msg}\n"
+          "[#{datetime.strftime('%Y-%m-%d %H:%M:%S')}] #{severity} [activr] #{msg}\n"
         end
         result
       end
