@@ -71,8 +71,6 @@ module Activr
 
       # helper
       def _inject_methods_to_recipient_class(klass)
-        puts "self.kind: #{self.kind}"
-
         # inject methods to recipient class
         klass.class_eval <<-EOS, __FILE__, __LINE__
           # fetch last timeline entries
