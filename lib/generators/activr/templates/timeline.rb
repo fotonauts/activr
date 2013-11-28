@@ -2,7 +2,7 @@
 
 class <%= class_name %>Timeline < Activr::Timeline
 
-  self.recipient_class = <%= recipient_class %>
+  recipient <%= recipient_class %>
 
 
   #

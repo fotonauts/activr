@@ -7,6 +7,7 @@ module Activr
 
     # recipient class
     class_attribute :recipient_class, :instance_writer => false
+    self.recipient_class = nil
 
     # routings
     class_attribute :routings, :instance_writer => false
@@ -68,10 +69,38 @@ module Activr
         end
       end
 
+      # helper
+      def _inject_methods_to_recipient_class(klass)
+        puts "self.kind: #{self.kind}"
+
+        # inject methods to recipient class
+        klass.class_eval <<-EOS, __FILE__, __LINE__
+          # fetch last timeline entries
+          def #{self.kind}(limit, skip = 0)
+            Activr.timeline(#{self.name}, self.id).fetch(limit, skip)
+          end
+
+          # get total number of news feed entries
+          def #{self.kind}_count
+            Activr.timeline(#{self.name}, self.id).count
+          end
+        EOS
+      end
+
 
       #
       # Class interface
       #
+
+      # set recipient class
+      def recipient(klass)
+        raise "Routing class already defined: #{self.recipient_class}" unless self.recipient_class.blank?
+
+        # inject sugar methods
+        self._inject_methods_to_recipient_class(klass)
+
+        self.recipient_class = klass
+      end
 
       # define a routing
       def routing(routing_name, settings = { }, &block)
@@ -128,7 +157,7 @@ module Activr
 
       if rcpt.is_a?(self.recipient_class)
         @recipient    = rcpt
-        @recipient_id = rcpt._id
+        @recipient_id = rcpt.id
       else
         @recipient    = nil
         @recipient_id = rcpt
@@ -146,7 +175,7 @@ module Activr
 
     # get recipient id
     def recipient_id
-      @recipient_id ||= @recipient._id
+      @recipient_id ||= @recipient.id
     end
 
     # handle activity

@@ -6,7 +6,7 @@ class UserNewsFeed < Activr::Timeline
   autoload :PhotoOwnerLikePhoto,        'user_news_feed/photo_owner_like_photo'
 
   # set recipient class
-  self.recipient_class = User
+  recipient User
 
 
   #
