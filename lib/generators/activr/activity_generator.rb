@@ -23,10 +23,12 @@ module Activr
 
           name  = ary[0].underscore
           klass = (ary[1] || ary[0]).camelize
+          human_meth = _resolve_entity_field(klass)
 
           {
-            :name  => name,
-            :class => klass,
+            :name     => name,
+            :class    => klass,
+            :humanize => human_meth,
           }
         end
       end
@@ -36,14 +38,14 @@ module Activr
 
         actor = entities_infos.find{ |entity| entity[:name] == 'actor' }
         if actor
-          result += "{{actor.#{_resolve_entity_field(actor)}}} "
+          result += "{{actor}} "
         end
 
         result += name.underscore.gsub('_', ' ')
 
         entities_infos.each do |entity|
           if entity[:name] != 'actor'
-            result += " {{#{entity[:name]}.#{_resolve_entity_field(entity)}}}"
+            result += " {{#{entity[:name]}}}"
           end
         end
 
@@ -52,8 +54,8 @@ module Activr
 
       private
 
-      def _resolve_entity_field(entity_infos)
-        klass = entity_infos[:class].constantize
+      def _resolve_entity_field(entity_klass)
+        klass = entity_klass.constantize
 
         field = [ :fullname, :name, :title ].find do |meth_name|
           klass.method_defined?(meth_name)

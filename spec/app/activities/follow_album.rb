@@ -1,8 +1,8 @@
 class FollowAlbum < Activr::Activity
 
-  entity :actor, :class => User
-  entity :album, :class => Album
+  entity :actor, :class => User,  :humanize => :fullname
+  entity :album, :class => Album, :humanize => :name
 
-  humanize "{{actor.fullname}} is now following the {{album.name}} album"
+  humanize "{{actor}} is now following the {{album}} album"
 
 end

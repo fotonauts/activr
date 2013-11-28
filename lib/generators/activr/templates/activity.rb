@@ -2,20 +2,16 @@
 
 class <%= class_name %>Activity < Activr::Activity
 <% if entities_infos.blank? %>
-  # entity :actor, :class => User
-  # entity :buddy, :class => User
+  # entity :actor, :class => User, :humanize => :fullname
+  # entity :buddy, :class => User, :humanize => :fullname
 
-  # def humanize
-  #   Activr.sentence("{{actor.fullname}} is now following {{buddy.fullname}}")
-  # end
+  # humanize "{{actor}} is now following {{buddy}}"
 <% else %>
 <% entities_infos.each do |entity| -%>
-  entity :<%= entity[:name] %>, :class => <%= entity[:class] %>
+  entity :<%= entity[:name] %>, :class => <%= entity[:class] %>, :humanize => :<%= entity[:humanize] %>
 <% end -%>
 
-  def humanize
-    Activr.sentence("<%= humanization %>", self.humanization_bindings)
-  end
+  humanize "<%= humanization %>"
 <% end %><% if options[:full] %>
   #
   # callbacks

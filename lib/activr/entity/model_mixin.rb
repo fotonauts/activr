@@ -11,8 +11,8 @@ module Activr
 
       module ClassMethods
 
+        # set a custom entity name to use in activity queries
         def activr_entity(name)
-          # set a custom entity name
           self.activr_entity_name = name.to_sym
         end
 

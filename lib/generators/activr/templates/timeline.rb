@@ -9,7 +9,7 @@ class <%= class_name %>Timeline < Activr::Timeline
   # Routes
   #
 
-  # route FollowBuddyActivity, :to => 'buddy', :humanize => "{{actor.fullname}} is now following you"
+  # route FollowBuddyActivity, :to => 'buddy', :humanize => "{{actor}} is now following you"
 
 
   #

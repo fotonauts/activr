@@ -92,13 +92,16 @@ class Activr::Timeline::Entry
   # humanization
   #
   # MAY be overriden by child class for specialized humanization
-  def humanize
+  #
+  # @param options [Hash] Options hash (cf. Activr::Activity#humanize method)
+  # @return [String] Humanized timeline entry
+  def humanize(options = { })
     if !self.timeline_route.settings[:humanize].blank?
       # specialized humanization
       Activr.sentence(self.timeline_route.settings[:humanize], @activity.humanization_bindings)
     else
       # default humanization
-      @activity.humanize
+      @activity.humanize(options)
     end
   end
 

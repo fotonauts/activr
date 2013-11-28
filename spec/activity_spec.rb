@@ -11,9 +11,9 @@ describe Activr::Activity do
 
   it "have allowed entities" do
     AddPhoto.allowed_entities.should == {
-      :actor => { :class => User },
-      :photo => { :class => Picture },
-      :album => { :class => Album },
+      :actor => { :class => User, :humanize => :fullname },
+      :photo => { :class => Picture, :humanize => :title },
+      :album => { :class => Album, :humanize => :name },
     }
 
     FollowBuddyActivity.allowed_entities.should == {

@@ -6,13 +6,12 @@ module Activr
     attr_reader :name, :options, :activity
     attr_reader :model_class, :model_id
 
-    #
+
     # @param name    [String] Entity name
     # @param value   [Object|String] Entity value of entity id
     # @param options [Hash] Options hash:
     #   :class => [String] Entity class
     #   :activity => [Activr::Activity] The 'master' activity
-    #
     def initialize(name, value, options = { })
       @name = name
       @options = options.dup
@@ -40,6 +39,35 @@ module Activr
     # memoized model
     def model
       @model ||= self.model_class.find(self.model_id)
+    end
+
+    # humanize entity
+    def humanize(options = { })
+      result = nil
+
+      options_handled = false
+
+      result = if !@options[:humanize].blank?
+        case self.model.method(@options[:humanize]).arity
+        when 1
+          options_handled = true
+          result = self.model.__send__(@options[:humanize], options)
+        else
+          result = self.model.__send__(@options[:humanize])
+        end
+      else
+        ""
+      end
+
+      if result.blank? && @options[:default]
+        result = @options[:default]
+      end
+
+      if !result.blank? && !options_handled
+        # @todo handle options
+      end
+
+      result
     end
 
 

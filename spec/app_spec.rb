@@ -19,6 +19,31 @@ describe "Application" do
     ]
   end
 
+  it "humanizes AddPhoto activity" do
+    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
+    activity.humanize.should == "Jean PALE added photo Me myself and I to the Selfies album"
+  end
+
+  it "humanizes FeaturePhoto activity" do
+    activity = FeaturePhoto.new(:actor => user, :photo => photo)
+    activity.humanize.should == "Photo Me myself and I has been featured by Jean PALE"
+  end
+
+  it "humanizes FollowAlbum activity" do
+    activity = FollowAlbum.new(:actor => user, :album => album)
+    activity.humanize.should == "Jean PALE is now following the Selfies album"
+  end
+
+  it "humanizes FollowBuddyActivity activity" do
+    activity = FollowBuddyActivity.new(:actor => user, :buddy => buddy)
+    activity.humanize.should == "Jean PALE is now following Justine CHTITEGOUTE"
+  end
+
+  it "humanizes LikePhoto activity" do
+    activity = LikePhoto.new(:actor => user, :photo => photo)
+    activity.humanize.should == "Jean PALE liked the Me myself and I photo"
+  end
+
   it "routes AddPhoto to actor's followers" do
     # @todo FIXME
     user.followers = [ follower, follower2 ]

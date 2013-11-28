@@ -187,17 +187,28 @@ module Activr
     end
 
     # bindings for humanization sentence
-    def humanization_bindings
-      self.entities_models.merge(@meta)
+    def humanization_bindings(options = { })
+      result = { }
+
+      @entities.each do |entity_name, entity|
+        result[entity_name] = entity.humanize(options)
+        result["#{entity_name}_model".to_sym] = entity.model
+      end
+
+      result.merge(@meta)
     end
 
     # humanization
     #
     # MAY be overriden by child class for more complicated humanization
-    def humanize
+    #
+    # @param options [Hash] Options hash:
+    #   :html => [Boolean] output HTML (default: false)
+    # @return [String] Humanized activity
+    def humanize(options = { })
       raise "No humanize_tpl defined" if self.humanize_tpl.blank?
 
-      Activr.sentence(self.humanize_tpl, self.humanization_bindings)
+      Activr.sentence(self.humanize_tpl, self.humanization_bindings(options))
     end
 
     # raise exception if activity is not valid

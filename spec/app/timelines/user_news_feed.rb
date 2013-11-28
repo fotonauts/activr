@@ -30,12 +30,12 @@ class UserNewsFeed < Activr::Timeline
   route FollowBuddyActivity, :to => 'buddy'
 
   # route to path
-  route AddPhoto, :to => 'album.owner', :humanize => "{{actor.fullname}} added a photo to your {{album.name}} album"
+  route AddPhoto, :to => 'album.owner', :humanize => "{{actor}} added a photo to your {{album}} album"
 
   # route without inline `humanize`, so the #humanize method will be called on default timeline entry class UserNewsFeed::PhotoOwnerLikePhoto
   route LikePhoto, :to => 'photo.owner'
 
-  route FeaturePhoto, :to => 'photo.owner', :humanize => "Your photo {{photo.title}} has been featured"
+  route FeaturePhoto, :to => 'photo.owner', :humanize => "Your photo {{photo_model.title}} has been featured"
 
   # define a custom routing kind (ie. 'my_custom_routing' instead of 'album_owner')
   route FollowAlbum, :to => 'album.owner', :kind => :my_custom_routing
