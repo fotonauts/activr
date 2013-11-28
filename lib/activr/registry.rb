@@ -9,6 +9,14 @@ module Activr
       @entities         = nil
     end
 
+    # setup registry
+    def setup
+      # eagger load all classes
+      self.activities
+      self.timelines
+      self.timeline_entries
+    end
+
 
     #
     # Classes

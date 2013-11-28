@@ -43,6 +43,11 @@ module Activr
       yield self.config
     end
 
+    # setup
+    def setup
+      self.registry.setup
+    end
+
     # logger
     def logger
       @logger ||= begin

@@ -18,6 +18,10 @@ module Activr
         end
       end
     end
+
+    config.after_initialize do
+      Activr.setup
+    end
   end
 
 end

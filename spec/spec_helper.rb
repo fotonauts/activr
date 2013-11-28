@@ -50,3 +50,6 @@ RSpec.configure do |config|
     DatabaseCleaner.clean
   end
 end
+
+# setup
+Activr.setup
