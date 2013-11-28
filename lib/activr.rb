@@ -25,7 +25,8 @@ require 'activr/entity'
 require 'activr/activity'
 require 'activr/timeline'
 require 'activr/dispatcher'
-require 'activr/railtie' if defined?(Rails)
+require 'activr/rails'
+require 'activr/railtie' if defined?(::Rails)
 
 
 module Activr

@@ -20,4 +20,9 @@ class User
     ""
   end
 
+  # I know this is bad, this is just for testing purpose
+  def to_html
+    "<span class='user'>#{fullname}<span>"
+  end
+
 end

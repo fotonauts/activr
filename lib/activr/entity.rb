@@ -45,27 +45,31 @@ module Activr
     def humanize(options = { })
       result = nil
 
-      options_handled = false
-
-      result = if !@options[:humanize].blank?
-        case self.model.method(@options[:humanize]).arity
-        when 1
-          options_handled = true
-          result = self.model.__send__(@options[:humanize], options)
-        else
-          result = self.model.__send__(@options[:humanize])
-        end
+      if options[:html] && @options[:htmlize]
+        # the model knows how to safely htmlize itself
+        result = self.model.__send__(@options[:htmlize])
       else
-        ""
+        if @options[:humanize]
+          case self.model.method(@options[:humanize]).arity
+          when 1
+            result = self.model.__send__(@options[:humanize], options)
+          else
+            result = self.model.__send__(@options[:humanize])
+          end
+        end
       end
 
       if result.blank? && @options[:default]
         result = @options[:default]
       end
 
-      if !result.blank? && !options_handled
-        # @todo handle options
+      if !result.blank? && options[:html] && !@options[:htmlize] && Activr::Rails.view_context
+        # let Rails sanitize and htmlize the entity
+        result = Activr::Rails.view_context.sanitize(result)
+        result = Activr::Rails.view_context.link_to(result, self.model)
       end
+
+      result ||= ""
 
       result
     end

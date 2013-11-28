@@ -1,4 +1,5 @@
 require 'rubygems'
+
 require 'mongoid'
 require 'rspec'
 require 'database_cleaner'
