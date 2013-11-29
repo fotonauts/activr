@@ -13,7 +13,6 @@ end
 
 
 Activr.configure do |config|
-  config.sync          = true
   config.app_path      = File.join(File.dirname(__FILE__), "app")
   config.mongodb[:uri] = "mongodb://127.0.0.1/#{tmp_mongo_db}"
 end

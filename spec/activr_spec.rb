@@ -9,15 +9,18 @@ describe Activr do
   let(:owner)    { User.create(:_id => 'corinne', :first_name => "Corinne", :last_name => "CHTITEGOUTE") }
   let(:follower) { User.create(:_id => 'anne', :first_name => "Anne", :last_name => "CHTITEGOUTE") }
 
+  after(:each) do
+    Activr.config.async = false
+  end
 
   it "have a configuration" do
-    Activr.config.sync.should be_true # default is true for unit testing
+    Activr.config.async.should be_false
     Activr.config.foo.should be_nil
   end
 
   it "modifies configuration" do
-    Activr.config.sync = true
-    Activr.config.sync.should be_true
+    Activr.config.async = true
+    Activr.config.async.should be_true
 
     Activr.config.foo = :bar
     Activr.config.foo.should == :bar

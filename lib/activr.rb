@@ -99,11 +99,11 @@ module Activr
       # store activity in main collection
       activity.store! unless activity.stored?
 
-      if Activr.config.sync
-        self.dispatcher.route(activity)
-      else
+      if Activr.config.async
         # @todo !!!
         raise "not implemented"
+      else
+        self.dispatcher.route(activity)
       end
 
       activity

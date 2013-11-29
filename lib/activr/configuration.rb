@@ -7,7 +7,7 @@ module Activr
 
     included do
       # default config
-      config.sync     = false
+      config.async    = false
       config.app_path = Dir.pwd
       config.mongodb  = {
         :uri        => 'mongodb://127.0.0.1/activr',
@@ -18,7 +18,7 @@ module Activr
       config.compile_methods!
 
       # fetch config from fwissr
-      config.sync     = Fwissr['/activr/sync']     unless Fwissr['/activr/sync'].nil?
+      config.async    = Fwissr['/activr/async']    unless Fwissr['/activr/async'].nil?
       config.app_path = Fwissr['/activr/app_path'] unless Fwissr['/activr/app_path'].blank?
       config.mongodb.merge!(Fwissr['/activr/mongodb'].symbolize_keys) unless Fwissr['/activr/mongodb'].blank?
     end
