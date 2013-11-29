@@ -32,7 +32,7 @@ describe Activr::Timeline do
 
     route.routing_kind.should == :album_owner
     route.activity_class.should == AddPhoto
-    route.settings.should == { :to => 'album.owner', :humanize => "{{actor}} added a photo to your {{album}} album" }
+    route.settings.should == { :to => 'album.owner', :humanize => "{{{actor}}} added a photo to your {{{album}}} album" }
   end
 
   it "defines route with custom route kind" do
