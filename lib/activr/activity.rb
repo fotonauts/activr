@@ -79,6 +79,13 @@ module Activr
           end
         EOS
 
+        if (name == :actor) && options[:class] &&
+           (options[:class] < Activr::Entity::ModelMixin) &&
+           options[:class].activr_feed_entity_name.nil?
+          # sugar so that we don't have to explicitly set `activr_feed_entity_name` value on model class
+          options[:class].activr_feed_entity_name = :actor
+        end
+
         # register used entity
         Activr.registry.add_entity(name, self)
       end
