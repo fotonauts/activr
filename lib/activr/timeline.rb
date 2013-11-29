@@ -204,7 +204,7 @@ module Activr
     # @param skip  [Integer] Number of entries to skip (default: 0)
     # @return [Array] An array of Activr::Timeline::Entry instances
     def fetch(limit, skip = 0)
-      Activr.storage.fetch_timeline(self.kind, self.recipient_id, limit, skip)
+      Activr.storage.fetch_timeline(self, limit, skip)
     end
 
     # Get total number of timeline entries

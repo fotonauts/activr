@@ -132,20 +132,20 @@ module Activr
 
     # Fetch a timeline entry
     #
-    # @param timeline_kind [String] Timeline kind
-    # @param tl_entry_id   [String|BSON::ObjectId] Timeline entry id
+    # @param timeline    [Activr::Timeline] Timeline instance
+    # @param tl_entry_id [String|BSON::ObjectId] Timeline entry id
     # @return [Array] An array of Activr::Timeline::Entry instances
-    def fetch_timeline_entry(timeline_kind, tl_entry_id)
+    def fetch_timeline_entry(timeline, tl_entry_id)
       tl_entry_id = ::BSON::ObjectId.from_string(tl_entry_id) if tl_entry_id.is_a?(String)
 
       # fetch
-      timeline_entry_hash = self.driver.find_timeline_entry(timeline_kind, tl_entry_id)
+      timeline_entry_hash = self.driver.find_timeline_entry(timeline.kind, tl_entry_id)
       if timeline_entry_hash
         # run hook
         self.run_hook(:did_fetch_timeline_entry, timeline_entry_hash)
 
         # unserialize
-        Activr::Timeline::Entry.from_hash(timeline_entry_hash)
+        Activr::Timeline::Entry.from_hash(timeline_entry_hash, timeline)
       else
         nil
       end
@@ -153,19 +153,18 @@ module Activr
 
     # Fetch timeline entries by descending timestamp
     #
-    # @param timeline_kind [String] Timeline kind
-    # @param recipient_id  [String] Recipient id
-    # @param limit         [Integer] Max number of entries to fetch
-    # @param skip          [Integer] Number of entries to skip (default: 0)
+    # @param timeline [Activr::Timeline] Timeline instance
+    # @param limit    [Integer] Max number of entries to fetch
+    # @param skip     [Integer] Number of entries to skip (default: 0)
     # @return [Array] An array of Activr::Timeline::Entry instances
-    def fetch_timeline(timeline_kind, recipient_id, limit, skip = 0)
+    def fetch_timeline(timeline, recipient_id, limit, skip = 0)
       # find
-      result = self.driver.find_timeline_entries(timeline_kind, recipient_id, limit, skip).map do |timeline_entry_hash|
+      result = self.driver.find_timeline_entries(timeline.kind, timeline.recipient_id, limit, skip).map do |timeline_entry_hash|
         # run hook
         self.run_hook(:did_fetch_timeline_entry, timeline_entry_hash)
 
         # unserialize
-        Activr::Timeline::Entry.from_hash(timeline_entry_hash)
+        Activr::Timeline::Entry.from_hash(timeline_entry_hash, timeline)
       end
 
       result

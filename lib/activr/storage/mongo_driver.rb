@@ -221,8 +221,7 @@ class Activr::Storage::MongoDriver
   # helper
   def _timeline_selector(timeline_kind, recipient_id)
     {
-      'tl_kind' => timeline_kind, # @todo Not needed, move that to hook if all timelines kinds are stored in the same collection
-      'rcpt'    => recipient_id,
+      'rcpt' => recipient_id,
     }
   end
 

@@ -25,7 +25,6 @@ describe Activr::Timeline::Entry do
 
   it "exports to a hash" do
     tl_entry_hash = tl_entry.to_hash
-    tl_entry_hash['tl_kind'].should == 'user_news_feed'
     tl_entry_hash['rcpt'].should == buddy._id
     tl_entry_hash['routing'].should == routing_kind
     tl_entry_hash['meta'].should == meta
@@ -35,18 +34,8 @@ describe Activr::Timeline::Entry do
     tl_entry_hash['activity']['buddy'].should == buddy._id
   end
 
-  it "instanciates from a hash with timeline param" do
+  it "instanciates from a hash" do
     tl_entry = Activr::Timeline::Entry.from_hash(tl_entry_hash, timeline)
-
-    tl_entry.should_not be_nil
-    tl_entry.activity.class.should == FollowBuddyActivity
-    tl_entry.activity.actor.should == user
-    tl_entry.activity.buddy.should == buddy
-    tl_entry[:foo].should == 'bar'
-  end
-
-  it "instanciates from a hash without timeline param" do
-    tl_entry = Activr::Timeline::Entry.from_hash(tl_entry_hash)
 
     tl_entry.should_not be_nil
     tl_entry.activity.class.should == FollowBuddyActivity
@@ -116,7 +105,7 @@ describe Activr::Timeline::Entry do
     tl_entry._id.should_not be_nil
     tl_entry[:foo].should == 'bar'
 
-    fetched_tl_entry = Activr.storage.fetch_timeline_entry(timeline.kind, tl_entry._id)
+    fetched_tl_entry = Activr.storage.fetch_timeline_entry(timeline, tl_entry._id)
     fetched_tl_entry.should_not be_nil
     fetched_tl_entry._id.should == tl_entry._id
     fetched_tl_entry[:foo].should == 'bar'

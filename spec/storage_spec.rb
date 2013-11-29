@@ -103,7 +103,7 @@ describe Activr::Storage do
     timeline_entry.store!
 
     # check
-    fetched_tl_entry = Activr.storage.fetch_timeline_entry(timeline.kind, timeline_entry._id)
+    fetched_tl_entry = Activr.storage.fetch_timeline_entry(timeline, timeline_entry._id)
     fetched_tl_entry._id.should == timeline_entry._id
     fetched_tl_entry[:foo].should == 'bar'
     fetched_tl_entry[:bar].should == 'baz'

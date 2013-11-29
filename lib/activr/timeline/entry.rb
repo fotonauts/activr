@@ -9,24 +9,12 @@ class Activr::Timeline::Entry
   class << self
 
     # instanciate an timeline entry from a hash
-    def from_hash(hash, timeline = nil)
+    def from_hash(hash, timeline)
       activity_hash = hash['activity'] || hash[:activity]
       raise "No activity found in timeline entry hash: #{hash.inspect}" if activity_hash.blank?
 
       activity_kind = activity_hash['kind'] || activity_hash[:kind]
       raise "No activity kind in timeline entry activity: #{activity_hash.inspect}" if activity_kind.blank?
-
-      timeline ||= begin
-        # @todo Not needed, move that to hook if all timelines kinds are stored in the same collection
-        tl_kind = hash['tl_kind'] || hash[:tl_kind]
-        raise "No tl_kind found in timeline entry hash: #{hash.inspect}" if tl_kind.blank?
-
-        rcpt = hash['rcpt'] || hash[:rcpt]
-        raise "No rcpt found in timeline entry hash: #{hash.inspect}" if rcpt.blank?
-
-        timeline_class = Activr.registry.class_for_timeline(tl_kind)
-        timeline_class.new(rcpt)
-      end
 
       routing_kind = hash['routing'] || hash[:routing]
       raise "No routing_kind found in timeline entry hash: #{hash.inspect}" if routing_kind.blank?
@@ -69,7 +57,6 @@ class Activr::Timeline::Entry
   def to_hash
     # fields
     result = {
-      'tl_kind'  => @timeline.kind, # @todo Not needed, move that to hook if all timelines kinds are stored in the same collection
       'rcpt'     => @timeline.recipient_id,
       'routing'  => @routing_kind,
       'activity' => @activity.to_hash,
