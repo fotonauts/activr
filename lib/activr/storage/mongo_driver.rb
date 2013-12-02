@@ -137,17 +137,20 @@ class Activr::Storage::MongoDriver
   # find documents from given collection
   #
   # @return An Enumerable
-  def find(col, selector_hash, limit, skip = 0)
+  def find(col, selector_hash, limit, skip, sort_field = nil)
     case @kind
     when :moped
-      col.find(selector_hash).skip(skip).limit(limit).sort('at' => -1)
+      result = col.find(selector_hash).skip(skip).limit(limit)
+      result.sort(sort_field => -1) if sort_field
+      result
     when :mongo
       # compute options hash
       options = {
-        :sort  => [ 'at', ::Mongo::DESCENDING ],
         :limit => limit,
         :skip  => skip,
       }
+
+      options[:sort] = [ sort_field, ::Mongo::DESCENDING ] if sort_field
 
       options[:batch_size] = 100 if (limit > 100)
 
@@ -222,7 +225,7 @@ class Activr::Storage::MongoDriver
   #
   # cf. Activr::Storage.fetch_activities
   def find_activities(limit, options = { })
-    self.find(self.activity_collection, self._activities_selector(options), limit, options[:skip])
+    self.find(self.activity_collection, self._activities_selector(options), limit, options[:skip], 'at')
   end
 
   # count activities
@@ -251,7 +254,7 @@ class Activr::Storage::MongoDriver
 
   # fetch timeline entries
   def find_timeline_entries(timeline_kind, recipient_id, limit, skip = 0)
-    self.find(self.timeline_collection(timeline_kind), self._timeline_selector(timeline_kind, recipient_id), limit, skip)
+    self.find(self.timeline_collection(timeline_kind), self._timeline_selector(timeline_kind, recipient_id), limit, skip, 'activity.at')
   end
 
   # Count number of timeline entries
