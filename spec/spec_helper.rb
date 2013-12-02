@@ -7,14 +7,22 @@ require 'database_cleaner'
 $:.unshift(File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib')))
 require 'activr'
 
-def tmp_mongo_db
-  "activr_spec"
+def rspec_mongo_host
+  Fwissr['/activr/rspec_mongo_host'] || "127.0.0.1"
+end
+
+def rspec_mongo_port
+  Fwissr['/activr/rspec_mongo_port'] || 27017
+end
+
+def rspec_mongo_db
+  Fwissr['/activr/rspec_mongo_db'] || "activr_spec"
 end
 
 
 Activr.configure do |config|
   config.app_path      = File.join(File.dirname(__FILE__), "app")
-  config.mongodb[:uri] = "mongodb://127.0.0.1/#{tmp_mongo_db}"
+  config.mongodb[:uri] = "mongodb://#{rspec_mongo_host}:#{rspec_mongo_port}/#{rspec_mongo_db}"
 end
 
 MODELS_PATH = File.join(Activr.config.app_path, "models")
@@ -38,7 +46,13 @@ end
 # Moped.logger = Activr.logger if defined?(Moped)
 
 Mongoid.configure do |config|
-  config.connect_to(tmp_mongo_db)
+  config.sessions = {
+    default: {
+      database: rspec_mongo_db,
+      hosts: [ "#{rspec_mongo_host}:#{rspec_mongo_port}" ],
+      options: { read: :primary }
+    }
+  }
 end
 
 RSpec.configure do |config|
