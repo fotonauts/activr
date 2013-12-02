@@ -10,11 +10,11 @@ describe Activr do
   let(:follower) { User.create(:_id => 'anne', :first_name => "Anne", :last_name => "CHTITEGOUTE") }
 
   after(:each) do
-    Activr.config.async = false
+    Activr.config.async = { }
   end
 
   it "have a configuration" do
-    Activr.config.async.should be_false
+    Activr.config.async.should be_blank
     Activr.config.foo.should be_nil
   end
 

@@ -15,13 +15,9 @@ module Activr
 
           # store activity in timelines
           self.recipients_for_timeline(timeline_class, activity).each do |recipient, route|
-            if Activr.config.async
-              # @todo !!!
-              raise "not implemented"
-            else
-              timeline = timeline_class.new(recipient)
-              timeline.handle_activity(activity, route)
-            end
+            timeline = timeline_class.new(recipient)
+
+            Activr::Async.hook(:timeline_handle, timeline, activity, route)
           end
         end
       end

@@ -13,6 +13,21 @@ module Activr
       @hooks = { }
     end
 
+    # check if this is a serialized document id
+    def serialized_id?(doc_id)
+      self.driver.serialized_id?(doc_id)
+    end
+
+    # return an unserialized document id
+    def unserialize_id(doc_id)
+      self.driver.unserialize_id(doc_id)
+    end
+
+    # helper
+    def unserialize_id_if_necessary(doc_id)
+      self.serialized_id?(doc_id) ? self.unserialize_id(doc_id) : doc_id
+    end
+
     # Insert a new activity
     #
     # @param activity [Activr::Activity] Activity to insert

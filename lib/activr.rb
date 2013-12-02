@@ -25,6 +25,7 @@ require 'activr/entity'
 require 'activr/activity'
 require 'activr/timeline'
 require 'activr/dispatcher'
+require 'activr/async'
 require 'activr/rails'
 require 'activr/railtie' if defined?(::Rails)
 
@@ -99,12 +100,7 @@ module Activr
       # store activity in main collection
       activity.store! unless activity.stored?
 
-      if Activr.config.async
-        # @todo !!!
-        raise "not implemented"
-      else
-        self.dispatcher.route(activity)
-      end
+      Activr::Async.hook(:route_activity, activity)
 
       activity
     end

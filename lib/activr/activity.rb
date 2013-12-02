@@ -36,6 +36,23 @@ module Activr
         klass.new(hash)
       end
 
+      # unserialize an activity hash
+      def unserialize_hash(hash)
+        result = { }
+
+        hash.each do |key, val|
+          result[key] = if Activr.storage.serialized_id?(val)
+            Activr.storage.unserialize_id(val)
+          elsif (key == 'at') && val.is_a?(String)
+            Time.parse(val)
+          else
+            val
+          end
+        end
+
+        result
+      end
+
 
       #
       # Class interface
@@ -118,7 +135,7 @@ module Activr
           # entity
           @entities[data_name] = Activr::Entity.new(data_name, data_value, self.allowed_entities[data_name].merge(:activity => self))
         elsif (data_name == :_id)
-          # article _id
+          # activity _id
           @_id = data_value
         elsif (data_name == :at)
           # timestamp

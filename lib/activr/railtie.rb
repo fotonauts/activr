@@ -11,6 +11,15 @@ module Activr
       end
     end
 
+    initializer "activr.setup_async_hooks" do |app|
+      if defined?(::Resque)
+        Activr.configure do |config|
+          config.async[:route_activity]  ||= Activr::Async::Resque::RouteActivity
+          config.async[:timeline_handle] ||= Activr::Async::Resque::TimelineHandle
+        end
+      end
+    end
+
     initializer "activr.setup_action_controller" do |app|
       ActiveSupport.on_load :action_controller do
         self.class_eval do

@@ -44,6 +44,30 @@ class Activr::Storage::MongoDriver
     end
   end
 
+  def serialized_id?(doc_id)
+    doc_id.is_a?(Hash) && !doc_id['$oid'].blank?
+  end
+
+  def unserialize_id(doc_id)
+    # get string representation
+    doc_id = self.serialized_id?(doc_id) ? doc_id['$oid'] : doc_id
+
+    if (@kind == :moped) && Moped::VERSION.start_with?("1.")
+      # Moped < 2.0.0 uses a custom BSON implementation
+      if doc_id.is_a?(::Moped::BSON::ObjectId)
+        doc_id
+      else
+        ::Moped::BSON::ObjectId(doc_id)
+      end
+    else
+      if doc_id.is_a?(::BSON::ObjectId)
+        doc_id
+      else
+        ::BSON::ObjectId.from_string(doc_id)
+      end
+    end
+  end
+
   # sugar
   def config
     Activr.config.mongodb
