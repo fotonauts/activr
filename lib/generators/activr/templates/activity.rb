@@ -5,7 +5,7 @@ class <%= class_name %>Activity < Activr::Activity
   # entity :actor, :class => User, :humanize => :fullname
   # entity :buddy, :class => User, :humanize => :fullname
 
-  # humanize "{{actor}} is now following {{buddy}}"
+  # humanize "{{{actor}}} is now following {{{buddy}}}"
 <% else %>
 <% entities_infos.each do |entity| -%>
   entity :<%= entity[:name] %><% if entity[:class] %>, :class => <%= entity[:class] %><% end %>, :humanize => :<%= entity[:humanize] %>

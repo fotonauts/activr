@@ -34,7 +34,7 @@ module Activr
 
       # get total number of activities
       def activities_count
-        Activr.count_activities(self.activr_feed_entity => self.id)
+        Activr.activities_count(self.activr_feed_entity => self.id)
       end
 
     end # module ModelMixin

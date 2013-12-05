@@ -54,7 +54,7 @@ module Activr
 
         entities_infos.each do |entity|
           if entity[:name] != 'actor'
-            result += " {{#{entity[:name]}}}"
+            result += " {{{#{entity[:name]}}}}"
           end
         end
 

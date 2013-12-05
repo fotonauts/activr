@@ -135,11 +135,11 @@ module Activr
 
     # count total number of activities
     #
-    # cf. Activr::Storage.count_activities
-    def count_activities(options = { })
+    # cf. Activr::Storage.activities_count
+    def activities_count(options = { })
       options = self._normalize_query_options(options)
 
-      Activr.storage.count_activities(options)
+      Activr.storage.activities_count(options)
     end
 
     # get a timeline

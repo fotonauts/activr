@@ -230,8 +230,8 @@ class Activr::Storage::MongoDriver
 
   # count activities
   #
-  # cf. Activr::Storage.count_activities
-  def count_activities(options = { })
+  # cf. Activr::Storage.activities_count
+  def activities_count(options = { })
     self.count(self.activity_collection, self._activities_selector(options))
   end
 

@@ -116,7 +116,7 @@ module Activr
     #   :only     => [Array of Class] Fetch only those activities
     #   :except   => [Array of Class] Skip those activities
     # @return [Array] An array of Activr::Activity instances
-    def count_activities(options = { })
+    def activities_count(options = { })
       # default options
       options = {
         :before   => nil,
@@ -127,7 +127,7 @@ module Activr
       }.merge(options)
 
       # count
-      self.driver.count_activities(options)
+      self.driver.activities_count(options)
     end
 
     # Insert a new timeline entry
