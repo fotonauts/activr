@@ -4,7 +4,7 @@ describe "Application" do
 
   let(:user)      { User.create(:_id => 'jpale', :first_name => "Jean", :last_name => "PALE") }
   let(:buddy)     { User.create(:_id => 'justine', :first_name => "Justine", :last_name => "CHTITEGOUTE") }
-  let(:photo)     { Picture.create(:title => "Me myself and I") }
+  let(:picture)   { Picture.create(:title => "Me myself and I") }
   let(:album)     { Album.create(:name => "Selfies") }
   let(:owner)     { User.create(:_id => 'corinne', :first_name => "Corinne", :last_name => "CHTITEGOUTE") }
   let(:follower)  { User.create(:_id => 'anne', :first_name => "Anne", :last_name => "CHTITEGOUTE") }
@@ -19,14 +19,14 @@ describe "Application" do
     ]
   end
 
-  it "humanizes AddPhoto activity" do
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
-    activity.humanize.should == "Jean PALE added photo Me myself and I to the Selfies album"
+  it "humanizes AddPicture activity" do
+    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
+    activity.humanize.should == "Jean PALE added picture Me myself and I to the Selfies album"
   end
 
-  it "humanizes FeaturePhoto activity" do
-    activity = FeaturePhoto.new(:actor => user, :photo => photo)
-    activity.humanize.should == "Photo Me myself and I has been featured by Jean PALE"
+  it "humanizes FeaturePicture activity" do
+    activity = FeaturePicture.new(:actor => user, :picture => picture)
+    activity.humanize.should == "Picture Me myself and I has been featured by Jean PALE"
   end
 
   it "humanizes FollowAlbum activity" do
@@ -39,45 +39,45 @@ describe "Application" do
     activity.humanize.should == "Jean PALE is now following Justine CHTITEGOUTE"
   end
 
-  it "humanizes LikePhoto activity" do
-    activity = LikePhoto.new(:actor => user, :photo => photo)
-    activity.humanize.should == "Jean PALE liked the Me myself and I photo"
+  it "humanizes LikePicture activity" do
+    activity = LikePicture.new(:actor => user, :picture => picture)
+    activity.humanize.should == "Jean PALE liked the Me myself and I picture"
   end
 
-  it "routes AddPhoto to actor's followers" do
+  it "routes AddPicture to actor's followers" do
     # @todo FIXME
     user.followers = [ follower, follower2 ]
 
-    Activr.dispatch!(AddPhoto.new(:actor => user, :photo => photo, :album => album))
+    Activr.dispatch!(AddPicture.new(:actor => user, :picture => picture, :album => album))
 
     Activr.timeline(UserNewsFeed, follower).dump.should == [
-      "Jean PALE added photo Me myself and I to the Selfies album"
+      "Jean PALE added picture Me myself and I to the Selfies album"
     ]
 
     Activr.timeline(UserNewsFeed, follower2).dump.should == [
-      "Jean PALE added photo Me myself and I to the Selfies album"
+      "Jean PALE added picture Me myself and I to the Selfies album"
     ]
   end
 
-  it "routes LikePhoto to photo's owner" do
+  it "routes LikePicture to picture's owner" do
     # @todo FIXME
-    photo.owner = owner
+    picture.owner = owner
 
-    Activr.dispatch!(LikePhoto.new(:actor => user, :photo => photo))
+    Activr.dispatch!(LikePicture.new(:actor => user, :picture => picture))
 
     Activr.timeline(UserNewsFeed, owner).dump.should == [
-      "Jean PALE liked your photo Me myself and I"
+      "Jean PALE liked your picture Me myself and I"
     ]
   end
 
-  it "routes FeaturePhoto to photo's owner" do
+  it "routes FeaturePicture to picture's owner" do
     # @todo FIXME
-    photo.owner = owner
+    picture.owner = owner
 
-    Activr.dispatch!(FeaturePhoto.new(:actor => user, :photo => photo))
+    Activr.dispatch!(FeaturePicture.new(:actor => user, :picture => picture))
 
     Activr.timeline(UserNewsFeed, owner).dump.should == [
-      "Your photo Me myself and I has been featured"
+      "Your picture Me myself and I has been featured"
     ]
   end
 
@@ -92,44 +92,44 @@ describe "Application" do
     ]
   end
 
-  it "routes AddPhoto to album's owner" do
+  it "routes AddPicture to album's owner" do
     # @todo FIXME
     album.owner = owner
 
-    Activr.dispatch!(AddPhoto.new(:actor => user, :photo => photo, :album => album))
+    Activr.dispatch!(AddPicture.new(:actor => user, :picture => picture, :album => album))
 
     Activr.timeline(UserNewsFeed, owner).dump.should == [
-      "Jean PALE added a photo to your Selfies album"
+      "Jean PALE added a picture to your Selfies album"
     ]
   end
 
-  it "routes AddPhoto to photo's followers" do
+  it "routes AddPicture to picture's followers" do
     # @todo FIXME
-    photo.followers = [ follower, follower2 ]
+    picture.followers = [ follower, follower2 ]
 
-    Activr.dispatch!(AddPhoto.new(:actor => user, :photo => photo, :album => album))
+    Activr.dispatch!(AddPicture.new(:actor => user, :picture => picture, :album => album))
 
     Activr.timeline(UserNewsFeed, follower).dump.should == [
-      "Jean PALE added photo Me myself and I to the Selfies album"
+      "Jean PALE added picture Me myself and I to the Selfies album"
     ]
 
     Activr.timeline(UserNewsFeed, follower2).dump.should == [
-      "Jean PALE added photo Me myself and I to the Selfies album"
+      "Jean PALE added picture Me myself and I to the Selfies album"
     ]
   end
 
-  it "routes AddPhoto to albums's followers" do
+  it "routes AddPicture to albums's followers" do
     # @todo FIXME
     album.followers = [ follower, follower2 ]
 
-    Activr.dispatch!(AddPhoto.new(:actor => user, :photo => photo, :album => album))
+    Activr.dispatch!(AddPicture.new(:actor => user, :picture => picture, :album => album))
 
     Activr.timeline(UserNewsFeed, follower).dump.should == [
-      "Jean PALE added photo Me myself and I to the Selfies album"
+      "Jean PALE added picture Me myself and I to the Selfies album"
     ]
 
     Activr.timeline(UserNewsFeed, follower2).dump.should == [
-      "Jean PALE added photo Me myself and I to the Selfies album"
+      "Jean PALE added picture Me myself and I to the Selfies album"
     ]
   end
 

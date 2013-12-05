@@ -2,11 +2,11 @@ require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 
 describe Activr::Timeline::Entry do
 
-  let(:user)  { User.create(:_id => 'jpale', :first_name => "Jean", :last_name => "PALE") }
-  let(:buddy) { User.create(:_id => 'justine', :first_name => "Justine", :last_name => "CHTITEGOUTE") }
-  let(:photo) { Picture.create(:title => "Me myself and I") }
-  let(:album) { Album.create(:name => "Selfies") }
-  let(:owner) { User.create(:_id => 'corinne', :first_name => "Corinne", :last_name => "CHTITEGOUTE") }
+  let(:user)    { User.create(:_id => 'jpale', :first_name => "Jean", :last_name => "PALE") }
+  let(:buddy)   { User.create(:_id => 'justine', :first_name => "Justine", :last_name => "CHTITEGOUTE") }
+  let(:picture) { Picture.create(:title => "Me myself and I") }
+  let(:album)   { Album.create(:name => "Selfies") }
+  let(:owner)   { User.create(:_id => 'corinne', :first_name => "Corinne", :last_name => "CHTITEGOUTE") }
 
   let(:timeline)      { UserNewsFeed.new(buddy) }
   let(:routing_kind)  { 'buddy' }
@@ -69,32 +69,32 @@ describe Activr::Timeline::Entry do
 
   it "humanizes thanks to :humanize setting" do
     # @todo FIXME
-    photo.owner = owner
+    picture.owner = owner
 
-    activity = FeaturePhoto.new(:actor => user, :photo => photo)
-    tl_entry = Activr::Timeline::Entry.new(timeline, 'photo_owner', activity)
+    activity = FeaturePicture.new(:actor => user, :picture => picture)
+    tl_entry = Activr::Timeline::Entry.new(timeline, 'picture_owner', activity)
 
-    tl_entry.humanize.should == "Your photo Me myself and I has been featured"
+    tl_entry.humanize.should == "Your picture Me myself and I has been featured"
   end
 
   it "humanizes thanks to :humanize method in subclass" do
     # @todo FIXME
-    photo.owner = owner
+    picture.owner = owner
 
-    activity = LikePhoto.new(:actor => user, :photo => photo)
-    tl_entry = UserNewsFeed::PhotoOwnerLikePhoto.new(timeline, 'photo_owner', activity)
+    activity = LikePicture.new(:actor => user, :picture => picture)
+    tl_entry = UserNewsFeed::PictureOwnerLikePicture.new(timeline, 'picture_owner', activity)
 
-    tl_entry.humanize.should == "Jean PALE liked your photo Me myself and I"
+    tl_entry.humanize.should == "Jean PALE liked your picture Me myself and I"
   end
 
   it "humanizes thanks to embedded activity" do
     # @todo FIXME
     user.followers = [ buddy ]
 
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
+    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
     tl_entry = Activr::Timeline::Entry.new(timeline, 'actor_follower', activity)
 
-    tl_entry.humanize.should == "Jean PALE added photo Me myself and I to the Selfies album"
+    tl_entry.humanize.should == "Jean PALE added picture Me myself and I to the Selfies album"
   end
 
   it "stores in database" do

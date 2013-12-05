@@ -1,9 +1,9 @@
-class LikePhoto < Activr::Activity
+class LikePicture < Activr::Activity
 
-  entity :actor, :class => User,    :humanize => :fullname
-  entity :photo, :class => Picture, :humanize => :title, :default => '[photo]' # @todo Test :default handling !
+  entity :actor,   :class => User,    :humanize => :fullname
+  entity :picture, :class => Picture, :humanize => :title, :default => '[picture]' # @todo Test :default handling !
 
-  humanize "{{{actor}}} liked the {{{photo}}} photo"
+  humanize "{{{actor}}} liked the {{{picture}}} picture"
 
   before_store :check_bar_meta
   before_store :set_foo_meta

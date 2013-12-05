@@ -2,18 +2,18 @@ require File.join(File.dirname(__FILE__), 'spec_helper')
 
 describe Activr::Activity do
 
-  let(:user)  { User.create(:_id => 'jpale', :first_name => "Jean", :last_name => "PALE") }
-  let(:buddy) { User.create(:_id => 'justine', :first_name => "Justine", :last_name => "CHTITEGOUTE") }
-  let(:photo) { Picture.create(:title => "Me myself and I") }
-  let(:album) { Album.create(:name => "Selfies") }
-  let(:owner) { User.create(:_id => 'corinne', :first_name => "Corinne", :last_name => "CHTITEGOUTE") }
+  let(:user)    { User.create(:_id => 'jpale', :first_name => "Jean", :last_name => "PALE") }
+  let(:buddy)   { User.create(:_id => 'justine', :first_name => "Justine", :last_name => "CHTITEGOUTE") }
+  let(:picture) { Picture.create(:title => "Me myself and I") }
+  let(:album)   { Album.create(:name => "Selfies") }
+  let(:owner)   { User.create(:_id => 'corinne', :first_name => "Corinne", :last_name => "CHTITEGOUTE") }
 
 
   it "have allowed entities" do
-    AddPhoto.allowed_entities.should == {
-      :actor => { :class => User, :humanize => :fullname },
-      :photo => { :class => Picture, :humanize => :title },
-      :album => { :class => Album, :humanize => :name },
+    AddPicture.allowed_entities.should == {
+      :actor   => { :class => User, :humanize => :fullname },
+      :picture => { :class => Picture, :humanize => :title },
+      :album   => { :class => Album, :humanize => :name },
     }
 
     FollowBuddyActivity.allowed_entities.should == {
@@ -23,15 +23,15 @@ describe Activr::Activity do
   end
 
   it "instanciates with entity models" do
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
+    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
 
     activity.actor_entity.should_not be_nil
     activity.actor.should == user
     activity.actor_id.should == user._id
 
-    activity.photo_entity.should_not be_nil
-    activity.photo.should == photo
-    activity.photo_id.should == photo._id
+    activity.picture_entity.should_not be_nil
+    activity.picture.should == picture
+    activity.picture_id.should == picture._id
 
     activity.album_entity.should_not be_nil
     activity.album.should == album
@@ -52,8 +52,8 @@ describe Activr::Activity do
   end
 
   it "humanizes thanks to :humanize setting" do
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
-    activity.humanize.should == "Jean PALE added photo Me myself and I to the Selfies album"
+    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
+    activity.humanize.should == "Jean PALE added picture Me myself and I to the Selfies album"
   end
 
   it "humanizes thanks to :humanize method in subclass" do
@@ -62,21 +62,21 @@ describe Activr::Activity do
   end
 
   it "instanciates with meta" do
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album, :foo => 'bar')
+    activity = AddPicture.new(:actor => user, :picture => picture, :album => album, :foo => 'bar')
     activity[:foo].should == 'bar'
   end
 
   it "sets a default :at field on instanciation" do
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album, :foo => 'bar')
+    activity = AddPicture.new(:actor => user, :picture => picture, :album => album, :foo => 'bar')
     activity.at.should_not be_nil
   end
 
   it "sets entities" do
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
-    activity.humanize.should == "Jean PALE added photo Me myself and I to the Selfies album"
+    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
+    activity.humanize.should == "Jean PALE added picture Me myself and I to the Selfies album"
 
     activity.actor = buddy
-    activity.humanize.should == "Justine CHTITEGOUTE added photo Me myself and I to the Selfies album"
+    activity.humanize.should == "Justine CHTITEGOUTE added picture Me myself and I to the Selfies album"
 
     activity.actor_entity.should_not be_nil
     activity.actor.should == buddy
@@ -84,7 +84,7 @@ describe Activr::Activity do
   end
 
   it "gets and sets meta" do
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album, :meta => { :foo => 'bar' })
+    activity = AddPicture.new(:actor => user, :picture => picture, :album => album, :meta => { :foo => 'bar' })
     activity[:foo].should == 'bar'
 
     activity[:foo] = 'meuh'
@@ -101,7 +101,7 @@ describe Activr::Activity do
   end
 
   it "initialize with meta sugar" do
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album, :foo => 'bar')
+    activity = AddPicture.new(:actor => user, :picture => picture, :album => album, :foo => 'bar')
     activity[:foo].should == 'bar'
 
     hsh = activity.to_hash
@@ -111,17 +111,17 @@ describe Activr::Activity do
   end
 
   it "checks for validity" do
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
+    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
     lambda { activity.check! }.should_not raise_error
   end
 
   it "raises if a mandatory entity is missing" do
-    activity = AddPhoto.new(:actor => user, :photo => photo)
+    activity = AddPicture.new(:actor => user, :picture => picture)
     lambda { activity.check! }.should raise_error(Activr::Activity::MissingEntityError)
   end
 
   it "does not raise if trying to access an entity defined for another activity" do
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
+    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
 
     lambda { activity.buddy_entity }.should_not raise_error
     activity.buddy_entity.should be_nil
@@ -134,7 +134,7 @@ describe Activr::Activity do
   end
 
   it "stores in database" do
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
+    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
     activity._id.should be_nil
 
     # test
@@ -145,15 +145,15 @@ describe Activr::Activity do
 
     fetched_activity = Activr.storage.fetch_activity(activity._id)
     fetched_activity.should_not be_nil
-    fetched_activity.class.should == AddPhoto
+    fetched_activity.class.should == AddPicture
 
     fetched_activity.actor.should == activity.actor
-    fetched_activity.photo.should == activity.photo
+    fetched_activity.picture.should == activity.picture
     fetched_activity.album.should == activity.album
   end
 
   it "run before_store callback before storing in database" do
-    activity = LikePhoto.new(:actor => user, :photo => photo)
+    activity = LikePicture.new(:actor => user, :picture => picture)
 
     activity.store!
 
@@ -165,7 +165,7 @@ describe Activr::Activity do
   end
 
   it "is not stored if before_store callback returns false" do
-    activity = LikePhoto.new(:actor => user, :photo => photo, :bar => 'baz')
+    activity = LikePicture.new(:actor => user, :picture => picture, :bar => 'baz')
 
     activity.store!
 
@@ -176,9 +176,9 @@ describe Activr::Activity do
 
   it "run before_route callback before routing to timelines" do
     # @todo FIXME
-    photo.owner = owner
+    picture.owner = owner
 
-    activity = LikePhoto.new(:actor => user, :photo => photo)
+    activity = LikePicture.new(:actor => user, :picture => picture)
 
     Activr.dispatch!(activity)
 
@@ -191,9 +191,9 @@ describe Activr::Activity do
 
   it "is not routed to timelines if before_route callback returns false" do
     # @todo FIXME
-    photo.owner = owner
+    picture.owner = owner
 
-    activity = LikePhoto.new(:actor => user, :photo => photo, :baz => 'belongtous')
+    activity = LikePicture.new(:actor => user, :picture => picture, :baz => 'belongtous')
 
     Activr.dispatch!(activity)
 
@@ -204,18 +204,18 @@ describe Activr::Activity do
   context "when class have NO suffix" do
 
     it "have a kind computed from class" do
-      AddPhoto.kind.should == 'add_photo'
+      AddPicture.kind.should == 'add_picture'
     end
 
     it "exports to a hash" do
-      activity = AddPhoto.new(:actor => user, :photo => photo, :album => album, :foo => 'bar')
+      activity = AddPicture.new(:actor => user, :picture => picture, :album => album, :foo => 'bar')
       activity.to_hash.should == {
-        'kind'  => 'add_photo',
-        'at'    => activity.at,
-        'actor' => user._id,
-        'photo' => photo._id,
-        'album' => album._id,
-        'meta'  => { 'foo'   => 'bar' },
+        'kind'    => 'add_picture',
+        'at'      => activity.at,
+        'actor'   => user._id,
+        'picture' => picture._id,
+        'album'   => album._id,
+        'meta'    => { 'foo'   => 'bar' },
       }
     end
 
@@ -223,19 +223,19 @@ describe Activr::Activity do
       now = Time.now.utc
 
       activity = Activr::Activity.from_hash({
-        'kind'  => 'add_photo',
-        'at'    => now,
-        'actor' => user._id,
-        'photo' => photo._id,
-        'album' => album._id,
-        'foo'   => 'bar',
+        'kind'    => 'add_picture',
+        'at'      => now,
+        'actor'   => user._id,
+        'picture' => picture._id,
+        'album'   => album._id,
+        'foo'     => 'bar',
       })
 
-      activity.class.should == AddPhoto
+      activity.class.should == AddPicture
       activity.at.should == now
 
       activity.actor.should == user
-      activity.photo.should == photo
+      activity.picture.should == picture
       activity.album.should == album
 
       activity[:foo].should == 'bar'

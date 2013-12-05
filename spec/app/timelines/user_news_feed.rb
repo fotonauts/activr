@@ -3,7 +3,7 @@ class UserNewsFeed < Activr::Timeline
 
   # timeline entries classes
   autoload :MyCustomRoutingFollowAlbum, 'user_news_feed/my_custom_routing_follow_album'
-  autoload :PhotoOwnerLikePhoto,        'user_news_feed/photo_owner_like_photo'
+  autoload :PictureOwnerLikePicture,    'user_news_feed/picture_owner_like_picture'
 
   # set recipient class
   recipient User
@@ -17,8 +17,8 @@ class UserNewsFeed < Activr::Timeline
   routing :actor_follower, :to => Proc.new{ |activity| activity.actor.followers }
 
   # define a routing with a Block
-  routing :photo_follower do |activity|
-    activity.photo.followers
+  routing :picture_follower do |activity|
+    activity.picture.followers
   end
 
 
@@ -30,22 +30,22 @@ class UserNewsFeed < Activr::Timeline
   route FollowBuddyActivity, :to => 'buddy'
 
   # route to path
-  route AddPhoto, :to => 'album.owner', :humanize => "{{{actor}}} added a photo to your {{{album}}} album"
+  route AddPicture, :to => 'album.owner', :humanize => "{{{actor}}} added a picture to your {{{album}}} album"
 
-  # route without inline `humanize`, so the #humanize method will be called on default timeline entry class UserNewsFeed::PhotoOwnerLikePhoto
-  route LikePhoto, :to => 'photo.owner'
+  # route without inline `humanize`, so the #humanize method will be called on default timeline entry class UserNewsFeed::PictureOwnerLikePicture
+  route LikePicture, :to => 'picture.owner'
 
-  route FeaturePhoto, :to => 'photo.owner', :humanize => "Your photo {{photo_model.title}} has been featured"
+  route FeaturePicture, :to => 'picture.owner', :humanize => "Your picture {{picture_model.title}} has been featured"
 
   # define a custom routing kind (ie. 'my_custom_routing' instead of 'album_owner')
   route FollowAlbum, :to => 'album.owner', :kind => :my_custom_routing
 
   # route using pre-defined routing
-  route AddPhoto, :using => :actor_follower
-  route AddPhoto, :using => :photo_follower
+  route AddPicture, :using => :actor_follower
+  route AddPicture, :using => :picture_follower
 
   # route using the timeline's class method call: UserNewsFeed.album_follower
-  route AddPhoto, :using => :album_follower
+  route AddPicture, :using => :album_follower
 
 
   class << self

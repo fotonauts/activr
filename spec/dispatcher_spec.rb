@@ -4,7 +4,7 @@ describe Activr::Dispatcher do
 
   let(:user)     { User.create(:_id => 'jpale', :first_name => "Jean", :last_name => "PALE") }
   let(:buddy)    { User.create(:_id => 'justine', :first_name => "Justine", :last_name => "CHTITEGOUTE") }
-  let(:photo)    { Picture.create(:title => "Me myself and I") }
+  let(:picture)  { Picture.create(:title => "Me myself and I") }
   let(:album)    { Album.create(:name => "Selfies") }
   let(:owner)    { User.create(:_id => 'corinne', :first_name => "Corinne", :last_name => "CHTITEGOUTE") }
   let(:follower) { User.create(:_id => 'anne', :first_name => "Anne", :last_name => "CHTITEGOUTE") }
@@ -41,14 +41,14 @@ describe Activr::Dispatcher do
     # @todo FIXME
     album.owner = owner
 
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
+    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
     activity.store!
 
     # test
     recipients = dispatcher.recipients_for_timeline(UserNewsFeed, activity)
 
     # check
-    recipients[owner].should == UserNewsFeed.route_for_kind('album_owner_add_photo')
+    recipients[owner].should == UserNewsFeed.route_for_kind('album_owner_add_picture')
   end
 
   it "routes with a custom routing kind" do
@@ -73,14 +73,14 @@ describe Activr::Dispatcher do
     # @todo FIXME
     user.followers = [ buddy ]
 
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
+    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
     activity.store!
 
     # test
     recipients = dispatcher.recipients_for_timeline(UserNewsFeed, activity)
 
     # check
-    recipients[buddy].should == UserNewsFeed.route_for_kind('actor_follower_add_photo')
+    recipients[buddy].should == UserNewsFeed.route_for_kind('actor_follower_add_picture')
   end
 
   it "routes with timeline's class method" do
@@ -89,14 +89,14 @@ describe Activr::Dispatcher do
     # @todo FIXME
     album.followers = [ follower ]
 
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
+    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
     activity.store!
 
     # test
     recipients = dispatcher.recipients_for_timeline(UserNewsFeed, activity)
 
     # check
-    recipients[follower].should == UserNewsFeed.route_for_kind('album_follower_add_photo')
+    recipients[follower].should == UserNewsFeed.route_for_kind('album_follower_add_picture')
   end
 
 end

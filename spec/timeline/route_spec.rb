@@ -2,11 +2,11 @@ require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 
 describe Activr::Timeline::Route do
 
-  let(:user)   { User.create(:_id => 'jpale',   :first_name => "Jean",    :last_name => "PALE") }
-  let(:buddy)  { User.create(:_id => 'justine', :first_name => "Justine", :last_name => "CHTITEGOUTE") }
-  let(:marcel) { User.create(:_id => 'marcel',  :first_name => "Marcel",  :last_name => "BELIVO") }
-  let(:photo)  { Picture.create(:title => "Me myself and I") }
-  let(:album)  { Album.create(:name => "Selfies") }
+  let(:user)    { User.create(:_id => 'jpale',   :first_name => "Jean",    :last_name => "PALE") }
+  let(:buddy)   { User.create(:_id => 'justine', :first_name => "Justine", :last_name => "CHTITEGOUTE") }
+  let(:marcel)  { User.create(:_id => 'marcel',  :first_name => "Marcel",  :last_name => "BELIVO") }
+  let(:picture) { Picture.create(:title => "Me myself and I") }
+  let(:album)   { Album.create(:name => "Selfies") }
 
   it "instanciates" do
     settings = { :to => :buddy }
@@ -24,7 +24,7 @@ describe Activr::Timeline::Route do
 
   it "handle 'predefined' routing kind" do
     settings = { :using => :actor_follower }
-    route = Activr::Timeline::Route.new(UserNewsFeed, AddPhoto, settings)
+    route = Activr::Timeline::Route.new(UserNewsFeed, AddPicture, settings)
     route.routing_kind.should == :actor_follower
   end
 
@@ -53,29 +53,29 @@ describe Activr::Timeline::Route do
     receivers.should == [ buddy ]
   end
 
-  # route AddPhoto, :to => 'album.owner'
+  # route AddPicture, :to => 'album.owner'
   it "resolves routing to activity's path" do
     # @todo save in model
     album.owner = buddy
 
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
+    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
 
     # test
-    receivers = UserNewsFeed.route_for_kind('album_owner_add_photo').resolve(activity)
+    receivers = UserNewsFeed.route_for_kind('album_owner_add_picture').resolve(activity)
 
     # check
     receivers.should == [ buddy ]
   end
 
-  # route AddPhoto, :using => :actor_follower
+  # route AddPicture, :using => :actor_follower
   it "resolves pre-defined routing" do
     # @todo save in model
     user.followers = [ buddy, marcel ]
 
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
+    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
 
     # test
-    receivers = UserNewsFeed.route_for_kind('actor_follower_add_photo').resolve(activity)
+    receivers = UserNewsFeed.route_for_kind('actor_follower_add_picture').resolve(activity)
 
     # check
     receivers.size.should == 2
@@ -83,15 +83,15 @@ describe Activr::Timeline::Route do
     receivers.should include(marcel)
   end
 
-  # route AddPhoto, :using => :album_follower
+  # route AddPicture, :using => :album_follower
   it "resolves routing with timeline's method" do
     # @todo save in model
     album.followers = [ marcel ]
 
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
+    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
 
     # test
-    receivers = UserNewsFeed.route_for_kind('album_follower_add_photo').resolve(activity)
+    receivers = UserNewsFeed.route_for_kind('album_follower_add_picture').resolve(activity)
 
     # check
     receivers.should == [ marcel ]

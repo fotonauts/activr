@@ -4,7 +4,7 @@ describe Activr do
 
   let(:user)     { User.create(:_id => 'jpale', :first_name => "Jean", :last_name => "PALE") }
   let(:buddy)    { User.create(:_id => 'justine', :first_name => "Justine", :last_name => "CHTITEGOUTE") }
-  let(:photo)    { Picture.create(:title => "Me myself and I") }
+  let(:picture)  { Picture.create(:title => "Me myself and I") }
   let(:album)    { Album.create(:name => "Selfies") }
   let(:owner)    { User.create(:_id => 'corinne', :first_name => "Corinne", :last_name => "CHTITEGOUTE") }
   let(:follower) { User.create(:_id => 'anne', :first_name => "Anne", :last_name => "CHTITEGOUTE") }

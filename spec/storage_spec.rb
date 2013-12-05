@@ -2,10 +2,10 @@ require File.join(File.dirname(__FILE__), 'spec_helper')
 
 describe Activr::Storage do
 
-  let(:user)  { User.create(:_id => 'jpale', :first_name => "Jean", :last_name => "PALE") }
-  let(:photo) { Picture.create(:title => "Me myself and I") }
-  let(:album) { Album.create(:name => "Selfies") }
-  let(:owner) { User.create(:_id => 'corinne', :first_name => "Corinne", :last_name => "CHTITEGOUTE") }
+  let(:user)    { User.create(:_id => 'jpale', :first_name => "Jean", :last_name => "PALE") }
+  let(:picture) { Picture.create(:title => "Me myself and I") }
+  let(:album)   { Album.create(:name => "Selfies") }
+  let(:owner)   { User.create(:_id => 'corinne', :first_name => "Corinne", :last_name => "CHTITEGOUTE") }
 
   after(:each) do
     Activr.storage.clear_hooks!
@@ -22,7 +22,7 @@ describe Activr::Storage do
     end
 
     # test
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
+    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
     activity.store!
     activity_hash = Activr.storage.driver.find_one(Activr.storage.driver.activity_collection, activity._id)
     activity_hash.should_not be_nil
@@ -47,7 +47,7 @@ describe Activr::Storage do
     end
 
     # test
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
+    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
     activity.store!
 
     # check
@@ -73,8 +73,8 @@ describe Activr::Storage do
 
     # test
     timeline = UserNewsFeed.new(owner)
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
-    timeline_entry = Activr::Timeline::Entry.new(timeline, 'album_owner_add_photo', activity)
+    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
+    timeline_entry = Activr::Timeline::Entry.new(timeline, 'album_owner_add_picture', activity)
     timeline_entry.store!
 
     # check
@@ -98,8 +98,8 @@ describe Activr::Storage do
 
     # test
     timeline = UserNewsFeed.new(owner)
-    activity = AddPhoto.new(:actor => user, :photo => photo, :album => album)
-    timeline_entry = Activr::Timeline::Entry.new(timeline, 'album_owner_add_photo', activity)
+    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
+    timeline_entry = Activr::Timeline::Entry.new(timeline, 'album_owner_add_picture', activity)
     timeline_entry.store!
 
     # check
