@@ -94,7 +94,7 @@ describe Activr::Timeline::Entry do
     activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
     tl_entry = Activr::Timeline::Entry.new(timeline, 'actor_follower', activity)
 
-    tl_entry.humanize.should == "Jean PALE added picture Me myself and I to the Selfies album"
+    tl_entry.humanize.should == "Jean PALE added picture Me myself and I to the album Selfies"
   end
 
   it "stores in database" do

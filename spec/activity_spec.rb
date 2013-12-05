@@ -53,7 +53,7 @@ describe Activr::Activity do
 
   it "humanizes thanks to :humanize setting" do
     activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
-    activity.humanize.should == "Jean PALE added picture Me myself and I to the Selfies album"
+    activity.humanize.should == "Jean PALE added picture Me myself and I to the album Selfies"
   end
 
   it "humanizes thanks to :humanize method in subclass" do
@@ -73,10 +73,10 @@ describe Activr::Activity do
 
   it "sets entities" do
     activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
-    activity.humanize.should == "Jean PALE added picture Me myself and I to the Selfies album"
+    activity.humanize.should == "Jean PALE added picture Me myself and I to the album Selfies"
 
     activity.actor = buddy
-    activity.humanize.should == "Justine CHTITEGOUTE added picture Me myself and I to the Selfies album"
+    activity.humanize.should == "Justine CHTITEGOUTE added picture Me myself and I to the album Selfies"
 
     activity.actor_entity.should_not be_nil
     activity.actor.should == buddy

@@ -21,7 +21,7 @@ describe "Application" do
 
   it "humanizes AddPicture activity" do
     activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
-    activity.humanize.should == "Jean PALE added picture Me myself and I to the Selfies album"
+    activity.humanize.should == "Jean PALE added picture Me myself and I to the album Selfies"
   end
 
   it "humanizes FeaturePicture activity" do
@@ -31,7 +31,7 @@ describe "Application" do
 
   it "humanizes FollowAlbum activity" do
     activity = FollowAlbum.new(:actor => user, :album => album)
-    activity.humanize.should == "Jean PALE is now following the Selfies album"
+    activity.humanize.should == "Jean PALE is now following the album Selfies"
   end
 
   it "humanizes FollowBuddyActivity activity" do
@@ -41,7 +41,7 @@ describe "Application" do
 
   it "humanizes LikePicture activity" do
     activity = LikePicture.new(:actor => user, :picture => picture)
-    activity.humanize.should == "Jean PALE liked the Me myself and I picture"
+    activity.humanize.should == "Jean PALE liked the picture Me myself and I"
   end
 
   it "routes AddPicture to actor's followers" do
@@ -51,11 +51,11 @@ describe "Application" do
     Activr.dispatch!(AddPicture.new(:actor => user, :picture => picture, :album => album))
 
     Activr.timeline(UserNewsFeed, follower).dump.should == [
-      "Jean PALE added picture Me myself and I to the Selfies album"
+      "Jean PALE added picture Me myself and I to the album Selfies"
     ]
 
     Activr.timeline(UserNewsFeed, follower2).dump.should == [
-      "Jean PALE added picture Me myself and I to the Selfies album"
+      "Jean PALE added picture Me myself and I to the album Selfies"
     ]
   end
 
@@ -88,7 +88,7 @@ describe "Application" do
     Activr.dispatch!(FollowAlbum.new(:actor => user, :album => album))
 
     Activr.timeline(UserNewsFeed, owner).dump.should == [
-      "Jean PALE is now following your Selfies album"
+      "Jean PALE is now following your album Selfies"
     ]
   end
 
@@ -99,7 +99,7 @@ describe "Application" do
     Activr.dispatch!(AddPicture.new(:actor => user, :picture => picture, :album => album))
 
     Activr.timeline(UserNewsFeed, owner).dump.should == [
-      "Jean PALE added a picture to your Selfies album"
+      "Jean PALE added a picture to your album Selfies"
     ]
   end
 
@@ -110,11 +110,11 @@ describe "Application" do
     Activr.dispatch!(AddPicture.new(:actor => user, :picture => picture, :album => album))
 
     Activr.timeline(UserNewsFeed, follower).dump.should == [
-      "Jean PALE added picture Me myself and I to the Selfies album"
+      "Jean PALE added picture Me myself and I to the album Selfies"
     ]
 
     Activr.timeline(UserNewsFeed, follower2).dump.should == [
-      "Jean PALE added picture Me myself and I to the Selfies album"
+      "Jean PALE added picture Me myself and I to the album Selfies"
     ]
   end
 
@@ -125,11 +125,11 @@ describe "Application" do
     Activr.dispatch!(AddPicture.new(:actor => user, :picture => picture, :album => album))
 
     Activr.timeline(UserNewsFeed, follower).dump.should == [
-      "Jean PALE added picture Me myself and I to the Selfies album"
+      "Jean PALE added picture Me myself and I to the album Selfies"
     ]
 
     Activr.timeline(UserNewsFeed, follower2).dump.should == [
-      "Jean PALE added picture Me myself and I to the Selfies album"
+      "Jean PALE added picture Me myself and I to the album Selfies"
     ]
   end
 
