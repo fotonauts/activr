@@ -26,7 +26,7 @@ require 'activr/activity'
 require 'activr/timeline'
 require 'activr/dispatcher'
 require 'activr/async'
-require 'activr/rails'
+require 'activr/rails_ctx'
 require 'activr/railtie' if defined?(::Rails)
 
 

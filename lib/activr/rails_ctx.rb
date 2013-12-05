@@ -1,5 +1,5 @@
 module Activr
-  class Rails
+  class RailsCtx
 
     class_attribute :controller
     self.controller = nil
@@ -24,5 +24,5 @@ module Activr
 
     end # class << self
 
-  end # class Rails
+  end # class RailsCtx
 end # module Activr

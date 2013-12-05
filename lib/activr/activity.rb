@@ -63,6 +63,11 @@ module Activr
         name = name.to_sym
         raise "Entity already defined: #{name}" unless self.allowed_entities[name].blank?
 
+        if options[:class].nil?
+          options = options.dup
+          options[:class] = name.to_s.camelize.constantize
+        end
+
         # NOTE: always use a setter on a class_attribute (cf. http://apidock.com/rails/Class/class_attribute)
         self.allowed_entities = self.allowed_entities.merge(name => options)
 

@@ -1,7 +1,7 @@
 module Activr
   module Generators
 
-    class ActivityGenerator < Rails::Generators::NamedBase
+    class ActivityGenerator < ::Rails::Generators::NamedBase
       DEFAULT_ENTITY_FIELD = :name
 
       source_root File.expand_path("../templates", __FILE__)
@@ -21,15 +21,24 @@ module Activr
         entities.map do |str|
           ary = str.split(':')
 
-          name  = ary[0].underscore
-          klass = (ary[1] || ary[0]).camelize
+          name = ary[0].underscore
+
+          klass, set_klass = if ary[1]
+            [ ary[1].camelize, true ]
+          else
+            [ ary[0].camelize, false ]
+          end
+
           human_meth = _resolve_entity_field(klass)
 
-          {
+          result = {
             :name     => name,
-            :class    => klass,
             :humanize => human_meth,
           }
+
+          result[:class] = klass if set_klass
+
+          result
         end
       end
 

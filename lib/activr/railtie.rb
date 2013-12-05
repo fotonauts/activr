@@ -24,8 +24,8 @@ module Activr
       ActiveSupport.on_load :action_controller do
         self.class_eval do
           before_filter do |controller|
-            Activr::Rails.clear_view_context!
-            Activr::Rails.controller = controller
+            Activr::RailsCtx.clear_view_context!
+            Activr::RailsCtx.controller = controller
           end
         end
       end
