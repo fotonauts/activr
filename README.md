@@ -107,7 +107,9 @@ With that controller code:
 ```ruby
 class AlbumsController < ApplicationController
 
-  def create_photo
+  # ...
+
+  def create_picture
     @album = Album.find(params[:id])
 
     # create picture
@@ -116,8 +118,14 @@ class AlbumsController < ApplicationController
     # add picture to album
     @album.add_picture(picture, current_user)
 
-    flash[:success] = "Photo '#{picture.title}' added to album: '#{@album.name}'"
+    flash[:success] = "Picture '#{picture.title}' added to album: '#{@album.name}'"
     redirect_to @album
+  end
+
+  private
+
+  def picture_params
+    params.require(:picture).permit(:title, :image)
   end
 
 end
@@ -179,9 +187,7 @@ class User
 end
 ```
 
-Now that class have two new methods: `#activities` and `#activities_count`
-
-Example:
+Now that class have two new methods: `#activities` and `#activities_count`:
 
 ```ruby
 user = User.find('john')

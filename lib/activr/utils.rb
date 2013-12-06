@@ -3,7 +3,13 @@ module Activr
 
     class << self
 
-      # returns kind for given class
+      # Returns kind for given class
+      #
+      # @api private
+      #
+      # @param klass [Class] Class
+      # @param suffix [String] Expected suffix
+      # @retun [String] Kind
       def kind_for_class(klass, suffix = nil)
         class_name = klass.to_s.split('::').last.underscore
         if suffix && (match_data = class_name.match(/(.+)_#{suffix}$/))
@@ -13,7 +19,13 @@ module Activr
         end
       end
 
-      # returns class for given kind
+      # Returns class for given kind
+      #
+      # @api private
+      #
+      # @param kind [String] Kind
+      # @param suffix [String] Suffix
+      # @retun [Class] Class
       def class_for_kind(kind, suffix = nil)
         str = suffix ? "#{kind}_#{suffix}" : kind
         str.camelize.constantize
@@ -24,7 +36,9 @@ module Activr
       # Mustache rendering
       #
 
-      # get a compiled mustache template
+      # Get a compiled mustache template
+      #
+      # @api private
       #
       # @param tpl [String] Template
       # @return [String] Compiled template
@@ -38,7 +52,9 @@ module Activr
         end
       end
 
-      # render a mustache template
+      # Render a mustache template
+      #
+      # @api private
       #
       # @param text     [String] Template to render
       # @param bindings [Hash] Template bindings

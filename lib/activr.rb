@@ -37,20 +37,27 @@ module Activr
 
   class << self
 
-    attr_accessor :logger
+    attr_writer :logger
 
 
-    # configuration sugar
+    # Configuration sugar
+    #
+    # Example:
+    #
+    #   Activr.configure do |config|
+    #     config.app_path      = File.join(File.dirname(__FILE__), "app")
+    #     config.mongodb[:uri] = "mongodb://#{rspec_mongo_host}:#{rspec_mongo_port}/#{rspec_mongo_db}"
+    #   end
     def configure
       yield self.config
     end
 
-    # setup
+    # Setup registry
     def setup
       self.registry.setup
     end
 
-    # logger
+    # @return [Logger] A logger instance
     def logger
       @logger ||= begin
         result = Logger.new(STDOUT)
@@ -61,41 +68,45 @@ module Activr
       end
     end
 
-    # path to activities classes
+    # Path to activities classes
+    #
+    # @return [String] Directory path
     def activities_path
       File.join(Activr.config.app_path, "activities")
     end
 
-    # path to timelines classes
+    # Path to timelines classes
+    #
+    # @return [String] Directory path
     def timelines_path
       File.join(Activr.config.app_path, "timelines")
     end
 
-    # global registry
+    # Registry
     #
     # @return [Activr::Registry] Global registry
     def registry
       @registy ||= Activr::Registry.new
     end
 
-    # storage singleton
+    # Storage singleton
     #
     # @return [Activr::Storage] Storage instance
     def storage
       @storage ||= Activr::Storage.new
     end
 
-    # dispatcher singleton
+    # Diispatcher singleton
     #
     # @return [Activr::Dispatcher] Dispatcher instance
     def dispatcher
       @dispatcher ||= Activr::Dispatcher.new
     end
 
-    # dispatch an activity
+    # Dispatch an activity
     #
     # @param activity [Activr::Activity] Activity instance to dispatch
-    # @return The activity id in main activities collection
+    # @return [BSON::ObjectId, Moped::BSON::ObjectId] The activity id in main activities collection
     def dispatch!(activity)
       # store activity in main collection
       activity.store! unless activity.stored?
@@ -105,7 +116,12 @@ module Activr
       activity
     end
 
-    # helper
+    # Normalize query options
+    #
+    # @api private
+    #
+    # @param options [Hash] Options to normalize
+    # @return [Hash] Normalized options
     def _normalize_query_options(options)
       result = { }
 
@@ -124,25 +140,25 @@ module Activr
       result
     end
 
-    # fetch last activities
+    # Fetch last activities
     #
-    # cf. Activr::Storage.fetch_activities
+    # @param (see Activr::Storage#fetch_activities)
     def activities(limit, options = { })
       options = self._normalize_query_options(options)
 
       Activr.storage.fetch_activities(limit, options)
     end
 
-    # count total number of activities
+    # Count total number of activities
     #
-    # cf. Activr::Storage.activities_count
+    # @param (see Activr::Storage#activities_count)
     def activities_count(options = { })
       options = self._normalize_query_options(options)
 
       Activr.storage.activities_count(options)
     end
 
-    # get a timeline
+    # Get a timeline
     #
     # @param timeline_class [Class] Timeline class
     # @param recipient [String|Object] Recipient instance or recipient id
@@ -151,7 +167,7 @@ module Activr
       timeline_class.new(recipient)
     end
 
-    # render a sentence
+    # Render a sentence
     #
     # @param text     [String] Sentence to render
     # @param bindings [Hash] Sentence bindings
