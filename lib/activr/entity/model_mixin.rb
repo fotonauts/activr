@@ -28,59 +28,54 @@
 #     puts activity.humanize
 #   end
 #
-module Activr
-  class Entity
+module Activr::Entity::ModelMixin
 
-    module ModelMixin
+  extend ActiveSupport::Concern
 
-      extend ActiveSupport::Concern
+  included do
+    # Entity name to use in activity feed queries
+    class_attribute :activr_feed_entity_name, :instance_writer => false
+    self.activr_feed_entity_name = nil
+  end
 
-      included do
-        # Entity name to use in activity feed queries
-        class_attribute :activr_feed_entity_name, :instance_writer => false
-        self.activr_feed_entity_name = nil
-      end
+  module ClassMethods
 
-      module ClassMethods
+    #
+    # Class interface
+    #
 
-        #
-        # Class interface
-        #
+    # Set a custom entity name to use in activity feed queries
+    #
+    # @param name [String] Entity name
+    def activr_feed_entity(name)
+      self.activr_feed_entity_name = name.to_sym
+    end
 
-        # Set a custom entity name to use in activity feed queries
-        #
-        # @param name [String] Entity name
-        def activr_feed_entity(name)
-          self.activr_feed_entity_name = name.to_sym
-        end
+  end # module ClassMethods
 
-      end # module ClassMethods
+  # Get entity name to use for activity feed queries
+  #
+  # @api private
+  #
+  # @return [Symbol]
+  def activr_feed_entity
+    self.activr_feed_entity_name || Activr::Utils.kind_for_class(self).to_sym
+  end
 
-      # Get entity name to use for activity feed queries
-      #
-      # @api private
-      #
-      # @return [Symbol]
-      def activr_feed_entity
-        self.activr_feed_entity_name || Activr::Utils.kind_for_class(self).to_sym
-      end
+  # Fetch activities
+  #
+  # @param limit [Integer] Max number of activities to fetch
+  # @param skip  [Integer] Number of activities to skip
+  # @return [Array<Activr::Activity>] A list of activities
+  def activities(limit, skip = 0)
+    Activr.activities(limit, :skip => skip, self.activr_feed_entity => self.id)
+  end
 
-      # Fetch activities
-      #
-      # @param limit [Integer] Max number of activities to fetch
-      # @param skip  [Integer] Number of activities to skip
-      # @return [Array<Activr::Activity>] A list of activities
-      def activities(limit, skip = 0)
-        Activr.activities(limit, :skip => skip, self.activr_feed_entity => self.id)
-      end
+  # Get total number of activities
+  #
+  # @return [Integer] The total number of activities
+  def activities_count
+    Activr.activities_count(self.activr_feed_entity => self.id)
+  end
 
-      # Get total number of activities
-      #
-      # @return [Integer] The total number of activities
-      def activities_count
-        Activr.activities_count(self.activr_feed_entity => self.id)
-      end
-
-    end # module ModelMixin
-  end # class Entity
-end # module Activr
+end # module Activr::Entity::ModelMixin
