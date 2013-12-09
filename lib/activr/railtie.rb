@@ -1,5 +1,6 @@
 module Activr
 
+  # Hook into Rails
   class Railtie < ::Rails::Railtie
     initializer "activr.set_conf", :after => 'mongoid.load-config' do |app|
       Activr.configure do |config|
@@ -39,6 +40,6 @@ module Activr
     config.after_initialize do
       Activr.setup
     end
-  end
+  end # class Railtie
 
-end
+end # module Activr

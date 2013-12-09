@@ -1,4 +1,6 @@
 module Activr
+
+  # Utilities methods
   class Utils
 
     class << self
@@ -68,4 +70,5 @@ module Activr
     end # class << self
 
   end # class Utils
+
 end # module Activr

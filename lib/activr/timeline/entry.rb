@@ -1,3 +1,12 @@
+#
+# A Timeline Entry is an Activity routed to a Timeline
+#
+# When instanciated, it contains:
+#   - The `timeline` it belongs to
+#   - The routed `activity`
+#   - The `routing_kind` that indicates why that `activity` has been routed to that `timeline`
+#   - User-defined `meta` data
+#
 class Activr::Timeline::Entry
 
   extend ActiveModel::Callbacks
@@ -8,7 +17,11 @@ class Activr::Timeline::Entry
 
   class << self
 
-    # instanciate an timeline entry from a hash
+    # Instanciate a timeline entry from a hash
+    #
+    # @param hash     [Hash]             Timeline entry hash
+    # @param timeline [Activr::Timeline] Timeline instance
+    # @return [Activr::Timeline::Entry] Timeline entry instance
     def from_hash(hash, timeline)
       activity_hash = hash['activity'] || hash[:activity]
       raise "No activity found in timeline entry hash: #{hash.inspect}" if activity_hash.blank?
@@ -35,7 +48,12 @@ class Activr::Timeline::Entry
   attr_accessor :_id
   attr_reader :timeline, :routing_kind, :activity, :meta
 
-  # init
+  # Init
+  #
+  # @param timeline     [Activr::Timeline] Timeline instance
+  # @param routing_kind [String]           Routing kind
+  # @param activity     [Activr::Activity] Activity
+  # @param meta         [Hash]             Meta infos
   def initialize(timeline, routing_kind, activity, meta = { })
     @timeline     = timeline
     @routing_kind = routing_kind
@@ -43,17 +61,30 @@ class Activr::Timeline::Entry
     @meta         = meta && meta.symbolize_keys
   end
 
-  # get a meta
+  # @example Get a meta
+  #   timeline_entry[:foo]
+  #   # => 'bar'
+  #
+  # @param key [Symbol] Meta name
+  # @return [Oject] Meta value
   def [](key)
     @meta[key.to_sym]
   end
 
-  # set a meta
+  # @example Set a meta
+  #   timeline_entry[:foo] = 'bar'
+  #
+  # @param key   [Symbol] Meta name
+  # @param value [Oject]  Meta value
   def []=(key, value)
     @meta[key.to_sym] = value
   end
 
-  # hashify
+  # Serialize timeline entry to a hash
+  #
+  # @note All keys are stringified (ie. there is no Symbol)
+  #
+  # @return [Hash] Timeline Entry hash
   def to_hash
     # fields
     result = {
@@ -67,7 +98,9 @@ class Activr::Timeline::Entry
     result
   end
 
-  # get timeline route
+  # Get the corresponding timeline route
+  #
+  # @return [Activr::Timeline::Route] The route instance
   def timeline_route
     @timeline_route ||= begin
       result = @timeline.route_for_kind(Activr::Timeline::Route.kind_for_routing_and_activity(@routing_kind, @activity.kind))
@@ -76,9 +109,9 @@ class Activr::Timeline::Entry
     end
   end
 
-  # humanization
+  # Humanize that Timeline Entry
   #
-  # MAY be overriden by child class for specialized humanization
+  # #note MAY be overriden by child class for specialized humanization
   #
   # @param options [Hash] Options hash (cf. Activr::Activity#humanize method)
   # @return [String] Humanized timeline entry
@@ -92,20 +125,18 @@ class Activr::Timeline::Entry
     end
   end
 
-  # check if already stored
+  # Check if already stored
+  #
+  # @return [true, false]
   def stored?
     !@_id.nil?
   end
 
   # Store in database
   #
-  # This method can raise an exception if activity is not valid
-  #
-  # SIDE EFFECT: The `_id` field is set
+  # @warning SIDE EFFECT -> The `_id` field is set
   def store!
     run_callbacks(:store) do
-      # @todo Check validity ?
-
       # store
       @_id = Activr.storage.insert_timeline_entry(self)
     end

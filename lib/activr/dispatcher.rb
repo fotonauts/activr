@@ -1,7 +1,13 @@
 module Activr
+
+  #
+  # The Storage is the component that is in charge of routing activities to timelines.
+  #
+  # The Storage singleton is accessible with `Activr.dispatcher`
+  #
   class Dispatcher
 
-    # route an activity
+    # Route an activity
     #
     # @param activity [Activr::Activity] Activity to route
     def route(activity)
@@ -23,6 +29,13 @@ module Activr
       end
     end
 
+    # Find recipients for given activity in given timeline
+    #
+    # @api private
+    #
+    # @param timeline_class [Class]            Timeline class
+    # @param activity       [Activr::Activity] Activity instance
+    # @return [Hash{Object=>Activr::Timeline::Route}] Recipients with corresponding Routes
     def recipients_for_timeline(timeline_class, activity)
       result = { }
 
@@ -45,4 +58,5 @@ module Activr
     end
 
   end # class Dispatcher
+
 end # module Activr

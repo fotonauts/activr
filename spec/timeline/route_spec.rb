@@ -68,7 +68,7 @@ describe Activr::Timeline::Route do
   end
 
   # route AddPicture, :using => :actor_follower
-  it "resolves pre-defined routing" do
+  it "resolves predefined routing" do
     # @todo save in model
     user.followers = [ buddy, marcel ]
 

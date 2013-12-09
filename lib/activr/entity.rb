@@ -1,4 +1,8 @@
 module Activr
+
+  #
+  # An Entity represents one of your application's model involved in activities
+  #
   class Entity
 
     autoload :ModelMixin, 'activr/entity/model_mixin'
@@ -7,11 +11,12 @@ module Activr
     attr_reader :model_class, :model_id
 
 
+    # Init
+    #
     # @param name    [String] Entity name
-    # @param value   [Object|String] Entity value of entity id
-    # @param options [Hash] Options hash:
-    #   :class => [String] Entity class
-    #   :activity => [Activr::Activity] The 'master' activity
+    # @param value   [Object, String] Entity value or entity id
+    # @param options [Hash] Options (cf. Activr::Activity.entity)
+    # @option options [Activr::Activity] :activity Entity belongs to that activity
     def initialize(name, value, options = { })
       @name = name
       @options = options.dup
@@ -19,7 +24,7 @@ module Activr
       @activity    = @options.delete(:activity)
       @model_class = @options.delete(:class)
 
-      if self._is_valid_id?(value)
+      if Activr.storage.valid_id?(value)
         @model_id = value
 
         raise "Missing :class option: #{options.inspect}" if @model_class.blank?
@@ -36,12 +41,17 @@ module Activr
       end
     end
 
-    # memoized model
+    # Memoized model
+    #
+    # @return [Object] Instance of `:class` option
     def model
       @model ||= self.model_class.find(self.model_id)
     end
 
-    # humanize entity
+    # Humanize entity
+    #
+    # @param options [hash] Options
+    # @option options [true,false] :html Generate HTML ?
     def humanize(options = { })
       result = nil
 
@@ -74,15 +84,6 @@ module Activr
       result
     end
 
-
-    #
-    # Private
-    #
-
-    # helper
-    def _is_valid_id?(value)
-      value.is_a?(String) || (defined?(::BSON) && value.is_a?(::BSON::ObjectId))
-    end
-
   end # class Entity
+
 end # module Activr

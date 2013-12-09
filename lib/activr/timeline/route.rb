@@ -1,3 +1,6 @@
+#
+# A Timeline Route describes how an activity is routed to a timeline
+#
 class Activr::Timeline::Route
 
   attr_reader :timeline_class, :activity_class, :settings
@@ -5,6 +8,11 @@ class Activr::Timeline::Route
 
   class << self
 
+    # Get Route kind
+    #
+    # @param routing_kind  [Symbol] Routing kind
+    # @param activity_kind [String] Activity kind
+    # @return [String] Route kind
     def kind_for_routing_and_activity(routing_kind, activity_kind)
       "#{routing_kind}_#{activity_kind}"
     end
@@ -12,19 +20,30 @@ class Activr::Timeline::Route
   end # class << self
 
 
-  # init
+  # Init
+  #
+  # @param timeline_class [Class] Timeline class
+  # @param activity_class [Class] Activity class
+  # @param settings       [Hash] Route settings
+  # @option settings [Symbol] :using Predefined routing kind
+  # @option settings [Symbol] :to    Routing path
+  # @option settings [Symbol] :kind  Manually specified routing kind
   def initialize(timeline_class, activity_class, settings)
     @timeline_class = timeline_class
     @activity_class = activity_class
     @settings       = settings
   end
 
-  # route kind
+  # Route kind
+  #
+  # @return [String] Route kind
   def kind
     @kind ||= self.class.kind_for_routing_and_activity(self.routing_kind, self.activity_class.kind)
   end
 
-  # routing kind
+  # Routing kind
+  #
+  # @return [Symbol] Routing kind
   def routing_kind
     @routing_kind ||= (self.settings[:kind] && self.settings[:kind].to_sym) || begin
       if self.settings[:using] && self.settings[:to]
@@ -48,7 +67,10 @@ class Activr::Timeline::Route
     end
   end
 
-  # resolve recipients for given activity
+  # Resolve recipients for given activity
+  #
+  # @param activity [Activr::Activity] Activity to resolve
+  # @return [Array] Array of recipients instances and/or ids
   def resolve(activity)
     recipients = if self.settings[:using]
       self.resolve_using_method(self.settings[:using], activity)
@@ -70,13 +92,25 @@ class Activr::Timeline::Route
     recipients
   end
 
-  # resolve route using method call
+  # Resolve route using method call
+  #
+  # @api private
+  #
+  # @param meth     [Symbol]           Method to call on timeline class
+  # @param activity [Activr::Activity] Activity to resolve
+  # @return [Array] Array of recipients instances and/or ids
   def resolve_using_method(meth, activity)
     # send method
     self.apply_meth(self.timeline_class, meth, activity)
   end
 
-  # resolve route to path
+  # Resolve route using path
+  #
+  # @api private
+  #
+  # @param path     [String]           Path on activity
+  # @param activity [Activr::Activity] Activity to resolve
+  # @return [Array] Array of recipients instances and/or ids
   def resolve_to_path(path, activity)
     receivers = [ activity ]
 
@@ -100,7 +134,14 @@ class Activr::Timeline::Route
   # Private
   #
 
-  # helper
+  # Apply a method on receiver, with given activity as parameter if receiver's arity permits it
+  #
+  # @api private
+  #
+  # @param receiver [Object] Receiver
+  # @param meth     [Symbol] Method to call
+  # @param activity [Activr::Activity] Activity to provide in method call
+  # @return Result of method call on receiver
   def apply_meth(receiver, meth, activity)
     case receiver.method(meth).arity
     when 2

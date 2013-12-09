@@ -32,7 +32,7 @@ require 'activr/railtie' if defined?(::Rails)
 
 module Activr
 
-  # access configuration with `Activr.config`
+  # Access configuration with `Activr.config`
   include Activr::Configuration
 
   class << self
@@ -42,8 +42,7 @@ module Activr
 
     # Configuration sugar
     #
-    # Example:
-    #
+    # @example
     #   Activr.configure do |config|
     #     config.app_path      = File.join(File.dirname(__FILE__), "app")
     #     config.mongodb[:uri] = "mongodb://#{rspec_mongo_host}:#{rspec_mongo_port}/#{rspec_mongo_db}"
@@ -106,7 +105,7 @@ module Activr
     # Dispatch an activity
     #
     # @param activity [Activr::Activity] Activity instance to dispatch
-    # @return [BSON::ObjectId, Moped::BSON::ObjectId] The activity id in main activities collection
+    # @return [Object] The activity id in main activities collection
     def dispatch!(activity)
       # store activity in main collection
       activity.store! unless activity.stored?

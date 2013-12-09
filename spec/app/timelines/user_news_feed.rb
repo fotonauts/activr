@@ -10,7 +10,7 @@ class UserNewsFeed < Activr::Timeline
 
 
   #
-  # Pre-defined Routings
+  # Predefined Routings
   #
 
   # define a routing with a Proc
@@ -40,7 +40,7 @@ class UserNewsFeed < Activr::Timeline
   # define a custom routing kind (ie. 'my_custom_routing' instead of 'album_owner')
   route FollowAlbum, :to => 'album.owner', :kind => :my_custom_routing
 
-  # route using pre-defined routing
+  # route using predefined routing
   route AddPicture, :using => :actor_follower
   route AddPicture, :using => :picture_follower
 

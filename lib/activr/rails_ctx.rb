@@ -1,4 +1,8 @@
 module Activr
+
+  #
+  # Rails Context holer
+  #
   class RailsCtx
 
     class_attribute :controller
@@ -6,6 +10,9 @@ module Activr
 
     class << self
 
+      # Get current Rails' View context
+      #
+      # @return [ActionView::Base] Rails' view instance
       def view_context
         @view_context ||= if defined?(::Rails)
           rails_controller = self.controller || begin
@@ -18,6 +25,7 @@ module Activr
         end
       end
 
+      # Clear memoization of current Rails' View context
       def clear_view_context!
         @view_context = nil
       end
@@ -25,4 +33,5 @@ module Activr
     end # class << self
 
   end # class RailsCtx
+
 end # module Activr

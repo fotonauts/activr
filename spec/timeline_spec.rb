@@ -45,7 +45,7 @@ describe Activr::Timeline do
     route.settings.should == { :to => 'album.owner', :kind => :my_custom_routing }
   end
 
-  it "defines route to pre-defined routing" do
+  it "defines route to predefined routing" do
     route = UserNewsFeed.route_for_kind('actor_follower_add_picture')
     route.should_not be_nil
     route.kind.should == 'actor_follower_add_picture'

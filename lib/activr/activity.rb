@@ -3,14 +3,14 @@ module Activr
   #
   # An activity is an event that is (most of the time) performed by a user in your application.
   #
-  # It is defined by:
+  # You define:
   #   - Allowed entities
   #   - A humanization template
   #
   # When instanciated, it contains:
-  #   - Concrete entities instances
+  #   - Concrete `entities` instances
   #   - A timestamp (the `at` field)
-  #   - Any user-defined `meta` data, accessible like that: `activity[:foo] == 'bar'`
+  #   - User-defined `meta` data
   #
   # By default, entities are mandatory and the exception `MissingEntityError` is raised when trying to store an activity
   # with a missing entity.
@@ -59,7 +59,7 @@ module Activr
 
     extend ActiveModel::Callbacks
 
-    # Callbacks when an activity is stored, and routed in timelines
+    # Callbacks when an activity is stored, and routed to timelines
     define_model_callbacks :store, :route
 
 
@@ -162,7 +162,7 @@ module Activr
       # @option options [Symbol]      :humanize A method name to call on entity's model instance to humanize it
       # @option options [String]      :default  Default humanization value
       # @option options [Symbol]      :htmlize  A method name to call on entity's model instance to render an HTML version of itself
-      # @option options [true, false] :optional This entity is optional
+      # @option options [true, false] :optional Is this entity is optional ?
       def entity(name, options = { })
         name = name.to_sym
         raise "Entity already defined: #{name}" unless self.allowed_entities[name].blank?
@@ -282,17 +282,17 @@ module Activr
     # @example Set a meta
     #   activity[:foo] = 'bar'
     #
-    # @param key [Symbol] Meta name
-    # @param value [Oject] Meta value
+    # @param key   [Symbol] Meta name
+    # @param value [Oject]  Meta value
     def []=(key, value)
       @meta[key.to_sym] = value
     end
 
     # Serialize activity to a hash
     #
-    # @note All keys are stringified (ie. there no Symbol)
+    # @note All keys are stringified (ie. there is no Symbol)
     #
-    # @param [Hash] Activity hash
+    # @return [Hash] Activity hash
     def to_hash
       result = { }
 
@@ -349,8 +349,6 @@ module Activr
     end
 
     # Humanize that activity
-    #
-    # @note MAY be overriden by child class for more complicated humanization
     #
     # @param options [Hash] Options hash
     # @option options [true, false] :html Output HTML (default: `false`)
@@ -419,4 +417,5 @@ module Activr
     end
 
   end # class Activity
+
 end # module Activr

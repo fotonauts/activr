@@ -1,6 +1,7 @@
 module Activr
   module Generators
 
+    # Generates an Activr::Timeline subclass in your Rails application
     class TimelineGenerator < ::Rails::Generators::NamedBase
       source_root File.expand_path("../templates", __FILE__)
 

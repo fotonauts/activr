@@ -241,12 +241,16 @@ end
 ```
 
 
+Timelines
+---------
+
+@todo
+
+
 Timeline Entries
 ================
 
-It contains:
-- activity
-- etc ...
+@todo
 - any metadata you need, for example a 'read' boolean if you want to implemented a read/unread mecanism a user News Feed.
 
 

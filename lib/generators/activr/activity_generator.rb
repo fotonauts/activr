@@ -1,6 +1,7 @@
 module Activr
   module Generators
 
+    # Generates an Activr::Activity subclass in your Rails application
     class ActivityGenerator < ::Rails::Generators::NamedBase
       DEFAULT_ENTITY_FIELD = :name
 

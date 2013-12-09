@@ -1,4 +1,10 @@
 module Activr
+
+  #
+  # That module gives configuration behaviour to includer
+  #
+  # @see ActiveSupport::Configurable
+  #
   module Configuration
 
     extend ActiveSupport::Concern
@@ -26,4 +32,5 @@ module Activr
     end
 
   end # module Configuration
+
 end # module Activr

@@ -1,29 +1,51 @@
 module Activr
 
+  #
+  # The Storage is the component that uses the database driver to serialize/unserialize activities and timeline entries.
+  #
+  # The Storage singleton is accessible with `Activr.storage`
+  #
   class Storage
 
     autoload :MongoDriver, 'activr/storage/mongo_driver'
 
+    # database driver
     attr_reader :driver
 
-    # init
+    # Init
     def initialize
       @driver = Activr::Storage::MongoDriver.new
 
       @hooks = { }
     end
 
-    # check if this is a serialized document id
+    # Is it a valid document id ?
+    #
+    # @param doc_id [Object] Document id to check
+    # @return [true, false]
+    def valid_id?(doc_id)
+      self.driver.valid_id?(doc_id)
+    end
+
+    # Is it a serialized document id ?
+    #
+    # @return [true,false]
     def serialized_id?(doc_id)
       self.driver.serialized_id?(doc_id)
     end
 
-    # return an unserialized document id
+    # Unserialize a document id
+    #
+    # @param doc_id [Object] Document id
+    # @return [Object] Unserialized document id
     def unserialize_id(doc_id)
       self.driver.unserialize_id(doc_id)
     end
 
-    # helper
+    # Unserialize given parameter only if it is a serialized document id
+    #
+    # @param doc_id [Object] Document id
+    # @return [Object] Unserialized or unmodified document id
     def unserialize_id_if_necessary(doc_id)
       self.serialized_id?(doc_id) ? self.unserialize_id(doc_id) : doc_id
     end
@@ -31,7 +53,7 @@ module Activr
     # Insert a new activity
     #
     # @param activity [Activr::Activity] Activity to insert
-    # @return The `_id` of the document in collection
+    # @return [Object] The inserted activity id
     def insert_activity(activity)
       # serialize
       activity_hash = activity.to_hash
@@ -45,11 +67,9 @@ module Activr
 
     # Fetch an activity
     #
-    # @param activity_id [String|BSON::ObjectId] Activity id
-    # @return [Activr::Activity] An activity instance
+    # @param activity_id [Object] Activity id to fetch
+    # @return [Activr::Activity, Nil] An activity instance or `nil` if not found
     def fetch_activity(activity_id)
-      activity_id = ::BSON::ObjectId.from_string(activity_id) if activity_id.is_a?(String)
-
       # fetch
       activity_hash = self.driver.find_activity(activity_id)
       if activity_hash
@@ -63,22 +83,22 @@ module Activr
       end
     end
 
-    # Fetch last activities
+    # Fetch latest activities
     #
-    # Please note that if you use others selectors then 'limit' argument and 'skip' option
+    # @warning If you use others selectors then 'limit' argument and 'skip' option
     # then you have to setup corresponding indexes in database.
     #
     # @todo Add doc explaining howto setup indexes
     #
     # @param limit [Integer] Max number of activities to fetch
-    # @param options [Hash] Options hash:
-    #   :skip     => [Integer] Number of activities to skip (default: 0)
-    #   :before   => [Time] Fetch activities generated before that datetime (excluding)
-    #   :after    => [Time] Fetch activities generated after that datetime (excluding)
-    #   :entities => [Hash of Sym => String] Filter by entities values (empty means 'all values')
-    #   :only     => [Array of Class] Fetch only those activities
-    #   :except   => [Array of Class] Skip those activities
-    # @return [Array] An array of Activr::Activity instances
+    # @param options [Hash] Options hash
+    # @option options [Integer]           :skip     Number of activities to skip (default: 0)
+    # @option options [Time]              :before   Fetch activities generated before that datetime (excluding)
+    # @option options [Time]              :after    Fetch activities generated after that datetime (excluding)
+    # @option options [Hash{Sym=>String}] :entities Filter by entities values (empty means 'all values')
+    # @option options [Array<Class>]      :only     Fetch only those activities
+    # @option options [Array<Class>]      :except   Skip those activities
+    # @return [Array<Activr::Activity>] An array of activities
     def fetch_activities(limit, options = { })
       # default options
       options = {
@@ -104,18 +124,18 @@ module Activr
 
     # Count number of activities
     #
-    # Please note that if you use one of options selector then you have to setup
+    # @warning If you use one of options' selectors then you have to setup
     # corresponding indexes in database.
     #
     # @todo Add doc explaining howto setup indexes
     #
     # @param options [Hash] Options hash:
-    #   :before   => [Time] Fetch activities generated before that datetime (excluding)
-    #   :after    => [Time] Fetch activities generated after that datetime (excluding)
-    #   :entities => [Hash of Sym => String] Filter by entities values (empty means 'all values')
-    #   :only     => [Array of Class] Fetch only those activities
-    #   :except   => [Array of Class] Skip those activities
-    # @return [Array] An array of Activr::Activity instances
+    # @option options [Time]              :before   Fetch activities generated before that datetime (excluding)
+    # @option options [Time]              :after    Fetch activities generated after that datetime (excluding)
+    # @option options [Hash{Sym=>String}] :entities Filter by entities values (empty means 'all values')
+    # @option options [Array<Class>]      :only     Fetch only those activities
+    # @option options [Array<Class>]      :except   Skip those activities
+    # @return [Array<Activr::Activity>] An array of activities
     def activities_count(options = { })
       # default options
       options = {
@@ -133,7 +153,7 @@ module Activr
     # Insert a new timeline entry
     #
     # @param timeline_entry [Activr::Timeline::Entry] Timeline entry to insert
-    # @return The `_id` of the document in collection
+    # @return [Object] Inserted timeline entry id
     def insert_timeline_entry(timeline_entry)
       # serialize
       timeline_entry_hash = timeline_entry.to_hash
@@ -148,11 +168,9 @@ module Activr
     # Fetch a timeline entry
     #
     # @param timeline    [Activr::Timeline] Timeline instance
-    # @param tl_entry_id [String|BSON::ObjectId] Timeline entry id
-    # @return [Array] An array of Activr::Timeline::Entry instances
+    # @param tl_entry_id [Object]           Timeline entry id
+    # @return [Array<Activr::Timeline::Entry>] An array of timeline entries
     def fetch_timeline_entry(timeline, tl_entry_id)
-      tl_entry_id = ::BSON::ObjectId.from_string(tl_entry_id) if tl_entry_id.is_a?(String)
-
       # fetch
       timeline_entry_hash = self.driver.find_timeline_entry(timeline.kind, tl_entry_id)
       if timeline_entry_hash
@@ -171,7 +189,7 @@ module Activr
     # @param timeline [Activr::Timeline] Timeline instance
     # @param limit    [Integer] Max number of entries to fetch
     # @param skip     [Integer] Number of entries to skip (default: 0)
-    # @return [Array] An array of Activr::Timeline::Entry instances
+    # @return [Array<Activr::Timeline::Entry>] Timeline entries
     def fetch_timeline(timeline, recipient_id, limit, skip = 0)
       # find
       result = self.driver.find_timeline_entries(timeline.kind, timeline.recipient_id, limit, skip).map do |timeline_entry_hash|
@@ -188,7 +206,8 @@ module Activr
     # Count number of timeline entries
     #
     # @param timeline_kind [String] Timeline kind
-    # @param recipient_id  [String] Recipient id
+    # @param recipient_id  [Object] Recipient id
+    # @return [Intger] Number of timeline entries in given timeline
     def count_timeline(timeline_kind, recipient_id)
       self.driver.count_timeline_entries(timeline_kind, recipient_id)
     end
@@ -201,9 +220,8 @@ module Activr
     # The `will_insert_activity` hook will be run just before inserting
     # an activity document in the database
     #
-    # Example:
+    # @example Insert the 'foo' meta for all activities
     #
-    #   # insert the 'foo' meta for all activities
     #   Activr.storage.will_insert_activity do |activity_hash|
     #     activity_hash['meta'] ||= { }
     #     activity_hash['meta']['foo'] = 'bar'
@@ -216,9 +234,8 @@ module Activr
     # The `did_fetch_activity` hook will be run just after fetching
     # an activity document from the database
     #
-    # Example:
+    # @example Ignore the 'foo' meta
     #
-    #   # ignore the 'foo' meta
     #   Activr.storage.did_fetch_activity do |activity_hash|
     #     if activity_hash['meta']
     #       activity_hash['meta'].delete('foo')
@@ -232,9 +249,8 @@ module Activr
     # The `will_insert_timeline_entry` hook will be run just before inserting
     # a timeline entry document in the database
     #
-    # Example:
+    # @example Insert the 'bar' field to all timeline entries documents
     #
-    #   # insert the 'bar' field to all timeline entries documents
     #   Activr.storage.will_insert_timeline_entry do |timeline_entry_hash|
     #     timeline_entry_hash['bar'] = 'baz'
     #   end
@@ -246,9 +262,8 @@ module Activr
     # The `did_fetch_timeline_entry` hook will be run just after fetching
     # a timeline entry document from the database
     #
-    # Example:
+    # @example Ignore the 'bar' field
     #
-    #   # ignore the 'bar' field
     #   Activr.storage.did_fetch_timeline_entry do |timeline_entry_hash|
     #     timeline_entry_hash.delete('bar')
     #   end
@@ -258,20 +273,34 @@ module Activr
     end
 
 
-    # register a hook
+    # Register a hook
+    #
+    # @api private
+    #
+    # @param name  [Symbol] Hook name
+    # @param block [Proc]   Hook code
     def register_hook(name, block)
       @hooks[name] ||= [ ]
       @hooks[name] << block
     end
 
-    # get hooks
+    # Get hooks
     #
-    # Returns all hooks if name is nil
+    # @api private
+    # @note Returns all hooks if `name` is `nil`
+    #
+    # @param name [Symbol] Hook name
+    # @return [Array<Code>] List of hooks
     def hooks(name = nil)
       name ? (@hooks[name] || [ ]) : @hooks
     end
 
-    # run a hook
+    # Run a hook
+    #
+    # @api private
+    #
+    # @param name [Symbol] Hook name
+    # @param args [Array]  Hook arguments
     def run_hook(name, *args)
       return if @hooks[name].blank?
 
@@ -280,7 +309,9 @@ module Activr
       end
     end
 
-    # reset all hooks
+    # Reset all hooks
+    #
+    # @api private
     def clear_hooks!
       @hooks = { }
     end
