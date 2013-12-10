@@ -54,11 +54,17 @@ class AddPictureActivity < Activr::Activity
 end
 ```
 
+
+### Entities
+
 An entity represents one of your application's model involved the activity.
+
+By convention, the entity that correspond to the user performing the action should be named `:actor`.
 
 Entity's class is inferred thanks to entity name, so by default the `:picture` entity have the `Picture` class, but you can still provide the `:class` option to specify another class.
 
-By convention, the entity that correspond to the user performing the action should be named `:actor`.
+
+### Activity humanization
 
 The `humanize` method defines a sentence that describes the activity and it is a [Mustache](http://mustache.github.io) template. Let's change the generated sentence by a better one:
 
@@ -67,6 +73,9 @@ The `humanize` method defines a sentence that describes the activity and it is a
 ```
 
 The `:humanize` option on entity correspond to a method that is called on corresponding entity's instance to humanize it. Note that the generator tries to find by itself that method.
+
+
+### Usage
 
 Here is an example of activity instanciation and humanization:
 
@@ -656,7 +665,7 @@ Todo
 - Trim timelines
 - Activities aggregation in timelines
 - Remove duplicate activities in a given period of time
-- Rails generators to setup indexes
+- Rails generator to setup indexes
 - Rails generator to setup basic views
 - Rails generator to setup admin controllers
 - Permits "Fanout on read" for inactive users, to preserve db size
@@ -673,6 +682,8 @@ References
 Credits
 =======
 
-Aymerick Jéhanne [@aymerick](https://twitter.com/aymerick) at Fotonauts.
+From Fotonauts:
+
+- Aymerick Jéhanne [@aymerick](https://twitter.com/aymerick)
 
 Copyright (c) 2013 Fotonauts released under the MIT license.
