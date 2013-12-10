@@ -160,7 +160,7 @@ Basic Activity feeds
 Several basic activity feeds are now available:
 
 - the global feed: all activities in your application
-- per entity feed: each entity involved in an activity have its own activity feed
+- per entity feed
 
 
 ### Global Activity Feed
@@ -180,6 +180,8 @@ Note that you can paginate thanks to the `:skip` option of the `#activities` met
 
 
 ### Entity Activity Feed
+
+Each entity involved in an activity have its own activity feed.
 
 #### Actor Activity Feed
 
@@ -260,7 +262,7 @@ end
 News Feed
 ---------
 
-Now we want a User News Feed, so that each user can get news from friends they follow and from albums they own or follow. That's the goal of a _timeline_: to create a complex activity feed.
+Now we want a User News Feed, so that each user can get news from friends they follow and from albums they own or follow. That's the goal of a timeline: to create a complex activity feed.
 
 
 ### Timeline
@@ -339,7 +341,7 @@ class UserNewsFeedTimeline < Activr::Timeline
   #
 
   # activity path: users will see in their news feed when someone adds a picture in one of their albums
-  route AddPictureActivity, :to => 'album.owner', :humanize => "{{{actor}}} added a picture to your album {{{album}}}"
+  route AddPictureActivity, :to => 'album.owner'
 
   # predefined routing: users will see in their news feed when a friend they follow likes a picture
   route AddPictureActivity, :using => :actor_follower
@@ -364,7 +366,7 @@ As you can see there as several ways to define a route:
 
 ```ruby
   # activity path: users will see in their news feed when someone adds a picture in one of their albums
-  route AddPictureActivity, :to => 'album.owner', :humanize => "{{{actor}}} added a picture to your album {{{album}}}"
+  route AddPictureActivity, :to => 'album.owner'
 ```
 
 The _path_ is specified with the `:to` route's setting. It describes a method chaining to call on dispatched activities.
@@ -392,6 +394,14 @@ Then use it with the `:using` route's setting:
   route AddPictureActivity, :using => :actor_follower
 ```
 
+Note that can use a block syntax:
+
+```ruby
+  routing :actor_follower do |activity|
+    activity.actor.followers
+  end
+```
+
 #### with a call on timeline class method
 
 You can resolve a route with a timeline class method: 
@@ -410,7 +420,7 @@ Then use it with the `:using` route's setting:
   route AddPictureActivity, :using => :album_follower
 ```
 
-For the sake of demonstration you can see all three ways in previous code example, but when a route is simple to resolve it is preferred to use a _activity path_ like that:
+For the sake of demonstration you can see all three ways in previous timeline's code example, but when a route is simple to resolve it is preferred to use an _activity path_ like that:
 
 ```ruby
 class UserNewsFeedTimeline < Activr::Timeline
@@ -423,7 +433,7 @@ class UserNewsFeedTimeline < Activr::Timeline
   #
 
   # activity path: users will see in their news feed when someone adds a picture in one of their albums
-  route AddPictureActivity, :to => 'album.owner', :humanize => "{{{actor}}} added a picture to your album {{{album}}}"
+  route AddPictureActivity, :to => 'album.owner'
 
   # predefined routing: users will see in their news feed when a friend they follow likes a picture
   route AddPictureActivity, :to => 'actor.followers'
@@ -441,9 +451,9 @@ end
 
 When an activity is routed to a timeline, that activity is copied to a _Timeline Entry_ that is then stored in database (so Activr uses a _Fanout on write_ mecanism to dispatch activities to timelines).
 
-A timeline entry is stored in the `<timeline kind>_timelines` MongoDB collection.
+A routed timeline entry is stored in the `<timeline kind>_timelines` MongoDB collection.
 
-For example, Corinne receives previously generated activity because John added a picture to an album owned by Corinne:
+For example, Corinne received previously generated activity because John added a picture to an album owned by Corinne:
 
 ```
 > db.user_news_feed_timelines.findOne()
@@ -468,7 +478,7 @@ As you can see, a Timeline Entry contains:
 - the recipient id `rcpt`
 - the `routing` kind: `album_owner` means that Corinne received that activity in her News Feed because she is the owner of the album
 
-You can add too any meta data. So for example you can add a `read` meta data if you want to implemented a read/unread mecanism in your News Feed.
+You can too add meta data. For example you can add a `read` meta data if you want to implemented a read/unread mecanism in your News Feed.
 
 Specify a `:humanize` setting on a `route` to specialize humanization of corresponding timeline entries. For example:
 
@@ -623,8 +633,8 @@ end # class RouteActivity
 
 A hook class:
 
-  - must implement a `#enqueue` method, used to enqueue the async job
-  - must call `Activr::Async.<hook_name>` method in the async job
+  - implements a `#enqueue` method, used to enqueue the async job
+  - calls `Activr::Async.<hook_name>` method in the async job
 
 Hook classes to use are specified thanks to the `config.async` hash.
 
