@@ -54,7 +54,7 @@ class AddPictureActivity < Activr::Activity
 end
 ```
 
-An entity represents one of your application's model involved in activities.
+An entity represents one of your application's model involved the activity.
 
 Entity's class is inferred thanks to entity name, so by default the `:picture` entity have the `Picture` class, but you can still provide the `:class` option to specify another class.
 
@@ -67,6 +67,8 @@ The `humanize` method defines a sentence that describes the activity and it is a
 ```
 
 The `:humanize` option on entity correspond to a method that is called on corresponding entity's instance to humanize it. Note that the generator tries to find by itself that method.
+
+Here is an example of activity instanciation and humanization:
 
 ```ruby
 user    = User.create!({ :_id => 'john', :first_name => "John", :last_name => "WILLIAMS"})
@@ -86,7 +88,7 @@ activity.humanize(:html => true)
 Dispatch an activity
 --------------------
 
-Let's dispatch that activity in your application when a picture is added to an album:
+You can now dispatch that activity in your application when a picture is added to an album:
 
 ```ruby
 class Album
@@ -161,12 +163,12 @@ Several basic activity feeds are now available:
 - per entity feed: each entity involved in an activity have its own activity feed
 
 
-# Global Activity Feed
+### Global Activity Feed
 
-Use `Activr#activities` to fetch the 10 last activities in your app:
+Use `Activr#activities` to fetch the latest activities in your application:
 
 ```ruby
-puts "There are #{Activr.activities_count} activites. Here are the last 10 ones:"
+puts "There are #{Activr.activities_count} activites. Here are the 10 most recent:"
 
 activities = Activr.activities(10)
 activities.each do |activity|
@@ -177,9 +179,9 @@ end
 Note that you can paginate thanks to the `:skip` option of the `#activities` method.
 
 
-# Actor Activity Feed
+### Actor Activity Feed
 
-To fetch actor's activity, include the mixin `Activr::Entity::ModelMixin` in your actor's class:
+To fetch actor's activities, include the mixin `Activr::Entity::ModelMixin` into your actor's class:
 
 ```ruby
 class User
@@ -200,12 +202,12 @@ class User
 end
 ```
 
-Now that class have two new methods: `#activities` and `#activities_count`:
+Now the `User` class have two new methods: `#activities` and `#activities_count`:
 
 ```ruby
 user = User.find('john')
 
-puts "#{user.fullname} have #{user.activities_count} activites. Here are the last 10 ones:"
+puts "#{user.fullname} have #{user.activities_count} activites. Here are the 10 most recent:"
 
 user.activities(10).each do |activity|
   puts activity.humanize
@@ -213,9 +215,9 @@ end
 ```
 
 
-# Album Activity Feed
+### Album Activity Feed
 
-You can too fetch a per-album activity feed by including the mixin `Activr::Entity::ModelMixin` in the Album class:
+You can too fetch a per-album activity feed by including the mixin `Activr::Entity::ModelMixin` into the `Album` class:
 
 ```ruby
 class Album
@@ -245,7 +247,7 @@ Example:
 ```ruby
 album = Album.find(BSON::ObjectId.from_string('5295bc9261796d649f080000'))
 
-puts "#{album.name} have #{album.activities_count} activites. Here are the last 10 ones:"
+puts "There are #{album.activities_count} activites in the album #{album.name}. Here are the 10 most recent:"
 
 album.activities(10).each do |activity|
   puts activity.humanize
@@ -256,9 +258,10 @@ end
 News Feed
 ---------
 
-# Timeline
+Now we want a User News Feed, so that each user can get news from friends they follow and from albums they own or follow. That's the goal of a *timeline*: to create a complex activity feed.
 
-Now we want a User News Feed, so that each user can get news from friends they follow and from albums they own or follow. That's what a `Timeline` is intended for: create a complex activity feed.
+
+### Timeline
 
 Let's generate a timeline class:
 
@@ -312,7 +315,7 @@ When defining a `Timeline` class you specify:
   - what activities are displayed in that timeline: the `routes`
 
 
-# Routes
+### Routes
 
 Let's add some routes:
 
@@ -351,11 +354,57 @@ end
 
 As you can see there as several ways to define a route:
 
-- with an *activity path* specified in the `:to` route's setting and that indicates what methods calls to chain on activity 
-- with a *predefined routing* previously declared with the `routing` method and then specified in the `:using` route's setting
-- with a call on timeline class method specified in the `:using` route's setting
+#### with an *activity path*
 
-For the sake of demonstration you can see all three ways in previous code example, but when a route is simple to resolve it is preferred to use the *activity path* like that:
+```ruby
+  # activity path: users will see in their news feed when someone adds a picture in one of their albums
+  route AddPictureActivity, :to => 'album.owner', :humanize => "{{{actor}}} added a picture to your album {{{album}}}"
+```
+
+The *path* is specified with the `:to` route's setting. It describes a method chaining to call on dispatched activities.
+
+So with our example the route is resolved that way:
+
+```ruby
+  album = activity.album
+  recipient = album.owner
+```
+
+#### with a *predefined routing*
+
+First, declare a predefined `routing`:
+
+```ruby
+  # this is a predefined routing, to fetch all followers of an activity's actor
+  routing :actor_follower, :to => Proc.new{ |activity| activity.actor.followers }
+```
+
+Then use it with the `:using` route's setting:
+
+```ruby
+  # predefined routing: users will see in their news feed when a friend they follow likes a picture
+  route AddPictureActivity, :using => :actor_follower
+```
+
+#### with a call on timeline class method
+
+You can resolve a route with a timeline class method: 
+
+```ruby
+  # define a routing with a class method, to fetch all followers of an activity's album
+  def self.album_follower(activity)
+    activity.album.followers
+  end
+```
+
+Then use it with the `:using` route's setting:
+
+```ruby
+  # method call: users will see in their news feed when someone adds a picture in an album they follow
+  route AddPictureActivity, :using => :album_follower
+```
+
+For the sake of demonstration you can see all three ways in previous code example, but when a route is simple to resolve it is preferred to use a *activity path* like that:
 
 ```ruby
 class UserNewsFeedTimeline < Activr::Timeline
@@ -382,7 +431,7 @@ end
 ```
 
 
-# Timeline Entry
+### Timeline Entry
 
 When an activity is routed to a timeline, that activity is copied to a *Timeline Entry* that is then stored in database.
 
@@ -417,8 +466,17 @@ As you can see, a Timeline Entry contains:
 
 You can add too any meta data. So for example you can add a `read` meta data if you want to implemented a read/unread mecanism in your News Feed.
 
+Specify a `:humanize` setting on a `route` to specialize humanization of corresponding timeline entries. For example:
 
-# Callbacks
+```ruby
+  # activity path: users will see in their news feed when someone adds a picture in one of their albums
+  route AddPictureActivity, :to => 'album.owner', :humanize => "{{{actor}}} added a picture to your album {{{album}}}"
+```
+
+If you don't set a `:humanize` setting then the humanization of the embedded activity is used instead.
+
+
+### Callbacks
 
 Several callbacks are invoked on timeline instance during the activity handling workflow:
 
@@ -454,7 +512,7 @@ end
 ```
 
 
-# Display
+### Display
 
 Two methods are injected in the timeline recipient class: `#news_feed` and `#news_feed_count`:
 
@@ -475,7 +533,7 @@ Here is simple view:
 
 ```erb
   <p>
-    You have <%= @news_feed_count %> entries in your News Feed. Here are the last 10 ones:
+    You have <%= @news_feed_count %> entries in your News Feed. Here are the 10 most recent:
   </p>
   <ul id='news_feed'>
     <% @news_feed.each do |timeline_entry| %>

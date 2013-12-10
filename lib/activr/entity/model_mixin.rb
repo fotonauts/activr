@@ -22,7 +22,7 @@
 # @example Usage:
 #   user = User.find('john')
 #
-#   puts "#{user.fullname} have #{user.activities_count} activites. Here are the last 10 ones:"
+#   puts "#{user.fullname} have #{user.activities_count} activites. Here are the 10 most recent:"
 #
 #   user.activities(10).each do |activity|
 #     puts activity.humanize
