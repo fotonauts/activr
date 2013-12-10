@@ -1,0 +1,16 @@
+language: ruby
+script: "bundle exec rspec"
+rvm:
+  - 1.9.3
+  - 2.0.0
+  - ruby-head
+gemfile:
+  - gemfiles/mongo-1.9.gemfile
+  - gemfiles/moped-1.5.gemfile
+  - gemfiles/moped-2.0.gemfile
+services:
+  - mongodb
+notifications:
+  email:
+    recipients:
+      - aymerick@jehanne.org
