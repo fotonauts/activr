@@ -27,8 +27,12 @@ gem 'activr'
 Quick start
 ===========
 
-Define activity
----------------
+Define an activity
+------------------
+
+An activity is an event that is (most of the time) performed by a user in your application.
+
+When defining an activity you specify allowed entities and a humanization template.
 
 Let's generate our first activity that will be dispatched when a user adds a picture to an album:
 
@@ -50,17 +54,19 @@ class AddPictureActivity < Activr::Activity
 end
 ```
 
-Entity's class is inferred thanks to entity name, so the `:picture` entity have the `Picture` class, but you can still provide the `:class` option to specify another class.
+An entity represents one of your application's model involved in activities.
+
+Entity's class is inferred thanks to entity name, so by default the `:picture` entity have the `Picture` class, but you can still provide the `:class` option to specify another class.
 
 By convention, the entity that correspond to the user performing the action should be named `:actor`.
 
-The `humanize` method defines a sentence that describes the activity and is a [Mustache](http://mustache.github.io) template. Let's change the generated sentence by a better one:
+The `humanize` method defines a sentence that describes the activity and it is a [Mustache](http://mustache.github.io) template. Let's change the generated sentence by a better one:
 
 ```ruby
   humanize "{{{actor}}} added picture {{{picture}}} to the album {{{album}}}"
 ```
 
-The `:humanize` option on entity correspond to a method on corresponding entity's instance that will be used to humanize that entity.
+The `:humanize` option on entity correspond to a method that is called on corresponding entity's instance to humanize it. Note that the generator tries to find by itself that method.
 
 ```ruby
 user    = User.create!({ :_id => 'john', :first_name => "John", :last_name => "WILLIAMS"})
@@ -77,10 +83,10 @@ activity.humanize(:html => true)
 ```
 
 
-Dispatch activity
------------------
+Dispatch an activity
+--------------------
 
-Dispatch that activity in your application when a picture is added to an album:
+Let's dispatch that activity in your application when a picture is added to an album:
 
 ```ruby
 class Album
@@ -102,7 +108,7 @@ class Album
 end
 ```
 
-With that controller code:
+For reference, the corresponding controller code is:
 
 ```ruby
 class AlbumsController < ApplicationController
@@ -131,7 +137,7 @@ class AlbumsController < ApplicationController
 end
 ```
 
-Once dispatched the activity is stored in the `activities` MongoDB collection.
+Once dispatched the activity is stored in the `activities` MongoDB collection:
 
 ```
 > db.activities.findOne()
@@ -146,8 +152,16 @@ Once dispatched the activity is stored in the `activities` MongoDB collection.
 ```
 
 
-Global Activity Feed
+Basic Activity feeds
 --------------------
+
+Several basic activity feeds are now available:
+
+- the global feed: all activities in your application
+- per entity feed: each entity involved in an activity have its own activity feed
+
+
+# Global Activity Feed
 
 Use `Activr#activities` to fetch the 10 last activities in your app:
 
@@ -163,8 +177,7 @@ end
 Note that you can paginate thanks to the `:skip` option of the `#activities` method.
 
 
-Actor Activity Feed
--------------------
+# Actor Activity Feed
 
 To fetch actor's activity, include the mixin `Activr::Entity::ModelMixin` in your actor's class:
 
@@ -200,10 +213,9 @@ end
 ```
 
 
-Album Activity Feed
--------------------
+# Album Activity Feed
 
-You can too fetch a per-album Activity Feed by including the mixin `Activr::Entity::ModelMixin` in the Album class:
+You can too fetch a per-album activity feed by including the mixin `Activr::Entity::ModelMixin` in the Album class:
 
 ```ruby
 class Album
@@ -241,62 +253,324 @@ end
 ```
 
 
-Timelines
+News Feed
 ---------
 
-@todo
+# Timeline
+
+Now we want a User News Feed, so that each user can get news from friends they follow and from albums they own or follow. That's what a `Timeline` is intended for: create a complex activity feed.
+
+Let's generate a timeline class:
+
+```bash
+$ rails g activr:timeline user_news_feed User
+```
+
+The file `app/timelines/user_news_feed_timeline.rb` is created:
+
+```ruby
+class UserNewsFeedTimeline < Activr::Timeline
+
+  recipient User
 
 
-Timeline Entries
-================
+  #
+  # Routes
+  #
 
-@todo
-- any metadata you need, for example a 'read' boolean if you want to implemented a read/unread mecanism a user News Feed.
+  # route FollowBuddyActivity, :to => 'buddy', :humanize => "{{{actor}}} is now following you"
+
+
+  #
+  # Callbacks
+  #
+
+  def should_handle_activity?(activity, route)
+    # return `false` to skip activity routing
+    true
+  end
+
+  def should_store_timeline_entry?(timeline_entry)
+    # return `false` to cancel timeline entry storing
+    true
+  end
+
+  def will_store_timeline_entry(timeline_entry)
+    # this is your last chance to modify timeline entry before it is stored
+  end
+
+  def did_store_timeline_entry(timeline_entry)
+    # the timeline entry was stored, can now do some post-processing
+  end
+
+end
+```
+
+When defining a `Timeline` class you specify:
+
+  - what model in your application *owns* that timeline: the `recipient`
+  - what activities are displayed in that timeline: the `routes`
+
+
+# Routes
+
+Let's add some routes:
+
+```ruby
+class UserNewsFeedTimeline < Activr::Timeline
+
+  recipient User
+
+  # this is a predefined routing, to fetch all followers of an activity's actor
+  routing :actor_follower, :to => Proc.new{ |activity| activity.actor.followers }
+
+
+  #
+  # Routes
+  #
+
+  # activity path: users will see in their news feed when someone adds a picture in one of their albums
+  route AddPictureActivity, :to => 'album.owner', :humanize => "{{{actor}}} added a picture to your album {{{album}}}"
+
+  # predefined routing: users will see in their news feed when a friend they follow likes a picture
+  route AddPictureActivity, :using => :actor_follower
+
+  # method call: users will see in their news feed when someone adds a picture in an album they follow
+  route AddPictureActivity, :using => :album_follower
+
+
+  # define a routing with a class method, to fetch all followers of an activity's album
+  def self.album_follower(activity)
+    activity.album.followers
+  end
+
+  # ...
+
+end
+```
+
+As you can see there as several ways to define a route:
+
+- with an *activity path* specified in the `:to` route's setting and that indicates what methods calls to chain on activity 
+- with a *predefined routing* previously declared with the `routing` method and then specified in the `:using` route's setting
+- with a call on timeline class method specified in the `:using` route's setting
+
+For the sake of demonstration you can see all three ways in previous code example, but when a route is simple to resolve it is preferred to use the *activity path* like that:
+
+```ruby
+class UserNewsFeedTimeline < Activr::Timeline
+
+  recipient User
+
+
+  #
+  # Routes
+  #
+
+  # activity path: users will see in their news feed when someone adds a picture in one of their albums
+  route AddPictureActivity, :to => 'album.owner', :humanize => "{{{actor}}} added a picture to your album {{{album}}}"
+
+  # predefined routing: users will see in their news feed when a friend they follow likes a picture
+  route AddPictureActivity, :to => 'actor.followers'
+
+  # method call: users will see in their news feed when someone adds a picture in an album they follow
+  route AddPictureActivity, :to => 'album.followers'
+
+  # ...
+
+end
+```
+
+
+# Timeline Entry
+
+When an activity is routed to a timeline, that activity is copied to a *Timeline Entry* that is then stored in database.
+
+So Activr uses a *Fanout on write* mecanism to dispatch activities to timelines.
+
+A timeline entry is stored in the `<timeline kind>_timelines` MongoDB collection.
+
+For example, Corinne receives previously generated activity because John added a picture to an album owned by Corinne:
+
+```
+> db.user_news_feed_timelines.findOne()
+{
+  "_id" : ObjectId("5295c06b61796d673b010000"),
+  "rcpt" : "corinne",
+  "routing" : "album_owner",
+  "activity" : {
+    "_id" : ObjectId("5295bc9f61796d649f140000"),
+    "at" : ISODate("2013-11-27T09:34:23.850Z"),
+    "kind" : "add_picture",
+    "actor" : "john",
+    "picture" : "my_face",
+    "album" : ObjectId("5295bc9261796d649f080000")
+  }
+}
+```
+
+As you can see, a Timeline Entry contains:
+
+- a copy of the original activity
+- the recipient id `rcpt`
+- the `routing` kind: `album_owner` means that Corinne received that activity in her News Feed because she is the owner of the album
+
+You can add too any meta data. So for example you can add a `read` meta data if you want to implemented a read/unread mecanism in your News Feed.
+
+
+# Callbacks
+
+Several callbacks are invoked on timeline instance during the activity handling workflow:
+
+```ruby
+class UserNewsFeedTimeline < Activr::Timeline
+
+  # ...
+
+  #
+  # Callbacks
+  #
+
+  def should_handle_activity?(activity, route)
+    # return `false` to skip activity routing
+    true
+  end
+
+  def should_store_timeline_entry?(timeline_entry)
+    # return `false` to cancel timeline entry storing
+    true
+  end
+
+  def will_store_timeline_entry(timeline_entry)
+    # this is your last chance to modify timeline entry before it is stored
+  end
+
+  def did_store_timeline_entry(timeline_entry)
+    # the timeline entry was stored, can now do some post-processing
+    # for example you can send notifications
+  end
+
+end
+```
+
+
+# Display
+
+Two methods are injected in the timeline recipient class: `#news_feed` and `#news_feed_count`:
+
+```ruby
+class UsersController < ApplicationController
+
+  def news_feed
+    user = User.find(params[:id])
+
+    @news_feed       = user.user_news_feed(10)
+    @news_feed_count = user.user_news_feed_count
+  end
+
+end
+```
+
+Here is simple view:
+
+```erb
+  <p>
+    You have <%= @news_feed_count %> entries in your News Feed. Here are the last 10 ones:
+  </p>
+  <ul id='news_feed'>
+    <% @news_feed.each do |timeline_entry| %>
+      <li><%= raw timeline_entry.humanize(:html => true) %></li>
+    <% end %>
+  </ul>
+<% end %>
+```
+
+Here is a more realistic view:
+
+```erb
+<div id='news_feed'>
+  <% @news_feed.each do |timeline_entry| %>
+    <% activity = timeline_entry.activity %>
+    <div class="activity <%= activity.kind %>">
+      <div class="icon">
+        <%= link_to(image_tag(activity.actor.avatar.thumb.url, :title => activity.actor.fullname), activity.actor) %>
+      </div>
+      <div class="content">
+        <div class="title"><%= timeline_entry.humanize(:html => true).html_safe %></div>
+        <% if activity.buddy %>
+          <div class="buddy">
+            <%= link_to(image_tag(activity.buddy.avatar.url, :title => activity.buddy.fullname), activity.buddy) %>
+          </div>
+        <% elsif activity.picture %>
+          <div class="picture">
+            <%= link_to(image_tag(activity.picture.image.small.url, :title => activity.picture.title), activity.picture) %>
+          </div>
+        <% elsif activity.album %>
+          <div class="album">
+            <%= link_to(image_tag(activity.album.cover.image.small.url, :title => activity.album.name), activity.album) %>
+          </div>
+        <% end %>
+        <small class="date text-muted"><%= distance_of_time_in_words_to_now(activity.at, true) %> ago</small>
+      </div>
+    </div>
+  <% end %>
+</div>
+```
 
 
 Async
 =====
 
+Activr permits you to plug any job system to run some part if Activr's code asynchronously.
+
+Possible hooks are:
+
+  - `:route_activity` - An activity must me routed by the Dispatcher
+  - `:timeline_handle` - An activity must be handled by a timeline
+
+For example, here is the default `:route_activity` hook handler when [Resque](https://github.com/resque/resque) is detected in a Rails application:
+
+
+```ruby
+# config
+Activr.configure do |config|
+  config.async[:route_activity] ||= Activr::Async::Resque::RouteActivity
+end
+```
+
+```ruby
+class Activr::Async::Resque::RouteActivity
+  @queue = 'activr_route_activity'
+
+  class << self
+    def enqueue(activity)
+      ::Resque.enqueue(self, activity.to_hash)
+    end
+
+    def perform(activity_hash)
+      # unserialize argument
+      activity_hash = Activr::Activity.unserialize_hash(activity_hash)
+      activity = Activr::Activity.from_hash(activity_hash)
+
+      # call hook
+      Activr::Async.route_activity(activity)
+    end
+  end # class << self
+end # class RouteActivity
+```
+
+A hook class:
+
+  - must implement a `#enqueue` method, used to enqueue the async job
+  - must call `Activr::Async.<hook_name>` method in the async job
+
+Hook classes to use are specified thanks to the `config.async` hash.
+
 
 Indexes
 =======
 
-
-Concepts (@todo Move that to blog post)
-========
-
-An activity is an event that is (most of the time) performed by a user in your application.
-
-Let's take an example:
-
-`John` `added` `picture 'My face smiling'` to the `album 'My Selfies'`
-
-Given the [Activity Streams](http://activitystrea.ms) specification:
-
-- `John` is the _actor_
-- `picture 'My face smiling'` is the _object_
-- `album 'My Selfies'` is the _target_
-- `added` is the _verb_
-
-But Activr doesn't follow that specification. There is no notion of _object_, _target_ nor _verb_; instead there are _entity_, _activity class_, and by convention the _entity_ that correspond to a user performing an action should be named `:actor`.
-
-So, back to our example, with Activr:
-
-- `John`, `picture 'My face smiling'` and `album 'My Selfies'` are _entities_ that correspond to your application models (probably: `User`, `Picture` and `Album` models).
-- This activity correspond to a user adding a picture to album, so it could be named `UserAddsPictureToAlbum`, but well, in our example application only users can add picture to albums, and a picture can only be added to an album, so `AddPicture` is a simpler name.
-- `John` is the _entity_ performing the action, so let's call it `:actor`
-
-And we end up with that activity:
-
-```ruby
-class AddPictureActivity < Activr::Activity
-
-  entity :actor, :class => User
-  entity :picture
-  entity :album
-
-end
-```
+@todo
 
 
 Todo

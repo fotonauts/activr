@@ -1,9 +1,9 @@
 #
-# A Timeline Entry is an Activity routed to a Timeline
+# A Timeline Entry correspond to an Activity routed to a Timeline
 #
 # When instanciated, it contains:
 #   - The `timeline` it belongs to
-#   - The routed `activity`
+#   - A copy of the routed `activity`
 #   - The `routing_kind` that indicates why that `activity` has been routed to that `timeline`
 #   - User-defined `meta` data
 #

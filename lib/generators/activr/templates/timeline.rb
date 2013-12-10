@@ -27,11 +27,11 @@ class <%= class_name %>Timeline < Activr::Timeline
   end
 
   def will_store_timeline_entry(timeline_entry)
-    # last chance to modify timeline entry before storing
+    # this is your last chance to modify timeline entry before it is stored
   end
 
   def did_store_timeline_entry(timeline_entry)
-    # eg: now you can send notifications
+    # the timeline entry was stored, can now do some post-processing
   end
 
 end

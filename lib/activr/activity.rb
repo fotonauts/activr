@@ -3,11 +3,9 @@ module Activr
   #
   # An activity is an event that is (most of the time) performed by a user in your application.
   #
-  # You define:
-  #   - Allowed entities
-  #   - A humanization template
+  # When defining an activity you specify allowed entities and a humanization template.
   #
-  # When instanciated, it contains:
+  # When instanciated, an activity contains:
   #   - Concrete `entities` instances
   #   - A timestamp (the `at` field)
   #   - User-defined `meta` data

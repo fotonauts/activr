@@ -4,7 +4,7 @@ module Activr
   # With a Timeline you can create complex Activity Feeds
   #
   # When creating a Timeline class you specify:
-  #   - what model in your application will see that timeline: the `recipient`
+  #   - what model in your application owns that timeline: the `recipient`
   #   - what activities will be displayed in that timeline: the `routes`
   #
   # Routes can be resolved thanks to:
@@ -36,6 +36,16 @@ module Activr
   #       activity.album.followers
   #     end
   #   end
+  #
+  # When an activity is routed to a timeline, a Timeline Entry is stored in database and that Timeline Entry contains
+  # a copy of the original activity: so Activr uses a "Fanout on write" mecanism to dispatch activities to timelines.
+  #
+  # Several callbacks are invoked on timeline instance during the activity handling workflow:
+  #
+  #   - #should_handle_activity?      - Returns `false` to totally ignore activity
+  #   - #should_store_timeline_entry? - Returns `false` to cancel storing
+  #   - #will_store_timeline_entry    - This is your last chance to modify timeline entry before it is stored
+  #   - #did_store_timeline_entry     - Called just after timeline entry was stored
   #
   class Timeline
 
@@ -350,7 +360,7 @@ module Activr
       # NOOP
     end
 
-    # Callback just after storing timeline entry into timeline
+    # Callback just after timeline entry was stored
     #
     # @note MAY be overriden by child class
     #
