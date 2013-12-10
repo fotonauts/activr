@@ -1,7 +1,7 @@
 Activr
 ======
 
-Activr is the Ruby gem created by Fotonauts to manage Activity Feeds on [Fotopedia](http://www.fotopedia.com).
+Activr is the Ruby gem created by Fotonauts to manage activity feeds on [Fotopedia](http://www.fotopedia.com).
 
 Some magic is invoked when running inside a [Rails](http://www.rubyonrails.com) application but Activr can be used without Rails.
 
@@ -183,6 +183,7 @@ Note that you can paginate thanks to the `:skip` option of the `#activities` met
 
 Each entity involved in an activity have its own activity feed.
 
+
 #### Actor Activity Feed
 
 To fetch actor's activities, include the mixin `Activr::Entity::ModelMixin` into your actor's class:
@@ -217,6 +218,8 @@ user.activities(10).each do |activity|
   puts activity.humanize
 end
 ```
+
+@todo Setup index.
 
 
 #### Album Activity Feed
@@ -257,6 +260,8 @@ album.activities(10).each do |activity|
   puts activity.humanize
 end
 ```
+
+@todo Setup index.
 
 
 News Feed
