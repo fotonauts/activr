@@ -179,7 +179,9 @@ end
 Note that you can paginate thanks to the `:skip` option of the `#activities` method.
 
 
-### Actor Activity Feed
+### Entity Activity Feed
+
+#### Actor Activity Feed
 
 To fetch actor's activities, include the mixin `Activr::Entity::ModelMixin` into your actor's class:
 
@@ -215,7 +217,7 @@ end
 ```
 
 
-### Album Activity Feed
+#### Album Activity Feed
 
 You can too fetch a per-album activity feed by including the mixin `Activr::Entity::ModelMixin` into the `Album` class:
 
@@ -258,7 +260,7 @@ end
 News Feed
 ---------
 
-Now we want a User News Feed, so that each user can get news from friends they follow and from albums they own or follow. That's the goal of a *timeline*: to create a complex activity feed.
+Now we want a User News Feed, so that each user can get news from friends they follow and from albums they own or follow. That's the goal of a _timeline_: to create a complex activity feed.
 
 
 ### Timeline
@@ -311,11 +313,15 @@ end
 
 When defining a `Timeline` class you specify:
 
-  - what model in your application *owns* that timeline: the `recipient`
+  - what model in your application _owns_ that timeline: the `recipient`
   - what activities are displayed in that timeline: the `routes`
 
 
 ### Routes
+
+With routes you can specify what activities must be stored in the timeline and how to resolve recipients for those activities.
+
+When an activity is dispatched, Activr tries to resolve all routes of each timeline with that activity. The result of a route resolving must be an array of recipient instances and/or recipient ids.
 
 Let's add some routes:
 
@@ -354,14 +360,14 @@ end
 
 As you can see there as several ways to define a route:
 
-#### with an *activity path*
+#### with an activity path
 
 ```ruby
   # activity path: users will see in their news feed when someone adds a picture in one of their albums
   route AddPictureActivity, :to => 'album.owner', :humanize => "{{{actor}}} added a picture to your album {{{album}}}"
 ```
 
-The *path* is specified with the `:to` route's setting. It describes a method chaining to call on dispatched activities.
+The _path_ is specified with the `:to` route's setting. It describes a method chaining to call on dispatched activities.
 
 So with our example the route is resolved that way:
 
@@ -370,7 +376,7 @@ So with our example the route is resolved that way:
   recipient = album.owner
 ```
 
-#### with a *predefined routing*
+#### with a predefined routing
 
 First, declare a predefined `routing`:
 
@@ -404,7 +410,7 @@ Then use it with the `:using` route's setting:
   route AddPictureActivity, :using => :album_follower
 ```
 
-For the sake of demonstration you can see all three ways in previous code example, but when a route is simple to resolve it is preferred to use a *activity path* like that:
+For the sake of demonstration you can see all three ways in previous code example, but when a route is simple to resolve it is preferred to use a _activity path_ like that:
 
 ```ruby
 class UserNewsFeedTimeline < Activr::Timeline
@@ -433,9 +439,7 @@ end
 
 ### Timeline Entry
 
-When an activity is routed to a timeline, that activity is copied to a *Timeline Entry* that is then stored in database.
-
-So Activr uses a *Fanout on write* mecanism to dispatch activities to timelines.
+When an activity is routed to a timeline, that activity is copied to a _Timeline Entry_ that is then stored in database (so Activr uses a _Fanout on write_ mecanism to dispatch activities to timelines).
 
 A timeline entry is stored in the `<timeline kind>_timelines` MongoDB collection.
 
