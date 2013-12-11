@@ -479,11 +479,11 @@ end
 
 ### Timeline Entry
 
-When an activity is routed to a timeline, that activity is copied to a _Timeline Entry_ that is then stored in database (so Activr uses a _Fanout on write_ mecanism to dispatch activities to timelines).
+When an activity is routed to a timeline, that activity is copied to a _Timeline Entry_ that is then stored into database (so Activr uses a _Fanout on write_ mecanism to dispatch activities to timelines).
 
 A routed timeline entry is stored in the `<timeline kind>_timelines` MongoDB collection.
 
-For example, Corinne received previously generated activity because John added a picture to an album owned by Corinne:
+For example, Corinne received a previously generated activity because John added a picture to an album she owns:
 
 ```
 > db.user_news_feed_timelines.findOne()
@@ -508,7 +508,7 @@ As you can see, a Timeline Entry contains:
 - the recipient id `rcpt`
 - the `routing` kind: `album_owner` means that Corinne received that activity in her News Feed because she is the owner of the album
 
-You can too add meta data. For example you may add a `read` meta data if you want to implemented a read/unread mecanism in your News Feed.
+You can also add meta data. For example you may add a `read` meta data if you want to implement a read/unread mecanism in your News Feed.
 
 Specify a `:humanize` setting on a `route` to specialize humanization of corresponding timeline entries. For example:
 
@@ -517,7 +517,7 @@ Specify a `:humanize` setting on a `route` to specialize humanization of corresp
   route AddPictureActivity, :to => 'album.owner', :humanize => "{{{actor}}} added a picture to your album {{{album}}}"
 ```
 
-If you don't set a `:humanize` setting then the humanization of the embedded activity is used instead.
+If you do not set a `:humanize` setting then the humanization of the embedded activity is used instead.
 
 
 ### Callbacks
@@ -587,7 +587,7 @@ Here is simple view:
 <% end %>
 ```
 
-Here is a a view taken from [Activr Demo](https://github.com/fotonauts/activr_demo):
+Here is a view taken from [Activr Demo](https://github.com/fotonauts/activr_demo):
 
 ```erb
 <div id='news_feed'>
@@ -627,8 +627,8 @@ You can plug a job system to run some parts of Activr code asynchronously.
 
 Possible hooks are:
 
-  - `:route_activity` - An activity is routed by the dispatcher
-  - `:timeline_handle` - An activity is handled by a timeline
+  - `:route_activity` - Activity is routed by the dispatcher
+  - `:timeline_handle` - Activity is handled by a timeline
 
 For example, here is the default `:route_activity` hook handler that is provided out of the box when [Resque](https://github.com/resque/resque) is detected in a Rails application:
 
@@ -666,7 +666,7 @@ A hook class:
   - implements an `#enqueue` method, used to enqueue the async job
   - calls `Activr::Async.<hook_name>` method in the async job
 
-Hook classes to use are specified thanks to the `config.async` hash.
+Hook classes are specified thanks to the `config.async` hash.
 
 
 Indexes
