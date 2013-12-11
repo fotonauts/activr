@@ -3,11 +3,21 @@ Activr
 
 Activr is the Ruby gem created by Fotonauts to manage activity feeds on [Fotopedia](http://www.fotopedia.com).
 
-Some magic is invoked when running inside a [Rails](http://www.rubyonrails.com) application but Activr can be used without Rails.
+With Activr you can create:
 
-A demo app is available [on github](https://github.com/fotonauts/activr_demo).
+- a Global Activity Feed: display all activities in your website in a single feed
+- a User Activity Feed: display all actions performed by a specific user
+- a User News Feeds: each user can get news from friends they follow, from albums they own or follow, etc...
+- an Album Activity Feed: display what happens in a specific album
+- etc...
 
 Activities are stored in a [MongoDB](http://www.mongodb.org/) database.
+
+Some magic is invoked when running inside a [Rails](http://www.rubyonrails.com) application but Activr can be used without Rails.
+
+If [Resque](https://github.com/resque/resque) is detected in a Rails application then it is automatically used to run some parts of Activr's code asynchronously.
+
+A demo app is available [on heroku](http://activr_demo.herokuapp.com), feel free to create an account and try it. Demo source code is [on github](https://github.com/fotonauts/activr_demo) too.
 
 
 Install
