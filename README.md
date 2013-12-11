@@ -22,6 +22,9 @@ If [Resque](https://github.com/resque/resque) is detected in a Rails application
 
 A demo app is available [on heroku](http://activr_demo.herokuapp.com), feel free to create an account and try it. Demo source code is [on github](https://github.com/fotonauts/activr_demo) too.
 
+[![Build Status](https://travis-ci.org/fotonauts/activr.png)](https://travis-ci.org/fotonauts/activr)
+[![Code Climate](https://codeclimate.com/github/fotonauts/activr.png)](https://codeclimate.com/github/fotonauts/activr)
+
 
 Install
 =======
