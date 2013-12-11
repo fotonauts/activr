@@ -606,7 +606,7 @@ Here is a a view taken from [Activr Demo](https://github.com/fotonauts/activr_de
             <%= link_to(image_tag(activity.album.cover.image.small.url, :title => activity.album.name), activity.album) %>
           </div>
         <% end %>
-        <small class="date text-muted"><%= distance_of_time_in_words_to_now(activity.at, true) %> ago</small>
+        <small class="date text-muted"><%= distance_of_time_in_words_to_now(activity.at, :include_seconds => true) %> ago</small>
       </div>
     </div>
   <% end %>
