@@ -46,13 +46,19 @@ end
 # Moped.logger = Activr.logger if defined?(Moped)
 
 Mongoid.configure do |config|
-  config.sessions = {
-    default: {
-      database: rspec_mongo_db,
-      hosts: [ "#{rspec_mongo_host}:#{rspec_mongo_port}" ],
-      options: { read: :primary }
+  if config.respond_to?(:sessions)
+    # since mongoid 3
+    config.sessions = {
+      default: {
+        database: rspec_mongo_db,
+        hosts: [ "#{rspec_mongo_host}:#{rspec_mongo_port}" ],
+        options: { read: :primary }
+      }
     }
-  }
+  else
+    # mongoid 2
+    config.master = Mongo::Connection.new(rspec_mongo_host, rspec_mongo_port).db(rspec_mongo_db)
+  end
 end
 
 RSpec.configure do |config|
