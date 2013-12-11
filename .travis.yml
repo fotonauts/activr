@@ -5,9 +5,8 @@ rvm:
   - 2.0.0
   - ruby-head
 gemfile:
-  - gemfiles/mongo-1.9.gemfile
-  - gemfiles/moped-1.5.gemfile
-  - gemfiles/moped-2.0.gemfile
+  - gemfiles/mongoid-2.gemfile
+  - gemfiles/mongoid-3.gemfile
 services:
   - mongodb
 notifications:
