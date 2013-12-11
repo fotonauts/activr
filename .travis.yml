@@ -5,6 +5,7 @@ rvm:
   - 2.0.0
   - ruby-head
 gemfile:
+  - Gemfile
   - gemfiles/mongoid-2.gemfile
   - gemfiles/mongoid-3.gemfile
 services:
