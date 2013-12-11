@@ -9,10 +9,6 @@ module Activr
         if Mongoid.sessions[:default] && !Mongoid.sessions[:default][:database].blank? && !Mongoid.sessions[:default][:hosts].blank?
           config.mongodb[:uri] = "mongodb://#{Mongoid.sessions[:default][:hosts].first}/#{Mongoid.sessions[:default][:database]}"
         end
-
-        # @todo REMOVE THAT !
-        Activr.logger.info("[railtie] Mongoid.sessions: #{Mongoid.sessions.inspect}")
-        Activr.logger.info("[railtie] mongodb URI: #{config.mongodb[:uri].inspect}")
       end
     end
 
