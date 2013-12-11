@@ -59,7 +59,7 @@ module Activr::Entity::ModelMixin
   #
   # @return [Symbol]
   def activr_feed_entity
-    self.activr_feed_entity_name || Activr::Utils.kind_for_class(self).to_sym
+    self.activr_feed_entity_name || Activr::Utils.kind_for_class(self.class).to_sym
   end
 
   # Fetch activities
