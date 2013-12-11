@@ -6,8 +6,8 @@ module Activr
       Activr.configure do |config|
         config.app_path = File.join(::Rails.root, 'app')
 
-        if !Mongoid.sessions[:uri].blank?
-          config.mongodb[:uri] = Mongoid.sessions[:uri].dup
+        if Mongoid.sessions[:default] && !Mongoid.sessions[:default][:uri].blank?
+          config.mongodb[:uri] = Mongoid.sessions[:default][:uri].dup
         elsif Mongoid.sessions[:default] && !Mongoid.sessions[:default][:database].blank? && !Mongoid.sessions[:default][:hosts].blank?
           config.mongodb[:uri] = "mongodb://#{Mongoid.sessions[:default][:hosts].first}/#{Mongoid.sessions[:default][:database]}"
         end
