@@ -36,7 +36,6 @@ describe Activr::Activity do
     activity.album_entity.should_not be_nil
     activity.album.should == album
     activity.album_id.should == album._id
-
   end
 
   it "instanciates with entities ids" do

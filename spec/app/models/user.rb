@@ -9,8 +9,14 @@ class User
 
   field :nil_field
 
+  # needed for mongoid 3
+  if self.respond_to?(:attr_accessible)
+    attr_accessible :id, :_id, :first_name, :last_name, :nil_field
+  end
+
   # @todo change to a real field
   attr_accessor :followers
+
 
   def fullname
     "#{self.first_name} #{self.last_name}"
