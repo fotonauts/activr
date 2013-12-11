@@ -684,6 +684,6 @@ Credits
 
 From Fotonauts:
 
-- Aymerick Jéhanne @aymerick
+- Aymerick Jéhanne [@aymerick](https://github.com/aymerick)
 
 Copyright (c) 2013 Fotonauts released under the MIT license.
