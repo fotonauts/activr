@@ -8,17 +8,17 @@ Activr is the Ruby gem created by Fotonauts to manage activity feeds on [Fotoped
 
 With Activr you can create:
 
-- a Global Activity Feed: display all activities in your website in a single feed
+- a Global Activity Feed: /me a ma  all activities in your website in a single feed
 - a User Activity Feed: display all actions performed by a specific user
-- a User News Feeds: each user can get news from friends they follow, from albums they own or follow, etc...
+- a User News Feeds: each user can get news from friends they follow, from albums they own or follow, etc.
 - an Album Activity Feed: display what happens in a specific album
-- etc...
+- ...
 
 Activities are stored in a [MongoDB](http://www.mongodb.org/) database.
 
 Some magic is invoked when running inside a [Rails](http://www.rubyonrails.com) application but Activr can be used without Rails.
 
-If [Resque](https://github.com/resque/resque) is detected in a Rails application then it is automatically used to run some parts of Activr's code asynchronously.
+If [Resque](https://github.com/resque/resque) is detected in a Rails application then it is automatically used to run some parts of Activr code asynchronously.
 
 A demo app is available [on heroku](http://activr_demo.herokuapp.com), feel free to create an account and try it. Demo source code is [on github](https://github.com/fotonauts/activr_demo) too.
 
@@ -73,11 +73,11 @@ end
 
 ### Entities
 
-An entity represents one of your application's model involved the activity.
+An entity represents one of your application models that is involved in the activity.
 
-By convention, the entity that correspond to the user performing the action should be named `:actor`.
+By convention, the entity that corresponds to the user performing the action should be named `:actor`.
 
-Entity's class is inferred thanks to entity name, so by default the `:picture` entity have the `Picture` class, but you can still provide the `:class` option to specify another class.
+The entity class is inferred thanks to entity name, so by default the `:picture` entity has the `Picture` class, but you can still provide the `:class` option to specify another class.
 
 
 ### Activity humanization
@@ -88,7 +88,7 @@ The `humanize` method defines a sentence that describes the activity and it is a
   humanize "{{{actor}}} added picture {{{picture}}} to the album {{{album}}}"
 ```
 
-The `:humanize` option on entity correspond to a method that is called on corresponding entity's instance to humanize it. Note that the generator tries to find by itself that method.
+The `:humanize` option on entity corresponds to a method that is called on the entity instance to humanize it. Note that the generator tries to find that method by itself.
 
 
 ### Usage
@@ -113,7 +113,7 @@ activity.humanize(:html => true)
 Dispatch an activity
 --------------------
 
-You can now dispatch that activity in your application when a picture is added to an album:
+You can now dispatch this activity in your application when a picture is added to an album:
 
 ```ruby
 class Album
@@ -206,12 +206,12 @@ Note that you can paginate thanks to the `:skip` option of the `#activities` met
 
 ### Entity Activity Feed
 
-Each entity involved in an activity have its own activity feed.
+Each entity involved in an activity has its own activity feed.
 
 
 #### Actor Activity Feed
 
-To fetch actor's activities, include the mixin `Activr::Entity::ModelMixin` into your actor's class:
+To fetch actor activities, include the mixin `Activr::Entity::ModelMixin` into your actor class:
 
 ```ruby
 class User
@@ -232,7 +232,7 @@ class User
 end
 ```
 
-Now the `User` class have two new methods: `#activities` and `#activities_count`:
+Now the `User` class has two new methods: `#activities` and `#activities_count`:
 
 ```ruby
 user = User.find('john')
@@ -249,7 +249,7 @@ end
 
 #### Album Activity Feed
 
-You can too fetch a per-album activity feed by including the mixin `Activr::Entity::ModelMixin` into the `Album` class:
+You can also fetch a per-album activity feed by including the mixin `Activr::Entity::ModelMixin` into the `Album` class:
 
 ```ruby
 class Album
@@ -292,7 +292,7 @@ end
 News Feed
 ---------
 
-Now we want a User News Feed, so that each user can get news from friends they follow and from albums they own or follow. That's the goal of a timeline: to create a complex activity feed.
+Now we want a User News Feed, so that each user can get news from friends he follows and from albums he owns or follows. That is the goal of a timeline: to create a complex activity feed.
 
 
 ### Timeline
@@ -346,14 +346,14 @@ end
 When defining a `Timeline` class you specify:
 
   - what model in your application _owns_ that timeline: the `recipient`
-  - what activities are displayed in that timeline: the `routes`
+  - which activities are displayed in that timeline: the `routes`
 
 
 ### Routes
 
-Routes describe what activities must be stored in the timeline and how to resolve recipients for those activities.
+Routes describe which activities must be stored in the timeline and how to resolve recipients for those activities.
 
-When an activity is dispatched, Activr tries to resolve all routes of each timeline with that activity. The result of a route resolving must be either an array of recipient instances/ids or a unique recipient instance/id.
+When an activity is dispatched, Activr tries to resolve all routes of every timeline with that activity. The result of a route resolving must be either an array of recipient instances/ids or a unique recipient instance/id.
 
 Let's add some routes:
 
@@ -362,10 +362,10 @@ class UserNewsFeedTimeline < Activr::Timeline
 
   recipient User
 
-  # this is a predefined routing, to fetch all followers of an activity's actor
+  # this is a predefined routing, to fetch all followers of an activity actor
   routing :actor_follower, :to => Proc.new{ |activity| activity.actor.followers }
 
-  # define a routing with a class method, to fetch all followers of an activity's album
+  # define a routing with a class method, to fetch all followers of an activity album
   def self.album_follower(activity)
     activity.album.followers
   end
@@ -390,7 +390,7 @@ class UserNewsFeedTimeline < Activr::Timeline
 end
 ```
 
-As you can see there as several ways to define a route:
+As you can see there are several ways to define a route:
 
 #### with an activity path
 
@@ -399,7 +399,7 @@ As you can see there as several ways to define a route:
   route AddPictureActivity, :to => 'album.owner'
 ```
 
-The _path_ is specified with the `:to` route's setting. It describes a method chaining to call on dispatched activities.
+The _path_ is specified with the `:to` route setting. It describes a method chaining to call on dispatched activities.
 
 So with our example the route is resolved that way:
 
@@ -413,11 +413,11 @@ So with our example the route is resolved that way:
 First, declare a predefined `routing`:
 
 ```ruby
-  # this is a predefined routing, to fetch all followers of an activity's actor
+  # this is a predefined routing, to fetch all followers of an activity actor
   routing :actor_follower, :to => Proc.new{ |activity| activity.actor.followers }
 ```
 
-Then use it with the `:using` route's setting:
+Then use it with the `:using` route setting:
 
 ```ruby
   # predefined routing: users will see in their news feed when a friend they follow likes a picture
@@ -437,20 +437,20 @@ Note that can use a block syntax:
 You can resolve a route with a timeline class method:
 
 ```ruby
-  # define a routing with a class method, to fetch all followers of an activity's album
+  # define a routing with a class method, to fetch all followers of an activity album
   def self.album_follower(activity)
     activity.album.followers
   end
 ```
 
-Then use it with the `:using` route's setting:
+Then use it with the `:using` route setting:
 
 ```ruby
   # method call: users will see in their news feed when someone adds a picture in an album they follow
   route AddPictureActivity, :using => :album_follower
 ```
 
-For the sake of demonstration you can see all three ways in previous timeline's code example, but when a route is simple to resolve it is preferred to use an _activity path_ like that:
+For the sake of demonstration you can see the three ways in previous timeline code example, but when a route is simple to resolve it is preferred to use an _activity path_ like that:
 
 ```ruby
 class UserNewsFeedTimeline < Activr::Timeline
@@ -623,7 +623,7 @@ Here is a a view taken from [Activr Demo](https://github.com/fotonauts/activr_de
 Async
 =====
 
-You can plug a job system to run some parts of Activr's code asynchronously.
+You can plug a job system to run some parts of Activr code asynchronously.
 
 Possible hooks are:
 
