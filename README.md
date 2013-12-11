@@ -321,7 +321,7 @@ class UserNewsFeedTimeline < Activr::Timeline
   end
 
   def did_store_timeline_entry(timeline_entry)
-    # the timeline entry was stored, can now do some post-processing
+    # the timeline entry was stored, you can now do some post-processing
   end
 
 end
@@ -335,9 +335,9 @@ When defining a `Timeline` class you specify:
 
 ### Routes
 
-With routes you can specify what activities must be stored in the timeline and how to resolve recipients for those activities.
+Routes describe what activities must be stored in the timeline and how to resolve recipients for those activities.
 
-When an activity is dispatched, Activr tries to resolve all routes of each timeline with that activity. The result of a route resolving must be an array of recipient instances and/or recipient ids.
+When an activity is dispatched, Activr tries to resolve all routes of each timeline with that activity. The result of a route resolving must be either an array of recipient instances/ids or a unique recipient instance/id.
 
 Let's add some routes:
 
@@ -348,6 +348,11 @@ class UserNewsFeedTimeline < Activr::Timeline
 
   # this is a predefined routing, to fetch all followers of an activity's actor
   routing :actor_follower, :to => Proc.new{ |activity| activity.actor.followers }
+
+  # define a routing with a class method, to fetch all followers of an activity's album
+  def self.album_follower(activity)
+    activity.album.followers
+  end
 
 
   #
@@ -363,11 +368,6 @@ class UserNewsFeedTimeline < Activr::Timeline
   # method call: users will see in their news feed when someone adds a picture in an album they follow
   route AddPictureActivity, :using => :album_follower
 
-
-  # define a routing with a class method, to fetch all followers of an activity's album
-  def self.album_follower(activity)
-    activity.album.followers
-  end
 
   # ...
 
@@ -418,7 +418,7 @@ Note that can use a block syntax:
 
 #### with a call on timeline class method
 
-You can resolve a route with a timeline class method: 
+You can resolve a route with a timeline class method:
 
 ```ruby
   # define a routing with a class method, to fetch all followers of an activity's album
@@ -492,7 +492,7 @@ As you can see, a Timeline Entry contains:
 - the recipient id `rcpt`
 - the `routing` kind: `album_owner` means that Corinne received that activity in her News Feed because she is the owner of the album
 
-You can too add meta data. For example you can add a `read` meta data if you want to implemented a read/unread mecanism in your News Feed.
+You can too add meta data. For example you may add a `read` meta data if you want to implemented a read/unread mecanism in your News Feed.
 
 Specify a `:humanize` setting on a `route` to specialize humanization of corresponding timeline entries. For example:
 
@@ -532,7 +532,7 @@ class UserNewsFeedTimeline < Activr::Timeline
   end
 
   def did_store_timeline_entry(timeline_entry)
-    # the timeline entry was stored, can now do some post-processing
+    # the timeline entry was stored, you can now do some post-processing
     # for example you can send notifications
   end
 
@@ -540,9 +540,9 @@ end
 ```
 
 
-### Display
+### Fetching / Display
 
-Two methods are injected in the timeline recipient class: `#news_feed` and `#news_feed_count`:
+Two methods are injected in the timeline recipient class: `#<timeline_kind>` and `#<timeline_kind>_count`. So in our case: `#news_feed` and `#news_feed_count`:
 
 ```ruby
 class UsersController < ApplicationController
@@ -571,7 +571,7 @@ Here is simple view:
 <% end %>
 ```
 
-Here is a more realistic view:
+Here is a a view taken from [Activr Demo](https://github.com/fotonauts/activr_demo):
 
 ```erb
 <div id='news_feed'>
@@ -607,14 +607,14 @@ Here is a more realistic view:
 Async
 =====
 
-Activr permits you to plug any job system to run some part if Activr's code asynchronously.
+You can plug a job system to run some parts of Activr's code asynchronously.
 
 Possible hooks are:
 
-  - `:route_activity` - An activity must me routed by the Dispatcher
-  - `:timeline_handle` - An activity must be handled by a timeline
+  - `:route_activity` - An activity is routed by the dispatcher
+  - `:timeline_handle` - An activity is handled by a timeline
 
-For example, here is the default `:route_activity` hook handler when [Resque](https://github.com/resque/resque) is detected in a Rails application:
+For example, here is the default `:route_activity` hook handler that is provided out of the box when [Resque](https://github.com/resque/resque) is detected in a Rails application:
 
 
 ```ruby
@@ -647,7 +647,7 @@ end # class RouteActivity
 
 A hook class:
 
-  - implements a `#enqueue` method, used to enqueue the async job
+  - implements an `#enqueue` method, used to enqueue the async job
   - calls `Activr::Async.<hook_name>` method in the async job
 
 Hook classes to use are specified thanks to the `config.async` hash.

@@ -21,6 +21,10 @@ module Activr
   #     # this is a predefined routing, to fetch all followers of an activity's actor
   #     routing :actor_follower, :to => Proc.new{ |activity| activity.actor.followers }
   #
+  #     # define a routing with a class method, to fetch all followers of an activity's album
+  #     def self.album_follower(activity)
+  #       activity.album.followers
+  #     end
   #
   #     # predefined routing: users will see in their news feed when a friend they follow likes a picture
   #     route LikePictureActivity, :using => :actor_follower
@@ -31,10 +35,6 @@ module Activr
   #     # method call: users will see in their news feed when someone adds a picture in an album they follow
   #     route AddPictureActivity, :using => :album_follower
   #
-  #     # define a routing with a class method, to fetch all followers of an activity's album
-  #     def self.album_follower(activity)
-  #       activity.album.followers
-  #     end
   #   end
   #
   # When an activity is routed to a timeline, a Timeline Entry is stored in database and that Timeline Entry contains

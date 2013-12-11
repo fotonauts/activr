@@ -31,7 +31,7 @@ class <%= class_name %>Timeline < Activr::Timeline
   end
 
   def did_store_timeline_entry(timeline_entry)
-    # the timeline entry was stored, can now do some post-processing
+    # the timeline entry was stored, you can now do some post-processing
   end
 
 end
