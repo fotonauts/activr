@@ -20,10 +20,14 @@ Some magic is invoked when running inside a [Rails](http://www.rubyonrails.com) 
 
 If [Resque](https://github.com/resque/resque) is detected in a Rails application then it is automatically used to run some parts of Activr code asynchronously.
 
-A demo app is available [on heroku](http://activr-demo.herokuapp.com), feel free to create an account and try it. Demo source code is [on github](https://github.com/fotonauts/activr_demo) too.
-
 [![Build Status](https://travis-ci.org/fotonauts/activr.png)](https://travis-ci.org/fotonauts/activr)
 [![Code Climate](https://codeclimate.com/github/fotonauts/activr.png)](https://codeclimate.com/github/fotonauts/activr)
+
+- More information [on our tumblr](http://fotopedia-code.tumblr.com)
+- Source code [on github](http://github.com/fotonauts/activr)
+- Code documentation [on rubydoc](http://rubydoc.info/github/fotonauts/activr/frames)
+
+A demo app is available [on heroku](http://activr-demo.herokuapp.com), feel free to create an account and try it. Demo source code is [on github](https://github.com/fotonauts/activr_demo) too.
 
 
 Install
@@ -500,7 +504,7 @@ As you can see, a Timeline Entry contains:
 
 You can also add meta data. For example you may add a `read` meta data if you want to implement a read/unread mecanism in your News Feed.
 
-### Timeline Entry humanization
+#### Timeline Entry humanization
 
 Specify a `:humanize` setting on a `route` to specialize humanization of corresponding timeline entries. For example:
 
@@ -567,7 +571,7 @@ end
 
 Here is simple view:
 
-```html
+```erb
   <p>
     You have <%= @news_feed_count %> entries in your News Feed. Here are the 10 most recent:
   </p>
@@ -581,7 +585,7 @@ Here is simple view:
 
 Here is a view taken from [Activr Demo](https://github.com/fotonauts/activr_demo):
 
-```html
+```erb
 <div id='news_feed'>
   <% @news_feed.each do |timeline_entry| %>
     <% activity = timeline_entry.activity %>
