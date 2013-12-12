@@ -10,14 +10,14 @@ module Activr
   #   - A timestamp (the `at` field)
   #   - User-defined `meta` data
   #
-  # By default, entities are mandatory and the exception `MissingEntityError` is raised when trying to store an activity
+  # By default, entities are mandatory and the exception {MissingEntityError} is raised when trying to store an activity
   # with a missing entity.
   #
   # When an activity is stored in database, its `_id` field is filled.
   #
   # Model callbacks:
   #   - `before_store`, `around_store` and `after_store` are called when activity is stored in database
-  #   - `before_route`, `around_route` and `after_route` are called when activity is routed by the Dispatcher
+  #   - `before_route`, `around_route` and `after_route` are called when activity is routed by the dispatcher
   #
   # @example
   #   class AddPictureActivity < Activr::Activity
@@ -76,21 +76,25 @@ module Activr
 
     class << self
 
-      # @example Get activity class kind
+      # Get activity class kind
+      #
+      # @example
       #   AddPictureActivity.kind
       #   => 'add_picture'
       #
       # @note Kind is inferred from Class name
       #
-      # @return [String] Kind
+      # @return [String] Activity kind
       def kind
         @kind ||= Activr::Utils.kind_for_class(self, 'activity')
       end
 
       # Instanciate an activity from a hash
       #
+      # @note Correct activity subclass is resolved thanks to `kind` field
+      #
       # @param data_hash [Hash] Activity fields
-      # @return [Activr::Activity] Subclass instance
+      # @return [Activity] Subclass instance
       def from_hash(data_hash)
         activity_kind = data_hash['kind'] || data_hash[:kind]
         raise "No kind found in activity hash: #{data_hash.inspect}" unless activity_kind
@@ -102,6 +106,7 @@ module Activr
       # Unserialize an activity hash
       #
       # That method fixes issues remaining after an activity hash has been unserialized partially:
+      #
       #   - the `at` field is converted from String to Time
       #   - the `_id` field is converted from `{ '$oid' => [String] }` format to correct `ObjectId` class (`BSON::ObjectId` or `Moped::BSON::ObjectId`)
       #
@@ -130,14 +135,14 @@ module Activr
 
       # Define an allowed entity for that activity class
       #
-      # That method creates several instance methods, for example with `entity :album`:
+      # @example That method creates several instance methods, for example with `entity :album`:
       #
-      #   # Get the entity's model instance
+      #   # Get the entity model instance
       #   def album
       #     # ...
       #   end
       #
-      #   # Set the entity's model instance
+      #   # Set the entity model instance
       #   def album=(value)
       #     # ...
       #   end
@@ -156,11 +161,11 @@ module Activr
       #
       # @param name [String, Symbol] Entity name
       # @param options [Hash] Entity options
-      # @option options [Class]       :class    Entity's model class
-      # @option options [Symbol]      :humanize A method name to call on entity's model instance to humanize it
+      # @option options [Class]       :class    Entity model class
+      # @option options [Symbol]      :humanize A method name to call on entity model instance to humanize it
       # @option options [String]      :default  Default humanization value
-      # @option options [Symbol]      :htmlize  A method name to call on entity's model instance to render an HTML version of itself
-      # @option options [true, false] :optional Is this entity is optional ?
+      # @option options [Symbol]      :htmlize  A method name to call on entity model instance to render an HTML version of itself
+      # @option options [true, false] :optional Is it an optional entity ?
       def entity(name, options = { })
         name = name.to_sym
         raise "Entity already defined: #{name}" unless self.allowed_entities[name].blank?
@@ -222,12 +227,18 @@ module Activr
 
     end # class << self
 
+    # @return [Object] activity id
+    attr_accessor :_id
 
-    attr_accessor :_id, :at
-    attr_reader :entities, :meta
+    # @return [Time] activity timestamp
+    attr_accessor :at
 
-    # init
-    #
+    # @return [Hash{Symbol=>Entity}] activity entities
+    attr_reader :entities
+
+    # @return [Hash{Symbol=>Object}] activity meta hash (symbolized)
+    attr_reader :meta
+
     # @param data_hash [Hash] Activity fields
     def initialize(data_hash = { })
       @_id = nil
@@ -243,7 +254,7 @@ module Activr
           # entity
           @entities[data_name] = Activr::Entity.new(data_name, data_value, self.allowed_entities[data_name].merge(:activity => self))
         elsif (data_name == :_id)
-          # activity _id
+          # activity id
           @_id = data_value
         elsif (data_name == :at)
           # timestamp
@@ -267,21 +278,25 @@ module Activr
       @at ||= Time.now.utc
     end
 
-    # @example Get a meta
+    # Get a meta
+    #
+    # @example
     #   activity[:foo]
     #   # => 'bar'
     #
     # @param key [Symbol] Meta name
-    # @return [Oject] Meta value
+    # @return [Object] Meta value
     def [](key)
       @meta[key.to_sym]
     end
 
-    # @example Set a meta
+    # Set a meta
+    #
+    # @example
     #   activity[:foo] = 'bar'
     #
     # @param key   [Symbol] Meta name
-    # @param value [Oject]  Meta value
+    # @param value [Object]  Meta value
     def []=(key, value)
       @meta[key.to_sym] = value
     end
@@ -314,7 +329,9 @@ module Activr
       result
     end
 
-    # @example Get activity kind
+    # Activity kind
+    #
+    # @example
     #   AddPictureActivity.new(...).kind
     #   => 'add_picture'
     #
@@ -329,7 +346,7 @@ module Activr
     #
     # For each entity, returned hash contains:
     #   :<entity_name>       => <entity humanization>
-    #   :<entity_name>_model => <entity's model instance>
+    #   :<entity_name>_model => <entity model instance>
     #
     # All `meta` are merged in returned hash too.
     #
@@ -357,6 +374,8 @@ module Activr
       Activr.sentence(self.humanize_tpl, self.humanization_bindings(options))
     end
 
+    # Check if activity is valid
+    #
     # @raise [MissingEntityError] if a mandatory entity is missing
     # @api private
     def check!
@@ -370,16 +389,16 @@ module Activr
 
     # Check if activity is stored in database
     #
-    # @retun [true, false]
+    # @return [true, false]
     def stored?
       !@_id.nil?
     end
 
-    # Store in database
+    # Store activity in database
     #
     # @raise [MissingEntityError] if a mandatory entity is missing
     #
-    # @warning SIDE EFFECT: The `_id` field is set
+    # @note SIDE EFFECT: The `_id` field is set
     def store!
       run_callbacks(:store) do
         # check validity

@@ -48,7 +48,7 @@ module Activr
     #     config.mongodb[:uri] = "mongodb://#{rspec_mongo_host}:#{rspec_mongo_port}/#{rspec_mongo_db}"
     #   end
     #
-    # @yield [Activr::Configuration] Configuration singleton
+    # @yield [Configuration] Configuration singleton
     def configure
       yield self.config
     end
@@ -83,30 +83,30 @@ module Activr
       File.join(Activr.config.app_path, "timelines")
     end
 
-    # {Activr::Registry} singleton
+    # {Registry} singleton
     #
-    # @return [Activr::Registry] Registry instance
+    # @return [Registry] {Registry} instance
     def registry
       @registy ||= Activr::Registry.new
     end
 
-    # {Activr::Storage} singleton
+    # {Storage} singleton
     #
-    # @return [Activr::Storage] Storage instance
+    # @return [Storage] {Storage} instance
     def storage
       @storage ||= Activr::Storage.new
     end
 
-    # {Activr::Dispatcher} singleton
+    # {Dispatcher} singleton
     #
-    # @return [Activr::Dispatcher] Dispatcher instance
+    # @return [Dispatcher] {Dispatcher} instance
     def dispatcher
       @dispatcher ||= Activr::Dispatcher.new
     end
 
     # Dispatch an activity
     #
-    # @param activity [Activr::Activity] Activity instance to dispatch
+    # @param activity [Activity] Activity instance to dispatch
     # @return [Object] The activity id in main activities collection
     def dispatch!(activity)
       # store activity in main collection
@@ -123,7 +123,7 @@ module Activr
     #
     # @param options [Hash] Options to normalize
     # @return [Hash] Normalized options
-    def _normalize_query_options(options)
+    def normalize_query_options(options)
       result = { }
 
       options.each do |key, value|
@@ -141,24 +141,16 @@ module Activr
       result
     end
 
-    # Fetch last activities
-    #
-    # @see Activr::Storage#fetch_activities
-    #
-    # @param (see Activr::Storage#fetch_activities)
+    # (see Storage#fetch_activities)
     def activities(limit, options = { })
-      options = self._normalize_query_options(options)
+      options = self.normalize_query_options(options)
 
       Activr.storage.fetch_activities(limit, options)
     end
 
-    # Count total number of activities
-    #
-    # @see Activr::Storage#activities_count
-    #
-    # @param (see Activr::Storage#activities_count)
+    # (see Storage#activities_count)
     def activities_count(options = { })
-      options = self._normalize_query_options(options)
+      options = self.normalize_query_options(options)
 
       Activr.storage.activities_count(options)
     end
@@ -167,7 +159,7 @@ module Activr
     #
     # @param timeline_class [Class] Timeline class
     # @param recipient [String|Object] Recipient instance or recipient id
-    # @return [Activr::Timeline] Timeline instance
+    # @return [Timeline] Timeline instance
     def timeline(timeline_class, recipient)
       timeline_class.new(recipient)
     end

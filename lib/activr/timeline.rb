@@ -8,9 +8,9 @@ module Activr
   #   - what activities will be displayed in that timeline: the `routes`
   #
   # Routes can be resolved thanks to:
-  #   - a `predefined routing` declared with `routing` method, then specified in the `:using` route's setting
-  #   - an `activity path` specified in the `:to` route's setting
-  #   - a call on Timeline class' method specified in the `:using` route's setting
+  #   - a `predefined routing` declared with `routing` method, then specified in the `:using` route setting
+  #   - an `activity path` specified in the `:to` route setting
+  #   - a call on Timeline class method specified in the `:using` route setting
   #
   # @example A 'User News Feed' timeline class:
   #
@@ -18,10 +18,10 @@ module Activr
   #     # that timeline is for users
   #     recipient User
   #
-  #     # this is a predefined routing, to fetch all followers of an activity's actor
+  #     # this is a predefined routing, to fetch all followers of an activity actor
   #     routing :actor_follower, :to => Proc.new{ |activity| activity.actor.followers }
   #
-  #     # define a routing with a class method, to fetch all followers of an activity's album
+  #     # define a routing with a class method, to fetch all followers of an activity album
   #     def self.album_follower(activity)
   #       activity.album.followers
   #     end
@@ -82,7 +82,7 @@ module Activr
       # Get route defined with given kind
       #
       # @param route_kind [String] Route kind
-      # @return [Activr::Timeline::Route] Corresponding Route instance
+      # @return [Timeline::Route] Corresponding Route instance
       def route_for_kind(route_kind)
         self.routes.find do |defined_route|
           (defined_route.kind == route_kind)
@@ -91,7 +91,7 @@ module Activr
 
       # Check if given route was already defined
       #
-      # @param [Activr::Timeline::Route] Route to check
+      # @param route_to_check [Timeline::Route] Route to check
       # @return [true, false]
       def have_route?(route_to_check)
         (route_to_check.timeline_class == self) && !self.route_for_kind(route_to_check.kind).blank?
@@ -99,8 +99,8 @@ module Activr
 
       # Get all routes defined for given activity
       #
-      # @param activity [Activr::Activity] Activity instance
-      # @return [Array<Activr::Timeline::Route>] List of Route instances
+      # @param activity [Activity] Activity instance
+      # @return [Array<Timeline::Route>] List of Route instances
       def routes_for_activity(activity)
         self.routes.find_all do |defined_route|
           (defined_route.activity_class == activity.class)
@@ -111,7 +111,7 @@ module Activr
       #
       # @note MAY be overriden by child class
       #
-      # @param activity [Activr::Activity] Activity to route
+      # @param activity [Activity] Activity to route
       # @return [true,false] `false` to skip activity
       def should_route_activity?(activity)
         true
@@ -144,7 +144,7 @@ module Activr
       # Class interface
       #
 
-      # Set recipient's class
+      # Set recipient class
       #
       # @example Several instance methods are injected in given `klass`, for example with timeline:
       #
@@ -197,7 +197,7 @@ module Activr
       # @param routing_name [Symbol] Routing name
       # @param settings     [Hash]   Settings
       # @option settings [Proc] :to Code to resolve route
-      # @yield [Activr::Activity] Gives the activity to route to the block
+      # @yield [Activity] Gives the activity to route to the block
       def routing(routing_name, settings = { }, &block)
         raise "Routing already defined: #{routing_name}" unless self.routings[routing_name].blank?
 
@@ -225,7 +225,7 @@ module Activr
       # Define a route for an activity
       #
       # @param activity_class [Class] Activity to route
-      # @param settings       [Hash] Route settings (cf. Activr::Timeline::Route#initialize)
+      # @param settings       [Hash] Route settings (cf. Timeline::Route#initialize)
       def route(activity_class, settings = { })
         new_route = Activr::Timeline::Route.new(self, activity_class, settings)
         raise "Route already defined: #{new_route.inspect}" if self.have_route?(new_route)
@@ -282,9 +282,9 @@ module Activr
 
     # Handle activity
     #
-    # @param activity [Activr::Activity] Activity to handle
-    # @param route [Activr::Timeline::Route] The route that caused that activity handling
-    # @return [Activr::Timeline::Entry] The created timeline entry
+    # @param activity [Activity] Activity to handle
+    # @param route [Timeline::Route] The route that caused that activity handling
+    # @return [Timeline::Entry] The created timeline entry
     def handle_activity(activity, route)
       # create timeline entry
       timeline_entry = Activr::Timeline::Entry.new(self, route.routing_kind, activity)
@@ -306,7 +306,7 @@ module Activr
     #
     # @param limit [Integer] Max number of entries to fetch
     # @param skip  [Integer] Number of entries to skip (default: 0)
-    # @return [Array<Activr::Timeline::Entry>] An array of timeline entries
+    # @return [Array<Timeline::Entry>] An array of timeline entries
     def fetch(limit, skip = 0)
       Activr.storage.fetch_timeline(self, limit, skip)
     end
@@ -334,8 +334,8 @@ module Activr
     #
     # @note MAY be overriden by child class
     #
-    # @param activity [Activr::Activity] Activity to handle
-    # @param route [Activr::Timeline::Route] Route that caused that handling
+    # @param activity [Activity] Activity to handle
+    # @param route [Timeline::Route] Route that caused that handling
     # @return [true,false] Returns `false` to skip activity
     def should_handle_activity?(activity, route)
       true
@@ -345,7 +345,7 @@ module Activr
     #
     # @note MAY be overriden by child class
     #
-    # @param activity [Activr::Timeline::Entry] The timeline entry that should be stored
+    # @param timeline_entry [Timeline::Entry] The timeline entry that should be stored
     # @return [true,false] Returns `false` to cancel storing
     def should_store_timeline_entry?(timeline_entry)
       true
@@ -355,7 +355,7 @@ module Activr
     #
     # @note MAY be overriden by child class
     #
-    # @param activity [Activr::Timeline::Entry] The timeline entry that will be stored
+    # @param timeline_entry [Timeline::Entry] The timeline entry that will be stored
     def will_store_timeline_entry(timeline_entry)
       # NOOP
     end
@@ -364,7 +364,7 @@ module Activr
     #
     # @note MAY be overriden by child class
     #
-    # @param activity [Activr::Timeline::Entry] The timeline entry that have been stored
+    # @param timeline_entry [Timeline::Entry] The timeline entry that have been stored
     def did_store_timeline_entry(timeline_entry)
       # NOOP
     end

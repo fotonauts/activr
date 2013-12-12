@@ -83,7 +83,7 @@ describe Activr::Dispatcher do
     recipients[buddy].should == UserNewsFeed.route_for_kind('actor_follower_add_picture')
   end
 
-  it "routes with timeline's class method" do
+  it "routes with timeline class method" do
     dispatcher = Activr::Dispatcher.new
 
     # @todo FIXME

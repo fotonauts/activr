@@ -69,7 +69,7 @@ class Activr::Timeline::Route
 
   # Resolve recipients for given activity
   #
-  # @param activity [Activr::Activity] Activity to resolve
+  # @param activity [Activity] Activity to resolve
   # @return [Array] Array of recipients instances and/or ids
   def resolve(activity)
     recipients = if self.settings[:using]
@@ -96,8 +96,8 @@ class Activr::Timeline::Route
   #
   # @api private
   #
-  # @param meth     [Symbol]           Method to call on timeline class
-  # @param activity [Activr::Activity] Activity to resolve
+  # @param meth     [Symbol]   Method to call on timeline class
+  # @param activity [Activity] Activity to resolve
   # @return [Array] Array of recipients instances and/or ids
   def resolve_using_method(meth, activity)
     # send method
@@ -108,8 +108,8 @@ class Activr::Timeline::Route
   #
   # @api private
   #
-  # @param path     [String]           Path on activity
-  # @param activity [Activr::Activity] Activity to resolve
+  # @param path     [String]   Path on activity
+  # @param activity [Activity] Activity to resolve
   # @return [Array] Array of recipients instances and/or ids
   def resolve_to_path(path, activity)
     receivers = [ activity ]
@@ -134,13 +134,13 @@ class Activr::Timeline::Route
   # Private
   #
 
-  # Apply a method on receiver, with given activity as parameter if receiver's arity permits it
+  # Apply a method on receiver, with given activity as parameter if receiver arity permits it
   #
   # @api private
   #
-  # @param receiver [Object] Receiver
-  # @param meth     [Symbol] Method to call
-  # @param activity [Activr::Activity] Activity to provide in method call
+  # @param receiver [Object]   Receiver
+  # @param meth     [Symbol]   Method to call
+  # @param activity [Activity] Activity to provide in method call
   # @return Result of method call on receiver
   def apply_meth(receiver, meth, activity)
     case receiver.method(meth).arity

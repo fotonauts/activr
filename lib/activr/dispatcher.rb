@@ -1,17 +1,20 @@
 module Activr
 
   #
-  # The Storage is the component that is in charge of routing activities to timelines.
+  # The dispatcher is the component that is in charge of routing activities to timelines.
   #
-  # The Storage singleton is accessible with `Activr.dispatcher`
+  # The dispatcher singleton is accessible with {Activr.dispatcher}
   #
   class Dispatcher
 
     # Route an activity
     #
-    # @param activity [Activr::Activity] Activity to route
+    # @param activity [Activity] Activity to route
+    # @return [Integer] The number of resolved recipient
     def route(activity)
       raise "Activity must be stored before routing: #{activity.inspect}" if activity._id.nil?
+
+      result = 0
 
       activity.run_callbacks(:route) do
         # iterate on all timelines
@@ -21,21 +24,25 @@ module Activr
 
           # store activity in timelines
           self.recipients_for_timeline(timeline_class, activity).each do |recipient, route|
+            result += 1
+
             timeline = timeline_class.new(recipient)
 
             Activr::Async.hook(:timeline_handle, timeline, activity, route)
           end
         end
       end
+
+      result
     end
 
     # Find recipients for given activity in given timeline
     #
     # @api private
     #
-    # @param timeline_class [Class]            Timeline class
-    # @param activity       [Activr::Activity] Activity instance
-    # @return [Hash{Object=>Activr::Timeline::Route}] Recipients with corresponding Routes
+    # @param timeline_class [Class]    Timeline class
+    # @param activity       [Activity] Activity instance
+    # @return [Hash{Object=>Timeline::Route}] Recipients with corresponding Routes
     def recipients_for_timeline(timeline_class, activity)
       result = { }
 

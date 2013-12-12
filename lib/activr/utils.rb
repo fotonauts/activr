@@ -11,7 +11,7 @@ module Activr
       #
       # @param klass [Class] Class
       # @param suffix [String] Expected suffix
-      # @retun [String] Kind
+      # @return [String] Kind
       def kind_for_class(klass, suffix = nil)
         class_name = klass.to_s.split('::').last.underscore
         if suffix && (match_data = class_name.match(/(.+)_#{suffix}$/))
@@ -27,7 +27,7 @@ module Activr
       #
       # @param kind [String] Kind
       # @param suffix [String] Suffix
-      # @retun [Class] Class
+      # @return [Class] Class
       def class_for_kind(kind, suffix = nil)
         str = suffix ? "#{kind}_#{suffix}" : kind
         str.camelize.constantize

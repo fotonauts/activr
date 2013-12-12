@@ -1,9 +1,9 @@
 module Activr
 
   #
-  # The Storage is the component that uses the database driver to serialize/unserialize activities and timeline entries.
+  # The storage is the component that uses the database driver to serialize/unserialize activities and timeline entries.
   #
-  # The Storage singleton is accessible with `Activr.storage`
+  # The storage singleton is accessible with {Activr.storage}
   #
   class Storage
 
@@ -52,7 +52,7 @@ module Activr
 
     # Insert a new activity
     #
-    # @param activity [Activr::Activity] Activity to insert
+    # @param activity [Activity] Activity to insert
     # @return [Object] The inserted activity id
     def insert_activity(activity)
       # serialize
@@ -68,7 +68,7 @@ module Activr
     # Fetch an activity
     #
     # @param activity_id [Object] Activity id to fetch
-    # @return [Activr::Activity, Nil] An activity instance or `nil` if not found
+    # @return [Activity, Nil] An activity instance or `nil` if not found
     def fetch_activity(activity_id)
       # fetch
       activity_hash = self.driver.find_activity(activity_id)
@@ -85,8 +85,7 @@ module Activr
 
     # Fetch latest activities
     #
-    # @warning If you use others selectors then 'limit' argument and 'skip' option
-    # then you have to setup corresponding indexes in database.
+    # @note If you use others selectors then 'limit' argument and 'skip' option then you have to setup corresponding indexes in database.
     #
     # @todo Add doc explaining howto setup indexes
     #
@@ -96,9 +95,9 @@ module Activr
     # @option options [Time]              :before   Fetch activities generated before that datetime (excluding)
     # @option options [Time]              :after    Fetch activities generated after that datetime (excluding)
     # @option options [Hash{Sym=>String}] :entities Filter by entities values (empty means 'all values')
-    # @option options [Array<Class>]      :only     Fetch only those activities
-    # @option options [Array<Class>]      :except   Skip those activities
-    # @return [Array<Activr::Activity>] An array of activities
+    # @option options [Array<Class>]      :only     Fetch only these activities
+    # @option options [Array<Class>]      :except   Skip these activities
+    # @return [Array<Activity>] An array of activities
     def fetch_activities(limit, options = { })
       # default options
       options = {
@@ -124,8 +123,7 @@ module Activr
 
     # Count number of activities
     #
-    # @warning If you use one of options' selectors then you have to setup
-    # corresponding indexes in database.
+    # @note If you use one of options selectors then you have to setup corresponding indexes in database.
     #
     # @todo Add doc explaining howto setup indexes
     #
@@ -133,9 +131,9 @@ module Activr
     # @option options [Time]              :before   Fetch activities generated before that datetime (excluding)
     # @option options [Time]              :after    Fetch activities generated after that datetime (excluding)
     # @option options [Hash{Sym=>String}] :entities Filter by entities values (empty means 'all values')
-    # @option options [Array<Class>]      :only     Fetch only those activities
-    # @option options [Array<Class>]      :except   Skip those activities
-    # @return [Array<Activr::Activity>] An array of activities
+    # @option options [Array<Class>]      :only     Fetch only these activities
+    # @option options [Array<Class>]      :except   Skip these activities
+    # @return [Array<Activity>] An array of activities
     def activities_count(options = { })
       # default options
       options = {
@@ -152,7 +150,7 @@ module Activr
 
     # Insert a new timeline entry
     #
-    # @param timeline_entry [Activr::Timeline::Entry] Timeline entry to insert
+    # @param timeline_entry [Timeline::Entry] Timeline entry to insert
     # @return [Object] Inserted timeline entry id
     def insert_timeline_entry(timeline_entry)
       # serialize
@@ -167,9 +165,9 @@ module Activr
 
     # Fetch a timeline entry
     #
-    # @param timeline    [Activr::Timeline] Timeline instance
-    # @param tl_entry_id [Object]           Timeline entry id
-    # @return [Array<Activr::Timeline::Entry>] An array of timeline entries
+    # @param timeline    [Timeline] Timeline instance
+    # @param tl_entry_id [Object]   Timeline entry id
+    # @return [Array<Timeline::Entry>] An array of timeline entries
     def fetch_timeline_entry(timeline, tl_entry_id)
       # fetch
       timeline_entry_hash = self.driver.find_timeline_entry(timeline.kind, tl_entry_id)
@@ -186,10 +184,10 @@ module Activr
 
     # Fetch timeline entries by descending timestamp
     #
-    # @param timeline [Activr::Timeline] Timeline instance
-    # @param limit    [Integer] Max number of entries to fetch
-    # @param skip     [Integer] Number of entries to skip (default: 0)
-    # @return [Array<Activr::Timeline::Entry>] Timeline entries
+    # @param timeline [Timeline] Timeline instance
+    # @param limit    [Integer]  Max number of entries to fetch
+    # @param skip     [Integer]  Number of entries to skip (default: 0)
+    # @return [Array<Timeline::Entry>] Timeline entries
     def fetch_timeline(timeline, recipient_id, limit, skip = 0)
       # find
       result = self.driver.find_timeline_entries(timeline.kind, timeline.recipient_id, limit, skip).map do |timeline_entry_hash|

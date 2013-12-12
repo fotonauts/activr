@@ -44,7 +44,7 @@ describe "Application" do
     activity.humanize.should == "Jean PALE liked the picture Me myself and I"
   end
 
-  it "routes AddPicture to actor's followers" do
+  it "routes AddPicture to actor followers" do
     # @todo FIXME
     user.followers = [ follower, follower2 ]
 
@@ -59,7 +59,7 @@ describe "Application" do
     ]
   end
 
-  it "routes LikePicture to picture's owner" do
+  it "routes LikePicture to picture owner" do
     # @todo FIXME
     picture.owner = owner
 
@@ -70,7 +70,7 @@ describe "Application" do
     ]
   end
 
-  it "routes FeaturePicture to picture's owner" do
+  it "routes FeaturePicture to picture owner" do
     # @todo FIXME
     picture.owner = owner
 
@@ -81,7 +81,7 @@ describe "Application" do
     ]
   end
 
-  it "routes FollowAlbum to album's owner" do
+  it "routes FollowAlbum to album owner" do
     # @todo FIXME
     album.owner = owner
 
@@ -92,7 +92,7 @@ describe "Application" do
     ]
   end
 
-  it "routes AddPicture to album's owner" do
+  it "routes AddPicture to album owner" do
     # @todo FIXME
     album.owner = owner
 
@@ -103,7 +103,7 @@ describe "Application" do
     ]
   end
 
-  it "routes AddPicture to picture's followers" do
+  it "routes AddPicture to picture followers" do
     # @todo FIXME
     picture.followers = [ follower, follower2 ]
 
@@ -118,7 +118,7 @@ describe "Application" do
     ]
   end
 
-  it "routes AddPicture to albums's followers" do
+  it "routes AddPicture to albums followers" do
     # @todo FIXME
     album.followers = [ follower, follower2 ]
 

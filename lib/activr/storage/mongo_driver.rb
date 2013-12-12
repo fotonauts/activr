@@ -279,7 +279,7 @@ class Activr::Storage::MongoDriver
   #
   # @param options [Hash] Options when querying `activities` collection
   # @return [Hash] The computed selector
-  def _activities_selector(options)
+  def activities_selector(options)
     result = { }
 
     # compute selector
@@ -314,18 +314,18 @@ class Activr::Storage::MongoDriver
   #
   # @api private
   #
-  # @see Activr::Storage#fetch_activities
+  # @see Storage#fetch_activities
   def find_activities(limit, options = { })
-    self.find(self.activity_collection, self._activities_selector(options), limit, options[:skip], 'at')
+    self.find(self.activity_collection, self.activities_selector(options), limit, options[:skip], 'at')
   end
 
   # Count number of activity documents
   #
   # @api private
   #
-  # @see Activr::Storage#activities_count
+  # @see Storage#activities_count
   def activities_count(options = { })
-    self.count(self.activity_collection, self._activities_selector(options))
+    self.count(self.activity_collection, self.activities_selector(options))
   end
 
   # Insert a timeline entry document
@@ -356,7 +356,7 @@ class Activr::Storage::MongoDriver
   # @param timeline_kind [String] Timeline kind
   # @param recipient_id  [String, BSON::ObjectId, Moped::BSON::ObjectId] Recipient id
   # @return [Hash] The computed selector
-  def _timeline_selector(timeline_kind, recipient_id)
+  def timeline_selector(timeline_kind, recipient_id)
     {
       'rcpt' => recipient_id,
     }
@@ -366,13 +366,13 @@ class Activr::Storage::MongoDriver
   #
   # @api private
   #
-  # @param timeline_collection [String] Timeline kind
-  # @param recipient_id        [String, BSON::ObjectId, Moped::BSON::ObjectId] Recipient id
-  # @param limit               [Integer] Max number of entries to fetch
-  # @param skip                [Integer] Number of entries to skip (default: 0)
+  # @param timeline_kind [String] Timeline kind
+  # @param recipient_id  [String, BSON::ObjectId, Moped::BSON::ObjectId] Recipient id
+  # @param limit         [Integer] Max number of entries to fetch
+  # @param skip          [Integer] Number of entries to skip (default: 0)
   # @return [Array<Hash>] An array of timeline entry documents
   def find_timeline_entries(timeline_kind, recipient_id, limit, skip = 0)
-    self.find(self.timeline_collection(timeline_kind), self._timeline_selector(timeline_kind, recipient_id), limit, skip, 'activity.at')
+    self.find(self.timeline_collection(timeline_kind), self.timeline_selector(timeline_kind, recipient_id), limit, skip, 'activity.at')
   end
 
   # Count number of timeline entries document
@@ -383,7 +383,7 @@ class Activr::Storage::MongoDriver
   # @param recipient_id  [String, BSON::ObjectId, Moped::BSON::ObjectId] Recipient id
   # @return [Integer] Number of documents in given timeline
   def count_timeline_entries(timeline_kind, recipient_id)
-    self.count(self.timeline_collection(timeline_kind), self._timeline_selector(timeline_kind, recipient_id))
+    self.count(self.timeline_collection(timeline_kind), self.timeline_selector(timeline_kind, recipient_id))
   end
 
-end # class Activr::Storage::MongoDriver
+end # class Storage::MongoDriver

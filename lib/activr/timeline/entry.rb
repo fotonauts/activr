@@ -19,9 +19,9 @@ class Activr::Timeline::Entry
 
     # Instanciate a timeline entry from a hash
     #
-    # @param hash     [Hash]             Timeline entry hash
-    # @param timeline [Activr::Timeline] Timeline instance
-    # @return [Activr::Timeline::Entry] Timeline entry instance
+    # @param hash     [Hash]     Timeline entry hash
+    # @param timeline [Timeline] Timeline instance
+    # @return [Timeline::Entry] Timeline entry instance
     def from_hash(hash, timeline)
       activity_hash = hash['activity'] || hash[:activity]
       raise "No activity found in timeline entry hash: #{hash.inspect}" if activity_hash.blank?
@@ -50,10 +50,10 @@ class Activr::Timeline::Entry
 
   # Init
   #
-  # @param timeline     [Activr::Timeline] Timeline instance
-  # @param routing_kind [String]           Routing kind
-  # @param activity     [Activr::Activity] Activity
-  # @param meta         [Hash]             Meta infos
+  # @param timeline     [Timeline] Timeline instance
+  # @param routing_kind [String]   Routing kind
+  # @param activity     [Activity] Activity
+  # @param meta         [Hash]     Meta infos
   def initialize(timeline, routing_kind, activity, meta = { })
     @timeline     = timeline
     @routing_kind = routing_kind
@@ -66,7 +66,7 @@ class Activr::Timeline::Entry
   #   # => 'bar'
   #
   # @param key [Symbol] Meta name
-  # @return [Oject] Meta value
+  # @return [Object] Meta value
   def [](key)
     @meta[key.to_sym]
   end
@@ -75,7 +75,7 @@ class Activr::Timeline::Entry
   #   timeline_entry[:foo] = 'bar'
   #
   # @param key   [Symbol] Meta name
-  # @param value [Oject]  Meta value
+  # @param value [Object]  Meta value
   def []=(key, value)
     @meta[key.to_sym] = value
   end
@@ -100,7 +100,7 @@ class Activr::Timeline::Entry
 
   # Get the corresponding timeline route
   #
-  # @return [Activr::Timeline::Route] The route instance
+  # @return [Timeline::Route] The route instance
   def timeline_route
     @timeline_route ||= begin
       result = @timeline.route_for_kind(Activr::Timeline::Route.kind_for_routing_and_activity(@routing_kind, @activity.kind))
@@ -113,7 +113,7 @@ class Activr::Timeline::Entry
   #
   # #note MAY be overriden by child class for specialized humanization
   #
-  # @param options [Hash] Options hash (cf. Activr::Activity#humanize method)
+  # @param options [Hash] Options hash (cf. Activity#humanize method)
   # @return [String] Humanized timeline entry
   def humanize(options = { })
     if !self.timeline_route.settings[:humanize].blank?
@@ -134,7 +134,7 @@ class Activr::Timeline::Entry
 
   # Store in database
   #
-  # @warning SIDE EFFECT -> The `_id` field is set
+  # @note SIDE EFFECT -> The `_id` field is set
   def store!
     run_callbacks(:store) do
       # store

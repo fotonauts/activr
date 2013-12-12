@@ -1,4 +1,4 @@
-# Timeline: User's news feed
+# Timeline: User news feed
 class UserNewsFeed < Activr::Timeline
 
   # timeline entries classes
@@ -26,7 +26,7 @@ class UserNewsFeed < Activr::Timeline
   # Routes
   #
 
-  # route to activity's entity
+  # route to activity entity
   route FollowBuddyActivity, :to => 'buddy'
 
   # route to path
@@ -44,7 +44,7 @@ class UserNewsFeed < Activr::Timeline
   route AddPicture, :using => :actor_follower
   route AddPicture, :using => :picture_follower
 
-  # route using the timeline's class method call: UserNewsFeed.album_follower
+  # route using the timeline class method call: UserNewsFeed.album_follower
   route AddPicture, :using => :album_follower
 
 

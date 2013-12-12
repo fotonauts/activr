@@ -1,22 +1,33 @@
 module Activr
 
   #
-  # An Entity represents one of your application's model involved in activities
+  # An Entity represents one of your application model involved in activities
   #
   class Entity
 
     autoload :ModelMixin, 'activr/entity/model_mixin'
 
-    attr_reader :name, :options, :activity
-    attr_reader :model_class, :model_id
+    # @return [Symbol] Entity name
+    attr_reader :name
+
+    # @return [Hash] Entity options
+    attr_reader :options
+
+    # @return [Activity] Activity owning that entity
+    attr_reader :activity
+
+    # @return [Class] Entity model class
+    attr_reader :model_class
+
+    # @return [Objecy] Entity model id
+    attr_reader :model_id
 
 
-    # Init
-    #
     # @param name    [String] Entity name
-    # @param value   [Object, String] Entity value or entity id
-    # @param options [Hash] Options (cf. Activr::Activity.entity)
-    # @option options [Activr::Activity] :activity Entity belongs to that activity
+    # @param value   [Object] Model instance or model id
+    # @param options [Hash] Options hash
+    # @option (see Activity.entity)
+    # @option options [Activity] :activity Entity belongs to that activity
     def initialize(name, value, options = { })
       @name = name
       @options = options.dup
@@ -41,7 +52,7 @@ module Activr
       end
     end
 
-    # Memoized model
+    # Model instance
     #
     # @return [Object] Instance of `:class` option
     def model
@@ -52,6 +63,7 @@ module Activr
     #
     # @param options [hash] Options
     # @option options [true,false] :html Generate HTML ?
+    # @return [String] Humanized sentence
     def humanize(options = { })
       result = nil
 

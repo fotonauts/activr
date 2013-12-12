@@ -3,7 +3,7 @@ module Activr
   #
   # Async hooks module
   #
-  # The async hooks module permits to plug any job system to run some part if Activr's code asynchronously.
+  # The async hooks module permits to plug any job system to run some part if Activr code asynchronously.
   #
   # Possible hooks are:
   #   - :route_activity - An activity must me routed by the Dispatcher
@@ -15,7 +15,7 @@ module Activr
   #
   # Hook classes to use are specified thanks to the `config.async` hash.
   #
-  # When Resque is detected inside a Rails application then defaults hooks are provided out of the box (@see {Activr::Async::Resque} module).
+  # When Resque is detected inside a Rails application then defaults hooks are provided out of the box (see the {Activr::Async::Resque} module).
   #
   # @example The default :route_activity hook handler when Resque is detected in a Rails application:
   #
@@ -51,7 +51,7 @@ module Activr
       # Run hook
       #
       # If an async class is defined for that hook name then it is used to process
-      # the hook asynchronously, else the hooked code is run immediately.
+      # the hook asynchronously, else the hooked code is executed immediately.
       #
       # @param name [Symbol] Hook name to run
       # @param args [Array]  Hook parameters
@@ -72,16 +72,16 @@ module Activr
 
       # Hook: route an activity
       #
-      # @param activity [Activr::Activity] Activity to route
+      # @param activity [Activity] Activity to route
       def route_activity(activity)
         Activr.dispatcher.route(activity)
       end
 
       # Hook: timeline handles an activity thanks to given route
       #
-      # @param timeline [Activr::Timeline]        Timeline that handles the activity
-      # @param activity [Activr:Activity]         Activity to handle
-      # @param route    [Activr::Timeline::Route] The route causing that activity handling
+      # @param timeline [Timeline]        Timeline that handles the activity
+      # @param activity [Activity]        Activity to handle
+      # @param route    [Timeline::Route] The route causing that activity handling
       def timeline_handle(timeline, activity, route)
         timeline.handle_activity(activity, route)
       end

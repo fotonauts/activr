@@ -1,9 +1,9 @@
 module Activr
 
   #
-  # The Registry holds all activities, entities, timelines and timeline entries classes defined in the application
+  # The registry holds all activities, entities, timelines and timeline entries classes defined in the application
   #
-  # The Registry singleton is accessible with `Activr.registry`
+  # The registry singleton is accessible with {Activr.registry}
   #
   class Registry
 
@@ -30,9 +30,9 @@ module Activr
 
     # Get all registered timelines
     #
-    # @return [Hash{String=>Class}] A hash of `<timeline_kind> => <TimelineClass>`
+    # @return [Hash{String=>Class}] A hash of `<timeline kind> => <timeline class>`
     def timelines
-      @timelines ||= self._classes_from_path(Activr.timelines_path)
+      @timelines ||= self.classes_from_path(Activr.timelines_path)
     end
 
     # Get class for given timeline kind
@@ -47,7 +47,7 @@ module Activr
 
     # Get all registered timeline entries
     #
-    # @return [Hash{String=>Hash{String=>Class}}] A hash of `<timeline_kind> => { <route_kind> => <TimelineEntryClass>, ... }`
+    # @return [Hash{String=>Hash{String=>Class}}] A hash of `<timeline kind> => { <route kind> => <timeline entry class>, ... }`
     def timeline_entries
       @timeline_entries ||= begin
         result = { }
@@ -96,9 +96,9 @@ module Activr
 
     # Get all registered activities
     #
-    # @return [Hash{String=>Class}] A hash of `<activity_kind> => <ActivityClass>`
+    # @return [Hash{String=>Class}] A hash of `<activity kind> => <activity class>`
     def activities
-      @activities ||= self._classes_from_path(Activr.activities_path)
+      @activities ||= self.classes_from_path(Activr.activities_path)
     end
 
     # Get class for given activity
@@ -113,7 +113,7 @@ module Activr
 
     # Get all registered entities
     #
-    # @return [Hash{Symbol=>Array<ActivityClass>}] A hash of `:<entity_name> => [ <ActivityClass>, <ActivityClass>, ... ]`
+    # @return [Hash{Symbol=>Array<Class>}] A hash of `:<entity name> => [ <activity class>, <activity class>, ... ]`
     def entities
       # loading activities triggers calls to #add_entity method
       self.activities if @entities.blank?
@@ -144,7 +144,7 @@ module Activr
     #
     # @param dir_path [String] Directory path
     # @return [Hash{String=>Class}] Hash of `<kind> => <Class>`
-    def _classes_from_path(dir_path)
+    def classes_from_path(dir_path)
       Dir["#{dir_path}/*.rb"].sort.inject({ }) do |memo, file_path|
         klass = File.basename(file_path, '.rb').camelize.constantize
         memo[klass.kind] = klass
