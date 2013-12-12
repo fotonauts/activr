@@ -179,7 +179,7 @@ Once dispatched the activity is stored in the `activities` MongoDB collection:
 ```
 
 
-Basic Activity feeds
+Basic activity feeds
 --------------------
 
 Several basic activity feeds are now available:
@@ -188,7 +188,7 @@ Several basic activity feeds are now available:
 - per entity feed
 
 
-### Global Activity Feed
+### Global activity feed
 
 Use `Activr#activities` to fetch the latest activities in your application:
 
@@ -204,12 +204,12 @@ end
 Note that you can paginate thanks to the `:skip` option of the `#activities` method.
 
 
-### Entity Activity Feed
+### Entity activity feed
 
 Each entity involved in an activity has its own activity feed.
 
 
-#### Actor Activity Feed
+#### Actor activity feed
 
 To fetch actor activities, include the mixin `Activr::Entity::ModelMixin` into your actor class:
 
@@ -247,7 +247,7 @@ end
 @todo Setup index.
 
 
-#### Album Activity Feed
+#### Album activity feed
 
 You can also fetch a per-album activity feed by including the mixin `Activr::Entity::ModelMixin` into the `Album` class:
 
@@ -257,19 +257,7 @@ class Album
   # inject sugar methods
   include Activr::Entity::ModelMixin
 
-  include Mongoid::Document
-
-  field :name, :type => String
-  has_and_belongs_to_many :pictures, :class_name => "Picture", :inverse_of => :albums
-
-  def add_picture(picture, user)
-    unless self.pictures.include?(picture)
-      self.pictures << picture
-
-      # dispatch activity
-      Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => self))
-    end
-  end
+  # ...
 
 end
 ```
@@ -392,7 +380,7 @@ end
 
 As you can see there are several ways to define a route:
 
-#### with an activity path
+#### Route with an activity path
 
 ```ruby
   # activity path: users will see in their news feed when someone adds a picture in one of their albums
@@ -408,7 +396,7 @@ So with our example the route is resolved that way:
   recipient = album.owner
 ```
 
-#### with a predefined routing
+#### Route with a predefined routing
 
 First, declare a predefined `routing`:
 
@@ -424,7 +412,7 @@ Then use it with the `:using` route setting:
   route AddPictureActivity, :using => :actor_follower
 ```
 
-Note that can use a block syntax:
+Note that you can also use a block syntax:
 
 ```ruby
   routing :actor_follower do |activity|
@@ -432,7 +420,7 @@ Note that can use a block syntax:
   end
 ```
 
-#### with a call on timeline class method
+#### Route with a call on timeline class method
 
 You can resolve a route with a timeline class method:
 
@@ -449,6 +437,8 @@ Then use it with the `:using` route setting:
   # method call: users will see in their news feed when someone adds a picture in an album they follow
   route AddPictureActivity, :using => :album_follower
 ```
+
+#### Preferred route syntax
 
 For the sake of demonstration you can see the three ways in previous timeline code example, but when a route is simple to resolve it is preferred to use an _activity path_ like that:
 
@@ -483,10 +473,10 @@ When an activity is routed to a timeline, that activity is copied to a _Timeline
 
 A routed timeline entry is stored in the `<timeline kind>_timelines` MongoDB collection.
 
-For example, Corinne received a previously generated activity because John added a picture to an album she owns:
+For example, Corinne received the previously generated activity because John added a picture to an album she owns:
 
 ```
-> db.user_news_feed_timelines.findOne()
+> db.user_news_feed_timelines.findOne({"rcpt": "corinne"})
 {
   "_id" : ObjectId("5295c06b61796d673b010000"),
   "rcpt" : "corinne",
@@ -505,10 +495,12 @@ For example, Corinne received a previously generated activity because John added
 As you can see, a Timeline Entry contains:
 
 - a copy of the original activity
-- the recipient id `rcpt`
-- the `routing` kind: `album_owner` means that Corinne received that activity in her News Feed because she is the owner of the album
+- the recipient id: `rcpt`
+- the `routing` kind: here, `album_owner` means that Corinne received that activity in her News Feed because she is the owner of the album
 
 You can also add meta data. For example you may add a `read` meta data if you want to implement a read/unread mecanism in your News Feed.
+
+### Timeline Entry humanization
 
 Specify a `:humanize` setting on a `route` to specialize humanization of corresponding timeline entries. For example:
 
@@ -522,7 +514,7 @@ If you do not set a `:humanize` setting then the humanization of the embedded ac
 
 ### Callbacks
 
-Several callbacks are invoked on timeline instance during the activity handling workflow:
+Several callbacks are invoked on timeline instance so you can hook your own code during the activity dispatching workflow:
 
 ```ruby
 class UserNewsFeedTimeline < Activr::Timeline
@@ -575,7 +567,7 @@ end
 
 Here is simple view:
 
-```erb
+```html
   <p>
     You have <%= @news_feed_count %> entries in your News Feed. Here are the 10 most recent:
   </p>
@@ -589,7 +581,7 @@ Here is simple view:
 
 Here is a view taken from [Activr Demo](https://github.com/fotonauts/activr_demo):
 
-```erb
+```html
 <div id='news_feed'>
   <% @news_feed.each do |timeline_entry| %>
     <% activity = timeline_entry.activity %>
@@ -668,6 +660,8 @@ A hook class:
 
 Hook classes are specified thanks to the `config.async` hash.
 
+If you are writing a Rails application you just need to add the `Resque` gem to your `Gemfile` to enable async hooks. If you want to use another job system then you have to write your own async hook handlers. If you want to force disabling of async hooks, for example when deploying your app on Heroku with only one dyno, just set the environment variable `ACTIVR_FORCE_SYNC` to `true`.
+
 
 Indexes
 =======
@@ -684,7 +678,7 @@ Todo
 - Rails generator to setup indexes
 - Rails generator to setup basic views
 - Rails generator to setup admin controllers
-- Permits "Fanout on read" for inactive users, to preserve db size
+- Permits "Fanout on read" for inactive entities, to preserve db size
 - Permits "Fanout on write with buckets", for maximum read perfs
 
 
