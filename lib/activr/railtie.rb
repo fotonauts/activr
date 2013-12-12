@@ -15,7 +15,7 @@ module Activr
     end
 
     initializer "activr.setup_async_hooks" do |app|
-      if defined?(::Resque)
+      if defined?(::Resque) && (ENV['ACTIVR_FORCE_SYNC'] != 'true')
         Activr.configure do |config|
           config.async[:route_activity]  ||= Activr::Async::Resque::RouteActivity
           config.async[:timeline_handle] ||= Activr::Async::Resque::TimelineHandle

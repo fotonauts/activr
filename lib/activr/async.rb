@@ -56,7 +56,7 @@ module Activr
       # @param name [Symbol] Hook name to run
       # @param args [Array]  Hook parameters
       def hook(name, *args)
-        if Activr.config.async[name]
+        if Activr.config.async[name] && (ENV['ACTIVR_FORCE_SYNC'] != 'true')
           # async
           Activr.config.async[name].enqueue(*args)
         else
