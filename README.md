@@ -8,7 +8,7 @@ Activr is the Ruby gem created by Fotonauts to manage activity feeds on [Fotoped
 
 With Activr you can create:
 
-- a Global Activity Feed: /me a ma  all activities in your website in a single feed
+- a Global Activity Feed: display all activities in your website in a single feed
 - a User Activity Feed: display all actions performed by a specific user
 - a User News Feeds: each user can get news from friends they follow, from albums they own or follow, etc.
 - an Album Activity Feed: display what happens in a specific album
