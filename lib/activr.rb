@@ -47,6 +47,8 @@ module Activr
     #     config.app_path      = File.join(File.dirname(__FILE__), "app")
     #     config.mongodb[:uri] = "mongodb://#{rspec_mongo_host}:#{rspec_mongo_port}/#{rspec_mongo_db}"
     #   end
+    #
+    # @yield [Activr::Configuration] Configuration singleton
     def configure
       yield self.config
     end
@@ -67,35 +69,35 @@ module Activr
       end
     end
 
-    # Path to activities classes
+    # Path to activities classes directory
     #
     # @return [String] Directory path
     def activities_path
       File.join(Activr.config.app_path, "activities")
     end
 
-    # Path to timelines classes
+    # Path to timelines classes directory
     #
     # @return [String] Directory path
     def timelines_path
       File.join(Activr.config.app_path, "timelines")
     end
 
-    # Registry
+    # {Activr::Registry} singleton
     #
-    # @return [Activr::Registry] Global registry
+    # @return [Activr::Registry] Registry instance
     def registry
       @registy ||= Activr::Registry.new
     end
 
-    # Storage singleton
+    # {Activr::Storage} singleton
     #
     # @return [Activr::Storage] Storage instance
     def storage
       @storage ||= Activr::Storage.new
     end
 
-    # Diispatcher singleton
+    # {Activr::Dispatcher} singleton
     #
     # @return [Activr::Dispatcher] Dispatcher instance
     def dispatcher
@@ -141,6 +143,8 @@ module Activr
 
     # Fetch last activities
     #
+    # @see Activr::Storage#fetch_activities
+    #
     # @param (see Activr::Storage#fetch_activities)
     def activities(limit, options = { })
       options = self._normalize_query_options(options)
@@ -150,6 +154,8 @@ module Activr
 
     # Count total number of activities
     #
+    # @see Activr::Storage#activities_count
+    #
     # @param (see Activr::Storage#activities_count)
     def activities_count(options = { })
       options = self._normalize_query_options(options)
@@ -157,7 +163,7 @@ module Activr
       Activr.storage.activities_count(options)
     end
 
-    # Get a timeline
+    # Get a timeline instance
     #
     # @param timeline_class [Class] Timeline class
     # @param recipient [String|Object] Recipient instance or recipient id

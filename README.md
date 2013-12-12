@@ -20,14 +20,14 @@ Some magic is invoked when running inside a [Rails](http://www.rubyonrails.com) 
 
 If [Resque](https://github.com/resque/resque) is detected in a Rails application then it is automatically used to run some parts of Activr code asynchronously.
 
-[![Build Status](https://travis-ci.org/fotonauts/activr.png)](https://travis-ci.org/fotonauts/activr)
-[![Code Climate](https://codeclimate.com/github/fotonauts/activr.png)](https://codeclimate.com/github/fotonauts/activr)
+A demo app is available [on heroku](http://activr-demo.herokuapp.com), feel free to create an account and try it. Demo source code is [on github](https://github.com/fotonauts/activr_demo) too.
 
 - More information [on our tumblr](http://fotopedia-code.tumblr.com)
 - Source code [on github](http://github.com/fotonauts/activr)
 - Code documentation [on rubydoc](http://rubydoc.info/github/fotonauts/activr/frames)
 
-A demo app is available [on heroku](http://activr-demo.herokuapp.com), feel free to create an account and try it. Demo source code is [on github](https://github.com/fotonauts/activr_demo) too.
+[![Build Status](https://travis-ci.org/fotonauts/activr.png)](https://travis-ci.org/fotonauts/activr)
+[![Code Climate](https://codeclimate.com/github/fotonauts/activr.png)](https://codeclimate.com/github/fotonauts/activr)
 
 
 Install

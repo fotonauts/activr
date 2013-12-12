@@ -129,7 +129,7 @@ module Activr
     #
     # @todo Add doc explaining howto setup indexes
     #
-    # @param options [Hash] Options hash:
+    # @param options [Hash] Options hash
     # @option options [Time]              :before   Fetch activities generated before that datetime (excluding)
     # @option options [Time]              :after    Fetch activities generated after that datetime (excluding)
     # @option options [Hash{Sym=>String}] :entities Filter by entities values (empty means 'all values')
