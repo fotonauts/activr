@@ -7,19 +7,19 @@ module Activr
 
     autoload :ModelMixin, 'activr/entity/model_mixin'
 
-    # @return [Symbol] Entity name
+    # @return [Symbol] entity name
     attr_reader :name
 
-    # @return [Hash] Entity options
+    # @return [Hash] entity options
     attr_reader :options
 
-    # @return [Activity] Activity owning that entity
+    # @return [Activity] activity owning that entity
     attr_reader :activity
 
-    # @return [Class] Entity model class
+    # @return [Class] entity model class
     attr_reader :model_class
 
-    # @return [Objecy] Entity model id
+    # @return [Objecy] entity model id
     attr_reader :model_id
 
 
@@ -52,9 +52,9 @@ module Activr
       end
     end
 
-    # Model instance
+    # Get model instance
     #
-    # @return [Object] Instance of `:class` option
+    # @return [Object] Model instance
     def model
       @model ||= self.model_class.find(self.model_id)
     end

@@ -1,4 +1,5 @@
 module Activr
+  # Rails generators
   module Generators
 
     # Generates a {Timeline} subclass in your Rails application
@@ -11,6 +12,9 @@ module Activr
       # class_option :recipient, :required => true, :type => :string, :desc => "Recipient class"
       argument :recipient_class, :type => :string
 
+      # Create the timeline class file
+      #
+      # @api private
       def create_timeline_files
         template "timeline.rb", "app/timelines/#{file_name}_timeline.rb"
       end

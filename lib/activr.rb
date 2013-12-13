@@ -30,6 +30,9 @@ require 'activr/rails_ctx'
 require 'activr/railtie' if defined?(::Rails)
 
 
+#
+# Manage activity feeds
+#
 module Activr
 
   # Access configuration with `Activr.config`
@@ -141,18 +144,18 @@ module Activr
       result
     end
 
-    # (see Storage#fetch_activities)
+    # (see Storage#find_activities)
     def activities(limit, options = { })
       options = self.normalize_query_options(options)
 
-      Activr.storage.fetch_activities(limit, options)
+      Activr.storage.find_activities(limit, options)
     end
 
-    # (see Storage#activities_count)
+    # (see Storage#count_activities)
     def activities_count(options = { })
       options = self.normalize_query_options(options)
 
-      Activr.storage.activities_count(options)
+      Activr.storage.count_activities(options)
     end
 
     # Get a timeline instance

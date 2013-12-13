@@ -13,11 +13,10 @@ end
 #
 # Generic Mongodb driver
 #
-# That class is main interface with the underlying MongobDB driver, which can be either the official `mongo` driver or `moped` (the `mongoid` driver).
+# This is main interface with the underlying MongobDB driver, which can be either the official `mongo` driver or `moped`, the `mongoid` driver.
 #
 class Activr::Storage::MongoDriver
 
-  # Init
   def initialize
     # check settings
     [ :uri, :collection ].each do |setting|
@@ -95,7 +94,7 @@ class Activr::Storage::MongoDriver
     end
   end
 
-  # Insert a document in given collection
+  # Insert a document into given collection
   #
   # @api private
   #
@@ -143,16 +142,16 @@ class Activr::Storage::MongoDriver
     end
   end
 
-  # Find documents from given collection
+  # Find documents in given collection
   #
   # @api private
   #
   # @param col        [Mongo::Collection, Moped::Collection] Collection handler
   # @param selector   [Hash] Selector hash
-  # @param limit      [Integer] Maximum number of documents to fetch
+  # @param limit      [Integer] Maximum number of documents to find
   # @param skip       [Integer] Number of documents to skip
   # @param sort_field [Symbol,String] The field to use to sort documents in descending order
-  # @return [Enumerable] An enumerable on fetched documents
+  # @return [Enumerable] An enumerable on found documents
   def find(col, selector, limit, skip, sort_field = nil)
     case @kind
     when :moped_1, :moped
@@ -174,7 +173,7 @@ class Activr::Storage::MongoDriver
     end
   end
 
-  # Count documents from given collection
+  # Count documents in given collection
   #
   # @api private
   #
@@ -212,7 +211,7 @@ class Activr::Storage::MongoDriver
   # Main interface with the Storage
   #
 
-  # @see Activer::Storage#valid_id?
+  # (see Activr::Storage#valid_id?)
   def valid_id?(doc_id)
     case @kind
     when :moped_1
@@ -222,7 +221,7 @@ class Activr::Storage::MongoDriver
     end
   end
 
-  # Is it a serialized document id (ie. with format { '$oid' => ... }) ?
+  # Is it a serialized document id (ie. with format { '$oid' => ... })
   #
   # @return [true,false]
   def serialized_id?(doc_id)
@@ -253,17 +252,17 @@ class Activr::Storage::MongoDriver
     end
   end
 
-  # Insert an activity document in main `activities` collection
+  # Insert an activity document
   #
   # @api private
   #
   # @param activity_hash [Hash] Activity document to insert
-  # @return [BSON::ObjectId, Moped::BSON::ObjectId] The inserted activity id
+  # @return [BSON::ObjectId, Moped::BSON::ObjectId] Inserted activity id
   def insert_activity(activity_hash)
     self.insert(self.activity_collection, activity_hash)
   end
 
-  # Fetch an activity document from main `activities` collection
+  # Find an activity document
   #
   # @api private
   #
@@ -310,21 +309,17 @@ class Activr::Storage::MongoDriver
     result
   end
 
-  # Fetch several activity documents
+  # (see Storage#find_activities)
   #
   # @api private
-  #
-  # @see Storage#fetch_activities
   def find_activities(limit, options = { })
     self.find(self.activity_collection, self.activities_selector(options), limit, options[:skip], 'at')
   end
 
-  # Count number of activity documents
+  # (see Storage#count_activities)
   #
   # @api private
-  #
-  # @see Storage#activities_count
-  def activities_count(options = { })
+  def count_activities(options = { })
     self.count(self.activity_collection, self.activities_selector(options))
   end
 
@@ -338,7 +333,7 @@ class Activr::Storage::MongoDriver
     self.insert(self.timeline_collection(timeline_kind), timeline_entry_hash)
   end
 
-  # Fetch a timeline entry document
+  # Find a timeline entry document
   #
   # @api private
   #
@@ -362,20 +357,20 @@ class Activr::Storage::MongoDriver
     }
   end
 
-  # Fetch several timeline entry documents
+  # Find several timeline entry documents
   #
   # @api private
   #
   # @param timeline_kind [String] Timeline kind
   # @param recipient_id  [String, BSON::ObjectId, Moped::BSON::ObjectId] Recipient id
-  # @param limit         [Integer] Max number of entries to fetch
+  # @param limit         [Integer] Max number of entries to find
   # @param skip          [Integer] Number of entries to skip (default: 0)
   # @return [Array<Hash>] An array of timeline entry documents
   def find_timeline_entries(timeline_kind, recipient_id, limit, skip = 0)
     self.find(self.timeline_collection(timeline_kind), self.timeline_selector(timeline_kind, recipient_id), limit, skip, 'activity.at')
   end
 
-  # Count number of timeline entries document
+  # Count number of timeline entry documents
   #
   # @api private
   #

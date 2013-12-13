@@ -105,7 +105,7 @@ describe Activr::Timeline::Entry do
     tl_entry._id.should_not be_nil
     tl_entry[:foo].should == 'bar'
 
-    fetched_tl_entry = Activr.storage.fetch_timeline_entry(timeline, tl_entry._id)
+    fetched_tl_entry = Activr.storage.find_timeline_entry(timeline, tl_entry._id)
     fetched_tl_entry.should_not be_nil
     fetched_tl_entry._id.should == tl_entry._id
     fetched_tl_entry[:foo].should == 'bar'

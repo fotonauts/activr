@@ -314,23 +314,28 @@ class UserNewsFeedTimeline < Activr::Timeline
   # Callbacks
   #
 
-  def should_handle_activity?(activity, route)
-    # return `false` to skip activity routing
-    true
-  end
+  # def self.should_route_activity?(activity)
+  #   # return `false` to cancel activity routing
+  #   true
+  # end
 
-  def should_store_timeline_entry?(timeline_entry)
-    # return `false` to cancel timeline entry storing
-    true
-  end
+  # def should_handle_activity?(activity, route)
+  #   # return `false` to skip routed activity
+  #   true
+  # end
 
-  def will_store_timeline_entry(timeline_entry)
-    # this is your last chance to modify timeline entry before it is stored
-  end
+  # def should_store_timeline_entry?(timeline_entry)
+  #   # return `false` to cancel timeline entry storing
+  #   true
+  # end
 
-  def did_store_timeline_entry(timeline_entry)
-    # the timeline entry was stored, you can now do some post-processing
-  end
+  # def will_store_timeline_entry(timeline_entry)
+  #   # this is your last chance to modify timeline entry before it is stored
+  # end
+
+  # def did_store_timeline_entry(timeline_entry)
+  #   # the timeline entry was stored, you can now do some post-processing
+  # end
 
 end
 ```
@@ -529,13 +534,18 @@ class UserNewsFeedTimeline < Activr::Timeline
   # Callbacks
   #
 
+  def self.should_route_activity?(activity)
+    # if you return `false` then nobody will receive that activity for that timeline class
+    true
+  end
+
   def should_handle_activity?(activity, route)
-    # return `false` to skip activity routing
+    # if you return `false` then current recipient won't receive that routed activity
     true
   end
 
   def should_store_timeline_entry?(timeline_entry)
-    # return `false` to cancel timeline entry storing
+    # if you return `false` then current recipient won't receive that timeline entry
     true
   end
 

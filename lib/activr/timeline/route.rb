@@ -1,14 +1,21 @@
 #
-# A Timeline Route describes how an activity is routed to a timeline
+# A timeline route describes how an activity is routed to a timeline
 #
 class Activr::Timeline::Route
 
-  attr_reader :timeline_class, :activity_class, :settings
+  # @return [Class] timeline class
+  attr_reader :timeline_class
+
+  # @return [Class] activity class
+  attr_reader :activity_class
+
+  # @return [Hash] route settings
+  attr_reader :settings
 
 
   class << self
 
-    # Get Route kind
+    # Get route kind
     #
     # @param routing_kind  [Symbol] Routing kind
     # @param activity_kind [String] Activity kind
@@ -20,8 +27,6 @@ class Activr::Timeline::Route
   end # class << self
 
 
-  # Init
-  #
   # @param timeline_class [Class] Timeline class
   # @param activity_class [Class] Activity class
   # @param settings       [Hash] Route settings
@@ -34,14 +39,14 @@ class Activr::Timeline::Route
     @settings       = settings
   end
 
-  # Route kind
+  # Get route kind
   #
   # @return [String] Route kind
   def kind
     @kind ||= self.class.kind_for_routing_and_activity(self.routing_kind, self.activity_class.kind)
   end
 
-  # Routing kind
+  # Get routing kind
   #
   # @return [Symbol] Routing kind
   def routing_kind
@@ -70,7 +75,7 @@ class Activr::Timeline::Route
   # Resolve recipients for given activity
   #
   # @param activity [Activity] Activity to resolve
-  # @return [Array] Array of recipients instances and/or ids
+  # @return [Array<Object>] Array of recipients instances and/or ids
   def resolve(activity)
     recipients = if self.settings[:using]
       self.resolve_using_method(self.settings[:using], activity)
@@ -98,7 +103,7 @@ class Activr::Timeline::Route
   #
   # @param meth     [Symbol]   Method to call on timeline class
   # @param activity [Activity] Activity to resolve
-  # @return [Array] Array of recipients instances and/or ids
+  # @return [Array<Object>] Array of recipients instances and/or ids
   def resolve_using_method(meth, activity)
     # send method
     self.apply_meth(self.timeline_class, meth, activity)
@@ -110,7 +115,7 @@ class Activr::Timeline::Route
   #
   # @param path     [String]   Path on activity
   # @param activity [Activity] Activity to resolve
-  # @return [Array] Array of recipients instances and/or ids
+  # @return [Array<Object>] Array of recipients instances and/or ids
   def resolve_to_path(path, activity)
     receivers = [ activity ]
 
@@ -141,7 +146,7 @@ class Activr::Timeline::Route
   # @param receiver [Object]   Receiver
   # @param meth     [Symbol]   Method to call
   # @param activity [Activity] Activity to provide in method call
-  # @return Result of method call on receiver
+  # @return [Object] Result of method call on receiver
   def apply_meth(receiver, meth, activity)
     case receiver.method(meth).arity
     when 2

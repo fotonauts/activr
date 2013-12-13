@@ -1,5 +1,5 @@
 #
-# Include that module to your model to generate helper methods: `#activities` and `#activities_count`
+# Include that module in your model class to generate methods: {#activities} and {#activities_count}
 #
 # @example Model:
 #   class User
@@ -22,7 +22,7 @@
 # @example Usage:
 #   user = User.find('john')
 #
-#   puts "#{user.fullname} have #{user.activities_count} activites. Here are the 10 most recent:"
+#   puts "#{user.fullname} has #{user.activities_count} activites. Here are the 10 most recent:"
 #
 #   user.activities(10).each do |activity|
 #     puts activity.humanize
@@ -38,6 +38,7 @@ module Activr::Entity::ModelMixin
     self.activr_feed_entity_name = nil
   end
 
+  # Class methods for the {ModelMixin} mixin
   module ClassMethods
 
     #

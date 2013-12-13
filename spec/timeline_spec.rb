@@ -75,7 +75,7 @@ describe Activr::Timeline do
     # check
     tl_entry.should_not be_blank
 
-    ary = timeline.fetch(10)
+    ary = timeline.find(10)
     ary.size.should == 1
 
     ary.first.activity.kind.should == 'follow_buddy'
@@ -92,7 +92,7 @@ describe Activr::Timeline do
 
     # check
     tl_entry.should be_nil
-    timeline.fetch(10).should be_blank
+    timeline.find(10).should be_blank
   end
 
   it "run will_store_timeline_entry callback before storing a new timeline entry in timeline" do
@@ -106,15 +106,10 @@ describe Activr::Timeline do
     tl_entry.should_not be_blank
     tl_entry.activity[:foo].should == 'tag'
 
-    ary = timeline.fetch(10)
+    ary = timeline.find(10)
     ary.size.should == 1
 
     ary.first.activity[:foo].should == 'tag'
-  end
-
-  it "fetches entries from database" do
-    # @todo
-    pending("todo")
   end
 
 end

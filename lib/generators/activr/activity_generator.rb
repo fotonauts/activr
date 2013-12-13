@@ -1,8 +1,10 @@
 module Activr
+  # Rails generators
   module Generators
 
     # Generates an {Activity} subclass in your Rails application
     class ActivityGenerator < ::Rails::Generators::NamedBase
+      # Default entity humanization method
       DEFAULT_ENTITY_FIELD = :name
 
       source_root File.expand_path("../templates", __FILE__)
@@ -14,10 +16,16 @@ module Activr
 
       desc "Creates an Activity class"
 
+      # Create the activity class file
+      #
+      # @api private
       def create_activity_file
         template "activity.rb", "app/activities/#{file_name}_activity.rb"
       end
 
+      # Compute entities infos
+      #
+      # @api private
       def entities_infos
         entities.map do |str|
           ary = str.split(':')
@@ -43,6 +51,9 @@ module Activr
         end
       end
 
+      # Generates a default humanization template
+      #
+      # @api private
       def humanization
         result = ""
 
@@ -64,6 +75,7 @@ module Activr
 
       private
 
+      # @api private
       def _resolve_entity_field(entity_klass)
         klass = entity_klass.constantize
 

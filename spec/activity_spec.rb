@@ -142,7 +142,7 @@ describe Activr::Activity do
     # check
     activity._id.should_not be_nil
 
-    fetched_activity = Activr.storage.fetch_activity(activity._id)
+    fetched_activity = Activr.storage.find_activity(activity._id)
     fetched_activity.should_not be_nil
     fetched_activity.class.should == AddPicture
 
@@ -158,7 +158,7 @@ describe Activr::Activity do
 
     activity[:foo].should == 'bar'
 
-    fetched_activity = Activr.storage.fetch_activity(activity._id)
+    fetched_activity = Activr.storage.find_activity(activity._id)
     fetched_activity.should_not be_nil
     fetched_activity[:foo].should == 'bar'
   end
@@ -169,7 +169,7 @@ describe Activr::Activity do
     activity.store!
 
     activity._id.should be_nil
-    fetched_activity = Activr.storage.fetch_activity(activity._id)
+    fetched_activity = Activr.storage.find_activity(activity._id)
     fetched_activity.should be_nil
   end
 
@@ -183,7 +183,7 @@ describe Activr::Activity do
 
     activity[:tag].should == 'eul'
 
-    tl_entries = UserNewsFeed.new(owner).fetch(10)
+    tl_entries = UserNewsFeed.new(owner).find(10)
     tl_entries.size.should == 1
     tl_entries.first.activity[:tag].should == 'eul'
   end
@@ -196,7 +196,7 @@ describe Activr::Activity do
 
     Activr.dispatch!(activity)
 
-    tl_entries = UserNewsFeed.new(owner).fetch(10)
+    tl_entries = UserNewsFeed.new(owner).find(10)
     tl_entries.should be_blank
   end
 

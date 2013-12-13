@@ -66,12 +66,4 @@ describe Activr::Entity do
     entity.humanize(:html => true).should == "<span class='user'>Jean PALE<span>"
   end
 
-  it "sanitize entity value when humanizing to :html" do
-    pending("Setup a dummy Rails application in specs")
-
-    entity = Activr::Entity.new(:actor, user, :class => User, :default => "<script>alert('p0Wn3d');</script>")
-
-    entity.humanize(:html => true).should == "&lt;span class='user'&gt;alert('p0Wn3d');&lt;span&gt;"
-  end
-
 end

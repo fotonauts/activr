@@ -9,17 +9,16 @@ module Activr
 
     autoload :MongoDriver, 'activr/storage/mongo_driver'
 
-    # database driver
+    # @return [MongoDriver] database driver
     attr_reader :driver
 
-    # Init
     def initialize
       @driver = Activr::Storage::MongoDriver.new
 
       @hooks = { }
     end
 
-    # Is it a valid document id ?
+    # Is it a valid document id
     #
     # @param doc_id [Object] Document id to check
     # @return [true, false]
@@ -27,7 +26,7 @@ module Activr
       self.driver.valid_id?(doc_id)
     end
 
-    # Is it a serialized document id ?
+    # Is it a serialized document id
     #
     # @return [true,false]
     def serialized_id?(doc_id)
@@ -65,16 +64,15 @@ module Activr
       self.driver.insert_activity(activity_hash)
     end
 
-    # Fetch an activity
+    # Find an activity
     #
-    # @param activity_id [Object] Activity id to fetch
+    # @param activity_id [Object] Activity id to find
     # @return [Activity, Nil] An activity instance or `nil` if not found
-    def fetch_activity(activity_id)
-      # fetch
+    def find_activity(activity_id)
       activity_hash = self.driver.find_activity(activity_id)
       if activity_hash
         # run hook
-        self.run_hook(:did_fetch_activity, activity_hash)
+        self.run_hook(:did_find_activity, activity_hash)
 
         # unserialize
         Activr::Activity.from_hash(activity_hash)
@@ -83,22 +81,22 @@ module Activr
       end
     end
 
-    # Fetch latest activities
+    # Find latest activities
     #
     # @note If you use others selectors then 'limit' argument and 'skip' option then you have to setup corresponding indexes in database.
     #
     # @todo Add doc explaining howto setup indexes
     #
-    # @param limit [Integer] Max number of activities to fetch
+    # @param limit [Integer] Max number of activities to find
     # @param options [Hash] Options hash
     # @option options [Integer]           :skip     Number of activities to skip (default: 0)
-    # @option options [Time]              :before   Fetch activities generated before that datetime (excluding)
-    # @option options [Time]              :after    Fetch activities generated after that datetime (excluding)
+    # @option options [Time]              :before   Find activities generated before that datetime (excluding)
+    # @option options [Time]              :after    Find activities generated after that datetime (excluding)
     # @option options [Hash{Sym=>String}] :entities Filter by entities values (empty means 'all values')
-    # @option options [Array<Class>]      :only     Fetch only these activities
+    # @option options [Array<Class>]      :only     Find only these activities
     # @option options [Array<Class>]      :except   Skip these activities
     # @return [Array<Activity>] An array of activities
-    def fetch_activities(limit, options = { })
+    def find_activities(limit, options = { })
       # default options
       options = {
         :skip     => 0,
@@ -112,7 +110,7 @@ module Activr
       # find
       result = self.driver.find_activities(limit, options).map do |activity_hash|
         # run hook
-        self.run_hook(:did_fetch_activity, activity_hash)
+        self.run_hook(:did_find_activity, activity_hash)
 
         # unserialize
         Activr::Activity.from_hash(activity_hash)
@@ -128,13 +126,13 @@ module Activr
     # @todo Add doc explaining howto setup indexes
     #
     # @param options [Hash] Options hash
-    # @option options [Time]              :before   Fetch activities generated before that datetime (excluding)
-    # @option options [Time]              :after    Fetch activities generated after that datetime (excluding)
+    # @option options [Time]              :before   Find activities generated before that datetime (excluding)
+    # @option options [Time]              :after    Find activities generated after that datetime (excluding)
     # @option options [Hash{Sym=>String}] :entities Filter by entities values (empty means 'all values')
-    # @option options [Array<Class>]      :only     Fetch only these activities
+    # @option options [Array<Class>]      :only     Find only these activities
     # @option options [Array<Class>]      :except   Skip these activities
-    # @return [Array<Activity>] An array of activities
-    def activities_count(options = { })
+    # @return [Integer] Number of activities
+    def count_activities(options = { })
       # default options
       options = {
         :before   => nil,
@@ -145,7 +143,7 @@ module Activr
       }.merge(options)
 
       # count
-      self.driver.activities_count(options)
+      self.driver.count_activities(options)
     end
 
     # Insert a new timeline entry
@@ -163,17 +161,16 @@ module Activr
       self.driver.insert_timeline_entry(timeline_entry.timeline.kind, timeline_entry_hash)
     end
 
-    # Fetch a timeline entry
+    # Find a timeline entry
     #
     # @param timeline    [Timeline] Timeline instance
     # @param tl_entry_id [Object]   Timeline entry id
-    # @return [Array<Timeline::Entry>] An array of timeline entries
-    def fetch_timeline_entry(timeline, tl_entry_id)
-      # fetch
+    # @return [Timeline::Entry, Nil] Found timeline entry
+    def find_timeline_entry(timeline, tl_entry_id)
       timeline_entry_hash = self.driver.find_timeline_entry(timeline.kind, tl_entry_id)
       if timeline_entry_hash
         # run hook
-        self.run_hook(:did_fetch_timeline_entry, timeline_entry_hash)
+        self.run_hook(:did_find_timeline_entry, timeline_entry_hash)
 
         # unserialize
         Activr::Timeline::Entry.from_hash(timeline_entry_hash, timeline)
@@ -182,17 +179,16 @@ module Activr
       end
     end
 
-    # Fetch timeline entries by descending timestamp
+    # Find timeline entries by descending timestamp
     #
     # @param timeline [Timeline] Timeline instance
-    # @param limit    [Integer]  Max number of entries to fetch
+    # @param limit    [Integer]  Max number of entries to find
     # @param skip     [Integer]  Number of entries to skip (default: 0)
     # @return [Array<Timeline::Entry>] Timeline entries
-    def fetch_timeline(timeline, recipient_id, limit, skip = 0)
-      # find
+    def find_timeline(timeline, recipient_id, limit, skip = 0)
       result = self.driver.find_timeline_entries(timeline.kind, timeline.recipient_id, limit, skip).map do |timeline_entry_hash|
         # run hook
-        self.run_hook(:did_fetch_timeline_entry, timeline_entry_hash)
+        self.run_hook(:did_find_timeline_entry, timeline_entry_hash)
 
         # unserialize
         Activr::Timeline::Entry.from_hash(timeline_entry_hash, timeline)
@@ -215,10 +211,9 @@ module Activr
     # Hooks
     #
 
-    # The `will_insert_activity` hook will be run just before inserting
-    # an activity document in the database
+    # Hook: run just before inserting an activity document in the database
     #
-    # @example Insert the 'foo' meta for all activities
+    # @example Insert the 'foo' meta into all activities
     #
     #   Activr.storage.will_insert_activity do |activity_hash|
     #     activity_hash['meta'] ||= { }
@@ -229,25 +224,23 @@ module Activr
       register_hook(:will_insert_activity, block)
     end
 
-    # The `did_fetch_activity` hook will be run just after fetching
-    # an activity document from the database
+    # Hook: run just after fetching an activity document from the database
     #
     # @example Ignore the 'foo' meta
     #
-    #   Activr.storage.did_fetch_activity do |activity_hash|
+    #   Activr.storage.did_find_activity do |activity_hash|
     #     if activity_hash['meta']
     #       activity_hash['meta'].delete('foo')
     #     end
     #   end
     #
-    def did_fetch_activity(&block)
-      register_hook(:did_fetch_activity, block)
+    def did_find_activity(&block)
+      register_hook(:did_find_activity, block)
     end
 
-    # The `will_insert_timeline_entry` hook will be run just before inserting
-    # a timeline entry document in the database
+    # Hook: run just before inserting a timeline entry document in the database
     #
-    # @example Insert the 'bar' field to all timeline entries documents
+    # @example Insert the 'bar' field into all timeline entries documents
     #
     #   Activr.storage.will_insert_timeline_entry do |timeline_entry_hash|
     #     timeline_entry_hash['bar'] = 'baz'
@@ -257,17 +250,16 @@ module Activr
       register_hook(:will_insert_timeline_entry, block)
     end
 
-    # The `did_fetch_timeline_entry` hook will be run just after fetching
-    # a timeline entry document from the database
+    # Hook: run just after fetching a timeline entry document from the database
     #
     # @example Ignore the 'bar' field
     #
-    #   Activr.storage.did_fetch_timeline_entry do |timeline_entry_hash|
+    #   Activr.storage.did_find_timeline_entry do |timeline_entry_hash|
     #     timeline_entry_hash.delete('bar')
     #   end
     #
-    def did_fetch_timeline_entry(&block)
-      register_hook(:did_fetch_timeline_entry, block)
+    def did_find_timeline_entry(&block)
+      register_hook(:did_find_timeline_entry, block)
     end
 
 
@@ -288,7 +280,7 @@ module Activr
     # @note Returns all hooks if `name` is `nil`
     #
     # @param name [Symbol] Hook name
-    # @return [Array<Code>] List of hooks
+    # @return [Array<Proc>] List of hooks
     def hooks(name = nil)
       name ? (@hooks[name] || [ ]) : @hooks
     end

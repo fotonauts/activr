@@ -31,17 +31,17 @@ describe Activr::Storage do
       'bar' => 'baz',
     }
 
-    fetched_activity = Activr.storage.fetch_activity(activity._id)
+    fetched_activity = Activr.storage.find_activity(activity._id)
     fetched_activity[:foo].should == 'bar'
     fetched_activity[:bar].should == 'baz'
   end
 
-  it "runs :did_fetch_activity hook" do
-    Activr.storage.did_fetch_activity do |activity_hash|
+  it "runs :did_find_activity hook" do
+    Activr.storage.did_find_activity do |activity_hash|
       activity_hash['foo'] = 'bar'
     end
 
-    Activr.storage.did_fetch_activity do |activity_hash|
+    Activr.storage.did_find_activity do |activity_hash|
       activity_hash['meta'] ||= { }
       activity_hash['meta']['bar'] = 'baz'
     end
@@ -55,7 +55,7 @@ describe Activr::Storage do
     activity_hash['foo'].should be_blank
     activity_hash['meta'].should be_blank
 
-    fetched_activity = Activr.storage.fetch_activity(activity._id)
+    fetched_activity = Activr.storage.find_activity(activity._id)
     fetched_activity[:foo].should == 'bar'
     fetched_activity[:bar].should == 'baz'
   end
@@ -85,13 +85,13 @@ describe Activr::Storage do
     }
   end
 
-  it "runs :did_fetch_timeline_entry hook" do
-    Activr.storage.did_fetch_timeline_entry do |timeline_entry_hash|
+  it "runs :did_find_timeline_entry hook" do
+    Activr.storage.did_find_timeline_entry do |timeline_entry_hash|
       timeline_entry_hash['meta'] ||= { }
       timeline_entry_hash['meta']['foo'] = 'bar'
     end
 
-    Activr.storage.did_fetch_timeline_entry do |timeline_entry_hash|
+    Activr.storage.did_find_timeline_entry do |timeline_entry_hash|
       timeline_entry_hash['meta'] ||= { }
       timeline_entry_hash['meta']['bar'] = 'baz'
     end
@@ -103,12 +103,12 @@ describe Activr::Storage do
     timeline_entry.store!
 
     # check
-    fetched_tl_entry = Activr.storage.fetch_timeline_entry(timeline, timeline_entry._id)
+    fetched_tl_entry = Activr.storage.find_timeline_entry(timeline, timeline_entry._id)
     fetched_tl_entry._id.should == timeline_entry._id
     fetched_tl_entry[:foo].should == 'bar'
     fetched_tl_entry[:bar].should == 'baz'
 
-    tl_entries = timeline.fetch(10)
+    tl_entries = timeline.find(10)
     tl_entries.first[:foo].should == 'bar'
     tl_entries.first[:bar].should == 'baz'
   end

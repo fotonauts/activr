@@ -10,10 +10,12 @@ module Activr::Async::Resque
     @queue = 'activr_route_activity'
 
     class << self
+      # Enqueue job
       def enqueue(activity)
         ::Resque.enqueue(self, activity.to_hash)
       end
 
+      # Perform job
       def perform(activity_hash)
         # unserialize argument
         activity_hash = Activr::Activity.unserialize_hash(activity_hash)
@@ -30,10 +32,12 @@ module Activr::Async::Resque
     @queue = 'activr_timeline_handle'
 
     class << self
+      # Enqueue job
       def enqueue(timeline, activity, route)
         ::Resque.enqueue(self, timeline.kind, timeline.recipient_id, activity.to_hash, route.kind)
       end
 
+      # Perform job
       def perform(timeline_kind, recipient_id, activity_hash, route_kind)
         # unserialize arguments
         recipient_id = Activr.storage.unserialize_id_if_necessary(recipient_id)

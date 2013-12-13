@@ -1,30 +1,32 @@
 module Activr
 
   #
-  # With a Timeline you can create complex Activity Feeds
+  # With a timeline you can create complex activity feeds.
   #
-  # When creating a Timeline class you specify:
+  # When creating a {Timeline} class you specify:
+  #
   #   - what model in your application owns that timeline: the `recipient`
   #   - what activities will be displayed in that timeline: the `routes`
   #
   # Routes can be resolved thanks to:
-  #   - a `predefined routing` declared with `routing` method, then specified in the `:using` route setting
-  #   - an `activity path` specified in the `:to` route setting
-  #   - a call on Timeline class method specified in the `:using` route setting
   #
-  # @example A 'User News Feed' timeline class:
+  #   - a predefined routing declared with routing method, then specified in the :using route setting
+  #   - an activity path specified in the :to route setting
+  #   - a call on timeline class method specified in the :using route setting
   #
-  #   class UserNewsFeed < Activr::Timeline
+  # @example For example, this is a user newsfeed timeline
+  #
+  #   class UserNewsFeedTimeline < Activr::Timeline
   #     # that timeline is for users
   #     recipient User
   #
   #     # this is a predefined routing, to fetch all followers of an activity actor
   #     routing :actor_follower, :to => Proc.new{ |activity| activity.actor.followers }
   #
-  #     # define a routing with a class method, to fetch all followers of an activity album
-  #     def self.album_follower(activity)
-  #       activity.album.followers
-  #     end
+  #     # define a routing with a class method, to fetch all followers of an activity album
+  #     def self.album_follower(activity)
+  #       activity.album.followers
+  #     end
   #
   #     # predefined routing: users will see in their news feed when a friend they follow likes a picture
   #     route LikePictureActivity, :using => :actor_follower
@@ -42,8 +44,9 @@ module Activr
   #
   # Several callbacks are invoked on timeline instance during the activity handling workflow:
   #
-  #   - #should_handle_activity?      - Returns `false` to totally ignore activity
-  #   - #should_store_timeline_entry? - Returns `false` to cancel storing
+  #   - .should_route_activity?       - Returns `false` to skip activity routing
+  #   - #should_handle_activity?      - Returns `false` to skip routed activity
+  #   - #should_store_timeline_entry? - Returns `false` to cancel timeline entry storing
   #   - #will_store_timeline_entry    - This is your last chance to modify timeline entry before it is stored
   #   - #did_store_timeline_entry     - Called just after timeline entry was stored
   #
@@ -68,9 +71,11 @@ module Activr
 
     class << self
 
-      # @example Get Timeline class kind
-      #   UserNewsTimeline.kind
-      #   => 'user_news'
+      # Get timeline class kind
+      #
+      # @example
+      #   UserNewsFeedTimeline.kind
+      #   # => 'user_news_feed'
       #
       # @note Kind is inferred from Class name
       #
@@ -107,7 +112,7 @@ module Activr
         end
       end
 
-      # Callback just before trying to route given activity
+      # Callback: just before trying to route given activity
       #
       # @note MAY be overriden by child class
       #
@@ -117,7 +122,7 @@ module Activr
         true
       end
 
-      # Is it a valid recipient ?
+      # Is it a valid recipient
       #
       # @param recipient [Object] Recipient to check
       # @return [true, false]
@@ -157,12 +162,12 @@ module Activr
       # @example Those methods are created:
       #
       #   class User
-      #     # fetch lastest timeline entries
+      #     # fetch latest timeline entries
       #     def user_news(limit, skip = 0)
       #       # ...
       #     end
       #
-      #     # get total number of news feed entries
+      #     # get total number of timeline entries
       #     def user_news_count
       #       # ...
       #     end
@@ -174,12 +179,12 @@ module Activr
 
         # inject sugar methods
         klass.class_eval <<-EOS, __FILE__, __LINE__
-          # fetch lastest timeline entries
+          # fetch latest timeline entries
           def #{self.kind}(limit, skip = 0)
-            Activr.timeline(#{self.name}, self.id).fetch(limit, skip)
+            Activr.timeline(#{self.name}, self.id).find(limit, skip)
           end
 
-          # get total number of news feed entries
+          # get total number of timeline entries
           def #{self.kind}_count
             Activr.timeline(#{self.name}, self.id).count
           end
@@ -191,7 +196,7 @@ module Activr
       # Creates a predefined routing
       #
       # You can either specify a `Proc` (with the `:to` setting) to execute or a `block` to yield everytime
-      # an activity is routed to that timeline. That `Proc` or that `block` must return an Array of recipients
+      # an activity is routed to that timeline. That `Proc` or that `block` must return an array of recipients
       # or recipients ids.
       #
       # @param routing_name [Symbol] Routing name
@@ -225,7 +230,8 @@ module Activr
       # Define a route for an activity
       #
       # @param activity_class [Class] Activity to route
-      # @param settings       [Hash] Route settings (cf. Timeline::Route#initialize)
+      # @param settings (see Timeline::Route#initialize)
+      # @option settings (see Timeline::Route#initialize)
       def route(activity_class, settings = { })
         new_route = Activr::Timeline::Route.new(self, activity_class, settings)
         raise "Route already defined: #{new_route.inspect}" if self.have_route?(new_route)
@@ -245,8 +251,6 @@ module Activr
       :route_for_kind, :have_route?, :routes_for_activity
 
 
-    # Init
-    #
     # @param rcpt Recipient instance, or recipient id
     def initialize(rcpt)
       if self.recipient_class.nil?
@@ -284,7 +288,7 @@ module Activr
     #
     # @param activity [Activity] Activity to handle
     # @param route [Timeline::Route] The route that caused that activity handling
-    # @return [Timeline::Entry] The created timeline entry
+    # @return [Timeline::Entry] Created timeline entry
     def handle_activity(activity, route)
       # create timeline entry
       timeline_entry = Activr::Timeline::Entry.new(self, route.routing_kind, activity)
@@ -302,13 +306,13 @@ module Activr
       timeline_entry._id.blank? ? nil :timeline_entry
     end
 
-    # Fetch timeline entries by descending timestamp
+    # Find timeline entries by descending timestamp
     #
-    # @param limit [Integer] Max number of entries to fetch
+    # @param limit [Integer] Max number of entries to find
     # @param skip  [Integer] Number of entries to skip (default: 0)
     # @return [Array<Timeline::Entry>] An array of timeline entries
-    def fetch(limit, skip = 0)
-      Activr.storage.fetch_timeline(self, limit, skip)
+    def find(limit, skip = 0)
+      Activr.storage.find_timeline(self, limit, skip)
     end
 
     # Get total number of timeline entries
@@ -320,9 +324,9 @@ module Activr
 
     # Dump humanization of last timeline entries
     #
-    # @return [Array<String>] Array of humanizations
+    # @return [Array<String>] Array of humanized sentences
     def dump(limit = 10)
-      self.fetch(limit).map{ |tl_entry| tl_entry.humanize }
+      self.find(limit).map{ |tl_entry| tl_entry.humanize }
     end
 
 
@@ -330,7 +334,7 @@ module Activr
     # Callbacks
     #
 
-    # Callback just before trying to handle given activity
+    # Callback: just before trying to handle routed activity
     #
     # @note MAY be overriden by child class
     #
@@ -341,30 +345,30 @@ module Activr
       true
     end
 
-    # Callback to check if given timeline entry should be stored
+    # Callback: check if given timeline entry should be stored
     #
     # @note MAY be overriden by child class
     #
-    # @param timeline_entry [Timeline::Entry] The timeline entry that should be stored
+    # @param timeline_entry [Timeline::Entry] Timeline entry that should be stored
     # @return [true,false] Returns `false` to cancel storing
     def should_store_timeline_entry?(timeline_entry)
       true
     end
 
-    # Callback just before storing timeline entry into timeline
+    # Callback: just before storing timeline entry into timeline
     #
     # @note MAY be overriden by child class
     #
-    # @param timeline_entry [Timeline::Entry] The timeline entry that will be stored
+    # @param timeline_entry [Timeline::Entry] Timeline entry that will be stored
     def will_store_timeline_entry(timeline_entry)
       # NOOP
     end
 
-    # Callback just after timeline entry was stored
+    # Callback: just after timeline entry was stored
     #
     # @note MAY be overriden by child class
     #
-    # @param timeline_entry [Timeline::Entry] The timeline entry that have been stored
+    # @param timeline_entry [Timeline::Entry] Timeline entry that has been stored
     def did_store_timeline_entry(timeline_entry)
       # NOOP
     end
