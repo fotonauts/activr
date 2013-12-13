@@ -159,8 +159,8 @@ module Activr
       #
       # @note By convention the entity that correspond to a user performing an action should be named `:actor`
       #
-      # @param name [String, Symbol] Entity name
-      # @param options [Hash] Entity options
+      # @param name    [String,Symbol] Entity name
+      # @param options [Hash]          Entity options
       # @option options [Class]       :class    Entity model class
       # @option options [Symbol]      :humanize A method name to call on entity model instance to humanize it
       # @option options [String]      :default  Default humanization value

@@ -9,11 +9,11 @@ describe Activr::Timeline do
   it "have routings" do
     UserNewsFeed.routings.count.should == 2
 
-    UserNewsFeed.routings[:actor_follower].should_not be_nil
-    UserNewsFeed.routings[:actor_follower][:to].should be_a(Proc)
+    UserNewsFeed.routings['actor_follower'].should_not be_nil
+    UserNewsFeed.routings['actor_follower'][:to].should be_a(Proc)
 
-    UserNewsFeed.routings[:picture_follower].should_not be_nil
-    UserNewsFeed.routings[:picture_follower][:to].should be_a(Proc)
+    UserNewsFeed.routings['picture_follower'].should_not be_nil
+    UserNewsFeed.routings['picture_follower'][:to].should be_a(Proc)
   end
 
   it "have routes" do
@@ -30,7 +30,7 @@ describe Activr::Timeline do
     route.should_not be_nil
     route.kind.should == 'album_owner_add_picture'
 
-    route.routing_kind.should == :album_owner
+    route.routing_kind.should == 'album_owner'
     route.activity_class.should == AddPicture
     route.settings.should == { :to => 'album.owner', :humanize => "{{{actor}}} added a picture to your album {{{album}}}" }
   end
@@ -40,7 +40,7 @@ describe Activr::Timeline do
     route.should_not be_nil
     route.kind.should == 'my_custom_routing_follow_album'
 
-    route.routing_kind.should == :my_custom_routing
+    route.routing_kind.should == 'my_custom_routing'
     route.activity_class.should == FollowAlbum
     route.settings.should == { :to => 'album.owner', :kind => :my_custom_routing }
   end
@@ -50,7 +50,7 @@ describe Activr::Timeline do
     route.should_not be_nil
     route.kind.should == 'actor_follower_add_picture'
 
-    route.routing_kind.should == :actor_follower
+    route.routing_kind.should == 'actor_follower'
     route.activity_class.should == AddPicture
     route.settings.should == { :using => :actor_follower }
   end
@@ -60,7 +60,7 @@ describe Activr::Timeline do
     route.should_not be_nil
     route.kind.should == 'album_follower_add_picture'
 
-    route.routing_kind.should == :album_follower
+    route.routing_kind.should == 'album_follower'
     route.activity_class.should == AddPicture
     route.settings.should == { :using => :album_follower }
   end

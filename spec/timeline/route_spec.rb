@@ -19,19 +19,19 @@ describe Activr::Timeline::Route do
   it "handle 'direct entity' routing kind" do
     settings = { :to => :buddy }
     route = Activr::Timeline::Route.new(UserNewsFeed, FollowBuddyActivity, settings)
-    route.routing_kind.should == :buddy
+    route.routing_kind.should == 'buddy'
   end
 
   it "handle 'predefined' routing kind" do
     settings = { :using => :actor_follower }
     route = Activr::Timeline::Route.new(UserNewsFeed, AddPicture, settings)
-    route.routing_kind.should == :actor_follower
+    route.routing_kind.should == 'actor_follower'
   end
 
   it "uses provided :kind setting" do
     settings = { :to => :buddy, :kind => 'my_routing' }
     route = Activr::Timeline::Route.new(UserNewsFeed, FollowBuddyActivity, settings)
-    route.routing_kind.should == :my_routing
+    route.routing_kind.should == 'my_routing'
     route.kind.should == 'my_routing_follow_buddy'
   end
 

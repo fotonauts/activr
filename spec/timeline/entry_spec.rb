@@ -64,7 +64,7 @@ describe Activr::Timeline::Entry do
     route = tl_entry.timeline_route
     route.should_not be_nil
     route.kind.should == 'buddy_follow_buddy'
-    route.routing_kind.should == :buddy
+    route.routing_kind.should == 'buddy'
   end
 
   it "humanizes thanks to :humanize setting" do

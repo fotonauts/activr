@@ -50,7 +50,7 @@ class Activr::Timeline::Entry
   # @return [Timeline] timeline that owns that timeline entry
   attr_reader :timeline
 
-  # @return [Symbol] routing kind
+  # @return [String] routing kind
   attr_reader :routing_kind
 
   # @return [Activity] embedded activity
@@ -61,7 +61,7 @@ class Activr::Timeline::Entry
 
 
   # @param timeline     [Timeline] Timeline instance
-  # @param routing_kind [Symbol]   Routing kind
+  # @param routing_kind [String]   Routing kind
   # @param activity     [Activity] Activity
   # @param meta         [Hash]     Meta data
   def initialize(timeline, routing_kind, activity, meta = { })
@@ -103,7 +103,7 @@ class Activr::Timeline::Entry
     # fields
     result = {
       'rcpt'     => @timeline.recipient_id,
-      'routing'  => @routing_kind.to_s,
+      'routing'  => @routing_kind,
       'activity' => @activity.to_hash,
     }
 

@@ -17,7 +17,7 @@ class Activr::Timeline::Route
 
     # Get route kind
     #
-    # @param routing_kind  [Symbol] Routing kind
+    # @param routing_kind  [String] Routing kind
     # @param activity_kind [String] Activity kind
     # @return [String] Route kind
     def kind_for_routing_and_activity(routing_kind, activity_kind)
@@ -48,9 +48,9 @@ class Activr::Timeline::Route
 
   # Get routing kind
   #
-  # @return [Symbol] Routing kind
+  # @return [String] Routing kind
   def routing_kind
-    @routing_kind ||= (self.settings[:kind] && self.settings[:kind].to_sym) || begin
+    @routing_kind ||= (self.settings[:kind] && self.settings[:kind].to_s) || begin
       if self.settings[:using] && self.settings[:to]
         raise "Several routing kinds specified for #{self.activity_class}: #{self.settings.inspect}"
       end
@@ -68,7 +68,7 @@ class Activr::Timeline::Route
         end
       end
 
-      result
+      result.to_s
     end
   end
 

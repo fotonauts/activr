@@ -199,11 +199,12 @@ module Activr
       # an activity is routed to that timeline. That `Proc` or that `block` must return an array of recipients
       # or recipients ids.
       #
-      # @param routing_name [Symbol] Routing name
+      # @param routing_name [Symbol,String] Routing name
       # @param settings     [Hash]   Settings
       # @option settings [Proc] :to Code to resolve route
       # @yield [Activity] Gives the activity to route to the block
       def routing(routing_name, settings = { }, &block)
+        routing_name = routing_name.to_s
         raise "Routing already defined: #{routing_name}" unless self.routings[routing_name].blank?
 
         if !block && (!settings[:to] || !settings[:to].is_a?(Proc))
@@ -216,13 +217,13 @@ module Activr
         end
 
         # NOTE: always use a setter on a class_attribute (cf. http://apidock.com/rails/Class/class_attribute)
-        self.routings = self.routings.merge(routing_name.to_sym => settings)
+        self.routings = self.routings.merge(routing_name => settings)
 
         # create method
         class_eval <<-EOS, __FILE__, __LINE__
           # eg: actor_follower(activity)
           def self.#{routing_name}(activity)
-            self.routings[:#{routing_name}][:to].call(activity)
+            self.routings['#{routing_name}'][:to].call(activity)
           end
         EOS
       end
