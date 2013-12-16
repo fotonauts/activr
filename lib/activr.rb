@@ -6,6 +6,7 @@ require 'fwissr'
 require 'logger'
 
 # active support
+require 'active_support/callbacks'
 require 'active_support/core_ext/class'
 require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/object/blank'
