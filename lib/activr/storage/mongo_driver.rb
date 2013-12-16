@@ -187,6 +187,38 @@ class Activr::Storage::MongoDriver
     end
   end
 
+  # Add index to given collection
+  #
+  # @api private
+  #
+  # @param col        [Mongo::Collection, Moped::Collection] Collection handler
+  # @param index_spec [Array] Array of {String}, {Integer} tuplets with {String} being a field to index and {Integer} the order (`-1` of DESC and `1` for ASC)
+  # @param options    [Hash] Options hash
+  # @option options [Boolean] :background Background indexing ? (default: `true`)
+  # @option options [Boolean] :sparse     Is it a sparse index ? (default: `false`)
+  # @return [String] Index created
+  def add_index(col, index_spec, options = { })
+    options = {
+      :background => true,
+      :sparse     => false,
+    }.merge(options)
+
+    case @kind
+    when :moped_1, :moped
+      index_spec = index_spec.inject(ActiveSupport::OrderedHash.new) do |memo, field_spec|
+        memo[field_spec[0]] = field_spec[1]
+        memo
+      end
+
+      col.indexes.create(index_spec, options)
+
+      index_spec
+
+    when :mongo
+      col.create_index(index_spec, options)
+    end
+  end
+
   # Get handler for `activities` collection
   #
   # @api private
@@ -323,6 +355,16 @@ class Activr::Storage::MongoDriver
     self.count(self.activity_collection, self.activities_selector(options))
   end
 
+  # (see Storage#add_activity_index)
+  #
+  # @api private
+  def add_activity_index(index, options = { })
+    index = index.is_a?(Array) ? index : [ index ]
+    index_spec = index.map{ |field| [ field, 1 ] }
+
+    self.add_index(self.activity_collection, index_spec, options)
+  end
+
   # Insert a timeline entry document
   #
   # @api private
@@ -379,6 +421,16 @@ class Activr::Storage::MongoDriver
   # @return [Integer] Number of documents in given timeline
   def count_timeline_entries(timeline_kind, recipient_id)
     self.count(self.timeline_collection(timeline_kind), self.timeline_selector(timeline_kind, recipient_id))
+  end
+
+  # (see Storage#add_timeline_index)
+  #
+  # @api private
+  def add_timeline_index(timeline_kind, index, options = { })
+    index = index.is_a?(Array) ? index : [ index ]
+    index_spec = index.map{ |field| [ field, 1 ] }
+
+    self.add_index(self.timeline_collection(timeline_kind), index_spec, options)
   end
 
 end # class Storage::MongoDriver

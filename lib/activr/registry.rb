@@ -13,6 +13,7 @@ module Activr
       @timeline_entries = nil
       @activities       = nil
       @entities         = nil
+      @models           = nil
     end
 
     # Setup registry
@@ -118,7 +119,7 @@ module Activr
       # loading activities triggers calls to #add_entity method
       self.activities if @entities.blank?
 
-      @entities
+      @entities || { }
     end
 
     # Get all registered entities names
@@ -136,6 +137,34 @@ module Activr
       @entities ||= { }
       @entities[entity_name] ||= [ ]
       @entities[entity_name] << activity_klass
+    end
+
+    # Get all models that included mixin {Activr::Entity::ModelMixin}
+    #
+    # @return [Array<Class>] List of model classes
+    def models
+      # loading activities triggers models loading
+      self.activities if @models.blank?
+
+      @models || [ ]
+    end
+
+    # Register a model
+    #
+    # @param model_class [Class] Model class
+    def add_model(model_class)
+      @models ||= [ ]
+      @models << model_class
+    end
+
+    # Get all timelines that can contain an activity with an entity with given model class
+    #
+    # @param model_class [Class] Model class
+    # @return [Array<Class>] An array of timeline classes
+    def timelines_for_entity_model(model_class)
+      # @todo Ok, but what happens when we decide to remove a route from a timeline definition ? => handle that use case please !
+      # For now: we return all timelines
+      self.timelines.values
     end
 
     # Find all classes in given directory

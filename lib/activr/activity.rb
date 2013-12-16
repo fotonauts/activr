@@ -207,9 +207,9 @@ module Activr
 
         if (name == :actor) && options[:class] &&
            (options[:class] < Activr::Entity::ModelMixin) &&
-           options[:class].activr_feed_entity_name.nil?
-          # sugar so that we don't have to explicitly set `activr_feed_entity_name` value on model class
-          options[:class].activr_feed_entity_name = :actor
+           options[:class].activr_entity_settings[:name].nil?
+          # sugar so that we don't have to explicitly call `activr_entity` on model class
+          options[:class].activr_entity_settings = options[:class].activr_entity_settings.merge(:name => :actor)
         end
 
         # register used entity

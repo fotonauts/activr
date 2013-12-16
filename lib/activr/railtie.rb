@@ -34,12 +34,14 @@ module Activr
       end
     end
 
+    rake_tasks do
+      load "activr/railties/activr.rake"
+    end
+
     config.after_initialize do |app|
       app.config.paths.add('app/activities', :eager_load => true)
       app.config.paths.add('app/timelines',  :eager_load => true)
-    end
 
-    config.after_initialize do
       Activr.setup
     end
   end # class Railtie
