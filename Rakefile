@@ -1,7 +1,7 @@
 require 'rake'
 
-$:.unshift File.expand_path(File.dirname(__FILE__) + "/./lib")
-require 'active'
+$:.unshift File.expand_path(File.dirname(__FILE__) + "/lib")
+require 'activr'
 
 task :default => :list
 task :list do
