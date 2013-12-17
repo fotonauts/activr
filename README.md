@@ -692,12 +692,6 @@ Hook classes are specified thanks to the `config.async` hash.
 If you are writing a Rails application you just need to add the `Resque` gem to your `Gemfile` to enable async hooks. If you want to use another job system then you have to write your own async hook handlers. If you want to force disabling of async hooks, for example when deploying your app on Heroku with only one dyno, just set the environment variable `ACTIVR_FORCE_SYNC` to `true`.
 
 
-Indexes
-=======
-
-@todo
-
-
 Todo
 ====
 

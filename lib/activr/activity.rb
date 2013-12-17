@@ -213,7 +213,7 @@ module Activr
         end
 
         # register used entity
-        Activr.registry.add_entity(name, self)
+        Activr.registry.add_entity(name, options, self)
       end
 
       # Define a humanization template for that activity class
@@ -417,7 +417,7 @@ module Activr
       match_data = sym.to_s.match(/(.+)_(entity|id)$/)
       entity_name = match_data ? match_data[1].to_sym : sym
 
-      if Activr.registry.entities.include?(entity_name)
+      if Activr.registry.entities_names.include?(entity_name)
         # ok, don't worry...
         # define an instance method so that future calls on that method do not rely on method_missing
         self.instance_eval <<-RUBY

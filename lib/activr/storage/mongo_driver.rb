@@ -187,6 +187,21 @@ class Activr::Storage::MongoDriver
     end
   end
 
+  # Delete documents in given collection
+  #
+  # @api private
+  #
+  # @param col      [Mongo::Collection, Moped::Collection] Collection handler
+  # @param selector [Hash] Selector hash
+  def delete(col, selector)
+    case @kind
+    when :moped_1, :moped
+      col.find(selector).remove_all
+    when :mongo
+      col.remove(selector)
+    end
+  end
+
   # Add index to given collection
   #
   # @api private
@@ -355,6 +370,13 @@ class Activr::Storage::MongoDriver
     self.count(self.activity_collection, self.activities_selector(options))
   end
 
+  # (see Storage#delete_activities)
+  #
+  # @api private
+  def delete_activities(selector)
+    self.delete(self.activity_collection, selector)
+  end
+
   # (see Storage#add_activity_index)
   #
   # @api private
@@ -421,6 +443,13 @@ class Activr::Storage::MongoDriver
   # @return [Integer] Number of documents in given timeline
   def count_timeline_entries(timeline_kind, recipient_id)
     self.count(self.timeline_collection(timeline_kind), self.timeline_selector(timeline_kind, recipient_id))
+  end
+
+  # (see Storage#delete_timeline_entries)
+  #
+  # @api private
+  def delete_timeline_entries(timeline_kind, selector)
+    self.delete(self.timeline_collection(timeline_kind), selector)
   end
 
   # (see Storage#add_timeline_index)

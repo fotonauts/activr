@@ -1,5 +1,9 @@
 class Picture
 
+  include Activr::Entity::ModelMixin
+
+  activr_entity :deletable => true
+
   include Mongoid::Document
 
   field :title
@@ -12,5 +16,8 @@ class Picture
   # @todo change to real fields
   attr_accessor :owner
   attr_accessor :followers
+
+  # callbacks
+  after_destroy :delete_activities!
 
 end

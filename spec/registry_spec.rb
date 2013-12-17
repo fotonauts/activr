@@ -43,6 +43,47 @@ describe Activr::Registry do
     [ FollowBuddyActivity ].each do |klass|
       Activr.registry.entities[:buddy].should include(klass)
     end
+
+    Activr.registry.entity_classes.should == {
+      :actor   => User,
+      :album   => Album,
+      :buddy   => User,
+      :picture => Picture,
+    }
+
+    Activr.registry.activity_entities.should == {
+      AddPicture          => [ :actor, :picture, :album ],
+      FeaturePicture      => [ :actor, :picture ],
+      FollowAlbum         => [ :actor, :album ],
+      FollowBuddyActivity => [ :actor, :buddy ],
+      LikePicture         => [ :actor, :picture ],
+    }
+  end
+
+  it "registers models" do
+    [ User, Picture, Album ].each do |klass|
+      Activr.registry.models.should include(klass)
+    end
+  end
+
+  it "computes entities for a model class" do
+    Activr.registry.activity_entities_for_model(User).should    == [ :actor, :buddy ]
+    Activr.registry.activity_entities_for_model(Album).should   == [ :album ]
+    Activr.registry.activity_entities_for_model(Picture).should == [ :picture ]
+  end
+
+  it "computes timeline entities for a model class" do
+    Activr.registry.timeline_entities_for_model(User).should == {
+      UserNewsFeed => [ :actor, :buddy ],
+    }
+
+    Activr.registry.timeline_entities_for_model(Album).should == {
+      UserNewsFeed => [ :album ],
+    }
+
+    Activr.registry.timeline_entities_for_model(Picture).should == {
+      UserNewsFeed => [ :picture ],
+    }
   end
 
 end

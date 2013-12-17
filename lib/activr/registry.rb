@@ -7,13 +7,25 @@ module Activr
   #
   class Registry
 
+    # @return [Hash{Symbol=>Class}] model class associated to entity name
+    attr_reader :entity_classes
+
+    # @return [Hash{Class=>Array<Symbol>}] entity names for activity class
+    attr_reader :activity_entities
+
     # Init
     def initialize
-      @timelines        = nil
-      @timeline_entries = nil
-      @activities       = nil
-      @entities         = nil
-      @models           = nil
+      @timelines         = nil
+      @timeline_entries  = nil
+      @activities        = nil
+      @entities          = nil
+      @models            = nil
+
+      @entity_classes    = { }
+      @activity_entities = { }
+
+      @timeline_entities_for_model = { }
+      @activity_entities_for_model = { }
     end
 
     # Setup registry
@@ -132,11 +144,32 @@ module Activr
     # Register an entity
     #
     # @param entity_name    [Symbol] Entity name
+    # @param entity_options [Hash]   Entity options
     # @param activity_klass [Class]  Activity class that uses that entity
-    def add_entity(entity_name, activity_klass)
+    def add_entity(entity_name, entity_options, activity_klass)
+      entity_name = entity_name.to_sym
+
+      if @entity_classes[entity_name] && (@entity_classes[entity_name] != entity_options[:class])
+        # otherwise this would break timeline entries deletion mecanism
+        raise "Entity name #{entity_name} already used with class #{@entity_classes[entity_name]}, can't redefine it with class #{entity_options[:class]}"
+      end
+
+      # class for entity
+      @entity_classes[entity_name] = entity_options[:class]
+
+      # entities for activity
+      @activity_entities[activity_klass] ||= [ ]
+      @activity_entities[activity_klass] << entity_name
+
+      # entities
       @entities ||= { }
-      @entities[entity_name] ||= [ ]
-      @entities[entity_name] << activity_klass
+      @entities[entity_name] ||= { }
+
+      if !@entities[entity_name][activity_klass].blank?
+        raise "Entity name #{entity_name} already used for activity: #{activity_klass}"
+      end
+
+      @entities[entity_name][activity_klass] = entity_options
     end
 
     # Get all models that included mixin {Activr::Entity::ModelMixin}
@@ -157,14 +190,42 @@ module Activr
       @models << model_class
     end
 
-    # Get all timelines that can contain an activity with an entity with given model class
+    # Get all entities names for given model class
+    def activity_entities_for_model(model_class)
+      @activity_entities_for_model[model_class] ||= begin
+        result = [ ]
+
+        @entity_classes.each do |entity_name, entity_class|
+          result << entity_name if (entity_class == model_class)
+        end
+
+        result
+      end
+    end
+
+    # Get all entities names by timelines that can have a reference to given model class
     #
     # @param model_class [Class] Model class
-    # @return [Array<Class>] An array of timeline classes
-    def timelines_for_entity_model(model_class)
-      # @todo Ok, but what happens when we decide to remove a route from a timeline definition ? => handle that use case please !
-      # For now: we return all timelines
-      self.timelines.values
+    # @return [Hash{Class=>Array<Symbol>}] Lists of entities names indexed by timeline class
+    def timeline_entities_for_model(model_class)
+      @timeline_entities_for_model[model_class] ||= begin
+        result = { }
+
+        self.timelines.each do |timeline_kind, timeline_class|
+          result[timeline_class] = [ ]
+
+          timeline_class.routes.each do |route|
+            entities_ary = @activity_entities[route.activity_class]
+            (entities_ary || [ ]).each do |entity_name|
+              result[timeline_class] << entity_name if (@entity_classes[entity_name] == model_class)
+            end
+          end
+
+          result[timeline_class].uniq!
+        end
+
+        result
+      end
     end
 
     # Find all classes in given directory

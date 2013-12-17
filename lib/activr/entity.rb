@@ -38,7 +38,7 @@ module Activr
       if Activr.storage.valid_id?(value)
         @model_id = value
 
-        raise "Missing :class option: #{options.inspect}" if @model_class.blank?
+        raise "Missing :class option for #{name} / #{value}: #{options.inspect}" if @model_class.nil?
         raise "Model class MUST implement #find method" unless @model_class.respond_to?(:find)
       else
         @model = value

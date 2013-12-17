@@ -49,6 +49,11 @@ module Activr
       self.serialized_id?(doc_id) ? self.unserialize_id(doc_id) : doc_id
     end
 
+
+    #
+    # Activities
+    #
+
     # Insert a new activity
     #
     # @param activity [Activity] Activity to insert
@@ -146,6 +151,11 @@ module Activr
       self.driver.count_activities(options)
     end
 
+
+    #
+    # Timeline Entries
+    #
+
     # Insert a new timeline entry
     #
     # @param timeline_entry [Timeline::Entry] Timeline entry to insert
@@ -204,6 +214,31 @@ module Activr
     # @return [Intger] Number of timeline entries in given timeline
     def count_timeline(timeline_kind, recipient_id)
       self.driver.count_timeline_entries(timeline_kind, recipient_id)
+    end
+
+
+    #
+    # Entity model deletion
+    #
+
+    # Delete activities referring to given entity model instance
+    #
+    # @param model [Object] Model instance
+    def delete_activities_for_entity_model(model)
+      Activr.registry.activity_entities_for_model(model.class).each do |entity_name|
+        self.driver.delete_activities(entity_name => model.id)
+      end
+    end
+
+    # Delete timeline entries referring to given entity model instance
+    #
+    # @param model [Object] Model instance
+    def delete_timeline_entries_for_entity_model(model)
+      Activr.registry.timeline_entities_for_model(model.class).each do |timeline_class, entities|
+        entities.each do |entity_name|
+          self.driver.delete_timeline_entries(timeline_class.kind, "activity.#{entity_name}" => model.id)
+        end
+      end
     end
 
 
@@ -275,25 +310,23 @@ module Activr
       #   [['activity.picture', Mongo::ASCENDING]], :sparse => true
       Activr.registry.models.each do |model_class|
         if model_class.activr_entity_settings[:deletable]
-          if model_class.activr_entity_settings[:feed_disabled]
-            # create sparse index on `activities`
-            fields = [ model_class.activr_entity_feed_actual_name.to_s ]
-
-            index_name = Activr.storage.add_activity_index(fields, :sparse => true)
-            yield("activity / #{index_name}")
-          else
-            # @todo Output a warning to remove the sparse index if it exists, because we can use the entity activity feed index instead
+          # create sparse index on `activities`
+          Activr.registry.activity_entities_for_model(model_class).each do |entity_name|
+            # if entity activity feed is enabled and this is the entity name used to fetch that feed then we can use the existing index...
+            if model_class.activr_entity_settings[:feed_disabled] || (entity_name != model_class.activr_entity_feed_actual_name)
+              # ... else we create an index
+              index_name = Activr.storage.add_activity_index(entity_name.to_s, :sparse => true)
+              yield("activity / #{index_name}")
+            end
           end
 
           # create sparse index on timeline classes where that entity can be present
-          Activr.registry.timelines_for_entity_model(model_class).each do |timeline_class|
-            fields = [ "activity.#{model_class.activr_entity_feed_actual_name.to_s}" ]
-
-            index_name = Activr.storage.add_timeline_index(timeline_kind, fields, :sparse => true)
-            yield("#{timeline_kind} timeline / #{index_name}")
+          Activr.registry.timeline_entities_for_model(model_class).each do |timeline_class, entities|
+            entities.each do |entity_name|
+              index_name = Activr.storage.add_timeline_index(timeline_class.kind, "activity.#{entity_name}", :sparse => true)
+              yield("#{timeline_class.kind} timeline / #{index_name}")
+            end
           end
-        else
-          # @todo Output a warning to remove the sparse indexes if they exists
         end
       end
     end

@@ -1,7 +1,7 @@
 #
 # Include that module in your model class to enable an activity feed for that entity.
 #
-# This generates methods: {#activities}, {#activities_count} and {#delete_activities!}
+# These methods are injected: {#activities}, {#activities_count} and {#delete_activities!}
 #
 # If you don't really need an activity feed for that entity, just set the `:feed_disabled => true`
 # entity setting to skip unnecessary index creation.
@@ -85,26 +85,34 @@ module Activr::Entity::ModelMixin
 
   end # module ClassMethods
 
+  # sugar
+  def activr_entity_feed_actual_name
+    self.class.activr_entity_feed_actual_name
+  end
+
   # Fetch activities
   #
   # @param limit [Integer] Max number of activities to fetch
   # @param skip  [Integer] Number of activities to skip
   # @return [Array<Activity>] A list of activities
   def activities(limit, skip = 0)
-    Activr.activities(limit, :skip => skip, self.class.activr_entity_feed_actual_name => self.id)
+    Activr.activities(limit, :skip => skip, self.activr_entity_feed_actual_name => self.id)
   end
 
   # Get total number of activities
   #
   # @return [Integer] The total number of activities
   def activities_count
-    Activr.activities_count(self.class.activr_entity_feed_actual_name => self.id)
+    Activr.activities_count(self.activr_entity_feed_actual_name => self.id)
   end
 
   # Delete all activities and timeline entries that reference that entity
   def delete_activities!
-    # @todo !!!
-    Activr.logger.error("[NOT IMPLEMENTED] Can't delete all activities referring to #{self.class.name} #{self.id}")
+    # delete activities
+    Activr.storage.delete_activities_for_entity_model(self)
+
+    # delete timeline entries
+    Activr.storage.delete_timeline_entries_for_entity_model(self)
   end
 
 end # module Activr::Entity::ModelMixin

@@ -1,5 +1,7 @@
 class User
 
+  include Activr::Entity::ModelMixin
+
   include Mongoid::Document
 
   field :_id, :type => String
