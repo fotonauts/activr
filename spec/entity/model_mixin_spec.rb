@@ -15,12 +15,12 @@ describe Activr::Entity::ModelMixin do
     activity_1 = AddPicture.new(:actor => user, :picture => picture, :album => album)
     activity_1.store!
     
-    sleep(1)
+    Delorean.jump(30)
 
     activity_2 = FollowBuddyActivity.new(:actor => user, :buddy => buddy)
     activity_2.store!
 
-    sleep(1)
+    Delorean.jump(30)
 
     activity_3 = LikePicture.new(:actor => user, :picture => picture)
     activity_3.store!
@@ -61,12 +61,12 @@ describe Activr::Entity::ModelMixin do
     activity_1 = AddPicture.new(:actor => user, :picture => picture, :album => album)
     activity_1.store!
     
-    sleep(1)
+    Delorean.jump(30)
 
     activity_2 = FollowBuddyActivity.new(:actor => user, :buddy => buddy)
     activity_2.store!
 
-    sleep(1)
+    Delorean.jump(30)
 
     activity_3 = LikePicture.new(:actor => user, :picture => picture)
     activity_3.store!
@@ -91,9 +91,9 @@ describe Activr::Entity::ModelMixin do
     user.followers = [ follower, follower2 ]
 
     Activr.dispatch!(AddPicture.new(:actor => user, :picture => picture, :album => album))
-    sleep(1)
+    Delorean.jump(30)
     Activr.dispatch!(AddPicture.new(:actor => user, :picture => picture2, :album => album))
-    sleep(1)
+    Delorean.jump(30)
     Activr.dispatch!(AddPicture.new(:actor => user, :picture => picture3, :album => album))
 
     [ follower, follower2 ].each do |rcpt|
