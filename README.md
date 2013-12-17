@@ -210,7 +210,19 @@ Note that you can paginate thanks to the `:skip` option of the `#activities` met
 
 ### Entity activity feed
 
-Each entity involved in an activity has its own activity feed.
+Each entity involved in an activity can have its own activity feed.
+
+To activate entity activity feed, just include the mixin `Activr::Entity::ModelMixin` into the corresponding model class:
+
+```ruby
+  include Activr::Entity::ModelMixin
+```
+
+Then launch the task that setup indexes on the `activities` collection:
+
+```
+$ rake activr:create_indexes
+```
 
 
 #### Actor activity feed
@@ -248,8 +260,6 @@ user.activities(10).each do |activity|
 end
 ```
 
-@todo Setup index.
-
 
 #### Album activity feed
 
@@ -277,8 +287,6 @@ album.activities(10).each do |activity|
   puts activity.humanize
 end
 ```
-
-@todo Setup index.
 
 
 News Feed
@@ -508,6 +516,13 @@ As you can see, a Timeline Entry contains:
 - the `routing` kind: here, `album_owner` means that Corinne received that activity in her News Feed because she is the owner of the album
 
 You can also add meta data. For example you may add a `read` meta data if you want to implement a read/unread mecanism in your News Feed.
+
+When you create a new timeline class don't forget to launch the task that setup indexes in the corresponding `timelines` collection:
+
+```
+$ rake activr:create_indexes
+```
+
 
 #### Timeline Entry humanization
 
