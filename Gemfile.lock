@@ -11,7 +11,7 @@ GIT
 PATH
   remote: .
   specs:
-    activr (0.0.5)
+    activr (0.0.6)
       activemodel
       activesupport
       fwissr
@@ -32,8 +32,11 @@ GEM
     atomic (1.1.14)
     bson (2.0.0)
     builder (3.1.4)
+    chronic (0.10.2)
     connection_pool (1.2.0)
     database_cleaner (1.2.0)
+    delorean (2.1.0)
+      chronic
     diff-lcs (1.2.5)
     fwissr (1.0.2)
       yajl-ruby
@@ -66,5 +69,6 @@ PLATFORMS
 DEPENDENCIES
   activr!
   database_cleaner
+  delorean
   mongoid (~> 4.0.0.alpha1)!
   rspec
