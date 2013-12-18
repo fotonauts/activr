@@ -670,7 +670,6 @@ class Picture
   after_destroy :delete_activities!
 
 end
-
 ```
 
 
@@ -731,7 +730,6 @@ Todo
 - Trim timelines
 - Activities aggregation in timelines
 - Remove duplicate activities in a given period of time
-- Rails generator to setup indexes
 - Rails generator to setup basic views
 - Rails generator to setup admin controllers
 - Permits "Fanout on read" for inactive entities, to preserve db size
