@@ -212,10 +212,12 @@ Note that you can paginate thanks to the `:skip` option of the `#activities` met
 
 Each entity involved in an activity can have its own activity feed.
 
-To activate entity activity feed, just include the mixin `Activr::Entity::ModelMixin` into the corresponding model class:
+To activate entity activity feed, include the mixin `Activr::Entity::ModelMixin` into the corresponding model class, and setup the `:feed_index` option:
 
 ```ruby
   include Activr::Entity::ModelMixin
+
+  activr_entity :feed_index => true
 ```
 
 Then launch the task that setup indexes on the `activities` collection:
@@ -234,6 +236,8 @@ class User
 
   # inject sugar methods
   include Activr::Entity::ModelMixin
+
+  activr_entity :feed_index => true
 
   include Mongoid::Document
 
@@ -270,6 +274,8 @@ class Album
 
   # inject sugar methods
   include Activr::Entity::ModelMixin
+
+  activr_entity :feed_index => true
 
   # ...
 
@@ -638,6 +644,33 @@ Here is a view taken from [Activr Demo](https://github.com/fotonauts/activr_demo
     </div>
   <% end %>
 </div>
+```
+
+
+Entity model deletion
+=====================
+
+When one of your entities models instance is deleted you should probably call the `delete_activities!` method. This method deletes all activities that refer to the deleted entity from the `activities` and `timelines` collections.
+
+You should too add `activr_entity :deletable => true` to your model class to ensure that a deletion index is correctly setup when running the `rake activr:create_indexes` task.
+
+```ruby
+class Picture
+
+  include Activr::Entity::ModelMixin
+
+  # picture can be deleted
+  activr_entity :deletable => true
+
+  include Mongoid::Document
+
+  # ...
+
+  # delete all activities
+  after_destroy :delete_activities!
+
+end
+
 ```
 
 

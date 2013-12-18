@@ -1,13 +1,12 @@
 #
-# Include that module in your model class to enable an activity feed for that entity.
+# Including that module in your model class adds these methods: {#activities}, {#activities_count} and
+# {#delete_activities!}.
 #
-# These methods are injected: {#activities}, {#activities_count} and {#delete_activities!}
+# If you plan to call either {#activities} or {#activities_count} methods then set the `:feed_index => true`
+# entity setting to ensure that an index is correctly setup when running the `rake activr:create_indexes` task.
 #
-# If you don't really need an activity feed for that entity, just set the `:feed_disabled => true`
-# entity setting to skip unnecessary index creation.
-#
-# If you plan to call {#delete_activities!} method then you should set the `:deletable => true`
-# entity setting in order to setup correct indexes.
+# If you plan to call {#delete_activities!} method then you should set the `:deletable => true` entity setting
+# to ensure that a deletion index is correctly setup when running the `rake activr:create_indexes` task.
 #
 # @example Model:
 #   class User
@@ -15,7 +14,7 @@
 #     # inject sugar methods
 #     include Activr::Entity::ModelMixin
 #
-#     activr_entity :deletable => true
+#     activr_entity :feed_index => true, :deletable => true
 #
 #     include Mongoid::Document
 #
@@ -47,7 +46,7 @@ module Activr::Entity::ModelMixin
   included do
     # Entity settings
     class_attribute :activr_entity_settings, :instance_writer => false
-    self.activr_entity_settings = { :deletable => false, :name => nil, :feed_disabled => false }
+    self.activr_entity_settings = { :feed_index => false, :deletable => false, :name => nil }
 
     # Register model
     Activr.registry.add_model(self)
@@ -76,9 +75,9 @@ module Activr::Entity::ModelMixin
     # @todo Add documentation in README for that
     #
     # @param settings [Hash] Entity settings
-    # @option settings [Boolean] :deletable     Entity is deletable ? (default: `false`)
-    # @option settings [String]  :name          Custom entity name to use in entity activity feed queries (default is inferred from model class name)
-    # @option settings [Boolean] :feed_disabled Entity activity feed disabled ? (default: `false`)
+    # @option settings [Boolean] :deletable  Entity is deletable ? (default: `false`)
+    # @option settings [String]  :name       Custom entity name to use in entity activity feed queries (default is inferred from model class name)
+    # @option settings [Boolean] :feed_index Ensure entity activity feed index ? (default: `false`)
     def activr_entity(settings)
       self.activr_entity_settings = self.activr_entity_settings.merge(settings)
     end

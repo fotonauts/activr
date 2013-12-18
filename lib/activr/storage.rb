@@ -278,7 +278,7 @@ module Activr
       #   [['album', Mongo::ASCENDING], ['at', Mongo::ASCENDING]]
       #   [['picture', Mongo::ASCENDING], ['at', Mongo::ASCENDING]]
       Activr.registry.models.each do |model_class|
-        if model_class.activr_entity_settings[:feed_disabled]
+        if !model_class.activr_entity_settings[:feed_index]
           # @todo Output a warning to remove the index if it exists
         else
           fields = [ model_class.activr_entity_feed_actual_name.to_s, 'at' ]
@@ -313,7 +313,7 @@ module Activr
           # create sparse index on `activities`
           Activr.registry.activity_entities_for_model(model_class).each do |entity_name|
             # if entity activity feed is enabled and this is the entity name used to fetch that feed then we can use the existing index...
-            if model_class.activr_entity_settings[:feed_disabled] || (entity_name != model_class.activr_entity_feed_actual_name)
+            if !model_class.activr_entity_settings[:feed_index] || (entity_name != model_class.activr_entity_feed_actual_name)
               # ... else we create an index
               index_name = Activr.storage.add_activity_index(entity_name.to_s, :sparse => true)
               yield("activity / #{index_name}")
