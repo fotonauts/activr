@@ -16,7 +16,7 @@ module Activr
       #
       # @api private
       def create_timeline_files
-        template "timeline.rb", "app/timelines/#{file_name}_timeline.rb"
+        template "timeline.rb", "#{Activr.config.app_path}/timelines/#{file_name}_timeline.rb"
       end
     end
 

@@ -20,7 +20,7 @@ module Activr
       #
       # @api private
       def create_activity_file
-        template "activity.rb", "app/activities/#{file_name}_activity.rb"
+        template "activity.rb", "#{Activr.config.app_path}/activities/#{file_name}_activity.rb"
       end
 
       # Compute entities infos
