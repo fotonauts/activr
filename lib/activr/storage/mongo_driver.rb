@@ -19,9 +19,7 @@ class Activr::Storage::MongoDriver
 
   def initialize
     # check settings
-    [ :uri, :collection ].each do |setting|
-      raise "Missing setting #{setting} in config: #{self.config.inspect}" if self.config[setting].blank?
-    end
+    raise "Missing setting :uri in config: #{self.config.inspect}" if self.config[:uri].blank?
 
     @collections = { }
 
@@ -84,13 +82,11 @@ class Activr::Storage::MongoDriver
   # @param col_name [String] Collection name
   # @return [Mongo::Collection, Moped::Collection] Collection handler
   def collection(col_name)
-    @collections[col_name] ||= begin
-      case @kind
-      when :moped_1, :moped
-        self.conn[col_name]
-      when :mongo
-        self.conn.db(@db_name).collection(col_name)
-      end
+    case @kind
+    when :moped_1, :moped
+      self.conn[col_name]
+    when :mongo
+      self.conn.db(@db_name).collection(col_name)
     end
   end
 
@@ -240,17 +236,28 @@ class Activr::Storage::MongoDriver
   #
   # @return [Mongo::Collection, Moped::Collection] Collection handler
   def activity_collection
-    self.collection(self.config[:collection])
+    @activity_collection ||= begin
+      col_name = "activities"
+      col_name = "#{self.config[:col_prefix]}_#{col_name}" unless self.config[:col_prefix].blank?
+
+      self.collection(col_name)
+    end
   end
 
-  # Get handler for a `*_timelines` collection
+  # Get handler for a `<kind>_timelines` collection
   #
   # @api private
   #
   # @param kind [String] Timeline kind
   # @return [Mongo::Collection, Moped::Collection] Collection handler
   def timeline_collection(kind)
-    self.collection("#{kind}_timelines")
+    @timeline_collection ||= { }
+    @timeline_collection[kind] ||= begin
+      col_name = "#{kind}_timelines"
+      col_name = "#{self.config[:col_prefix]}_#{col_name}" unless self.config[:col_prefix].blank?
+
+      self.collection(col_name)
+    end
   end
 
 

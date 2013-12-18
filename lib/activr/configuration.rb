@@ -17,7 +17,7 @@ module Activr
 
       config.mongodb = {
         :uri        => 'mongodb://127.0.0.1/activr',
-        :collection => 'activities',
+        :col_prefix => nil,
       }
 
       config.async = { }
@@ -26,9 +26,9 @@ module Activr
       config.compile_methods!
 
       # fetch config from fwissr
-      config.app_path = Fwissr['/activr/app_path'] unless Fwissr['/activr/app_path'].blank?
+      config.app_path = Fwissr['/activr/app_path']                    unless Fwissr['/activr/app_path'].blank?
       config.mongodb.merge!(Fwissr['/activr/mongodb'].symbolize_keys) unless Fwissr['/activr/mongodb'].blank?
-      config.async.merge!(Fwissr['/activr/async'].symbolize_keys) unless Fwissr['/activr/async'].blank?
+      config.async.merge!(Fwissr['/activr/async'].symbolize_keys)     unless Fwissr['/activr/async'].blank?
     end
 
   end # module Configuration
