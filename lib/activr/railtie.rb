@@ -6,10 +6,17 @@ module Activr
       Activr.configure do |config|
         config.app_path = File.join(::Rails.root, 'app')
 
-        if Mongoid.sessions[:default] && !Mongoid.sessions[:default][:uri].blank?
-          config.mongodb[:uri] = Mongoid.sessions[:default][:uri].dup
-        elsif Mongoid.sessions[:default] && !Mongoid.sessions[:default][:database].blank? && !Mongoid.sessions[:default][:hosts].blank?
-          config.mongodb[:uri] = "mongodb://#{Mongoid.sessions[:default][:hosts].first}/#{Mongoid.sessions[:default][:database]}"
+        if Fwissr['/activr/mongodb/uri'].blank? && defined?(Mongoid)
+          if Mongoid::VERSION.start_with?("2.")
+            # Mongoid 2
+            config.mongodb[:uri] = "mongodb://#{Mongoid.master.connection.host}:#{Mongoid.master.connection.port}/#{Mongoid.master.name}"
+          elsif Mongoid.sessions[:default] && !Mongoid.sessions[:default][:uri].blank?
+            # Mongoid >= 3 with :uri setting
+            config.mongodb[:uri] = Mongoid.sessions[:default][:uri].dup
+          elsif Mongoid.sessions[:default] && !Mongoid.sessions[:default][:database].blank? && !Mongoid.sessions[:default][:hosts].blank?
+            # Mongoid >= 3 without :uri setting
+            config.mongodb[:uri] = "mongodb://#{Mongoid.sessions[:default][:hosts].first}/#{Mongoid.sessions[:default][:database]}"
+          end
         end
       end
     end
