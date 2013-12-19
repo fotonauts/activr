@@ -10,7 +10,7 @@ describe Activr::Timeline::Route do
 
   it "instanciates" do
     settings = { :to => :buddy }
-    route = Activr::Timeline::Route.new(UserNewsFeed, FollowBuddyActivity, settings)
+    route = Activr::Timeline::Route.new(UserNewsFeedTimeline, FollowBuddyActivity, settings)
 
     route.activity_class.should == FollowBuddyActivity
     route.settings.should == settings
@@ -18,26 +18,26 @@ describe Activr::Timeline::Route do
 
   it "handle 'direct entity' routing kind" do
     settings = { :to => :buddy }
-    route = Activr::Timeline::Route.new(UserNewsFeed, FollowBuddyActivity, settings)
+    route = Activr::Timeline::Route.new(UserNewsFeedTimeline, FollowBuddyActivity, settings)
     route.routing_kind.should == 'buddy'
   end
 
   it "handle 'predefined' routing kind" do
     settings = { :using => :actor_follower }
-    route = Activr::Timeline::Route.new(UserNewsFeed, AddPicture, settings)
+    route = Activr::Timeline::Route.new(UserNewsFeedTimeline, AddPictureActivity, settings)
     route.routing_kind.should == 'actor_follower'
   end
 
   it "uses provided :kind setting" do
     settings = { :to => :buddy, :kind => 'my_routing' }
-    route = Activr::Timeline::Route.new(UserNewsFeed, FollowBuddyActivity, settings)
+    route = Activr::Timeline::Route.new(UserNewsFeedTimeline, FollowBuddyActivity, settings)
     route.routing_kind.should == 'my_routing'
     route.kind.should == 'my_routing_follow_buddy'
   end
 
   it "have a default kind" do
     settings = { :to => :buddy }
-    route = Activr::Timeline::Route.new(UserNewsFeed, FollowBuddyActivity, settings)
+    route = Activr::Timeline::Route.new(UserNewsFeedTimeline, FollowBuddyActivity, settings)
     route.kind.should == 'buddy_follow_buddy'
   end
 
@@ -47,35 +47,35 @@ describe Activr::Timeline::Route do
 
     # test
     activity.should_receive(:buddy).and_call_original
-    receivers = UserNewsFeed.route_for_kind('buddy_follow_buddy').resolve(activity)
+    receivers = UserNewsFeedTimeline.route_for_kind('buddy_follow_buddy').resolve(activity)
 
     # check
     receivers.should == [ buddy ]
   end
 
-  # route AddPicture, :to => 'album.owner'
+  # route AddPictureActivity, :to => 'album.owner'
   it "resolves routing to activity path" do
     # @todo save in model
     album.owner = buddy
 
-    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
+    activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
 
     # test
-    receivers = UserNewsFeed.route_for_kind('album_owner_add_picture').resolve(activity)
+    receivers = UserNewsFeedTimeline.route_for_kind('album_owner_add_picture').resolve(activity)
 
     # check
     receivers.should == [ buddy ]
   end
 
-  # route AddPicture, :using => :actor_follower
+  # route AddPictureActivity, :using => :actor_follower
   it "resolves predefined routing" do
     # @todo save in model
     user.followers = [ buddy, marcel ]
 
-    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
+    activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
 
     # test
-    receivers = UserNewsFeed.route_for_kind('actor_follower_add_picture').resolve(activity)
+    receivers = UserNewsFeedTimeline.route_for_kind('actor_follower_add_picture').resolve(activity)
 
     # check
     receivers.size.should == 2
@@ -83,15 +83,15 @@ describe Activr::Timeline::Route do
     receivers.should include(marcel)
   end
 
-  # route AddPicture, :using => :album_follower
+  # route AddPictureActivity, :using => :album_follower
   it "resolves routing with timeline method" do
     # @todo save in model
     album.followers = [ marcel ]
 
-    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
+    activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
 
     # test
-    receivers = UserNewsFeed.route_for_kind('album_follower_add_picture').resolve(activity)
+    receivers = UserNewsFeedTimeline.route_for_kind('album_follower_add_picture').resolve(activity)
 
     # check
     receivers.should == [ marcel ]

@@ -8,7 +8,7 @@ describe Activr::Timeline::Entry do
   let(:album)   { Album.create(:name => "Selfies") }
   let(:owner)   { User.create(:_id => 'corinne', :first_name => "Corinne", :last_name => "CHTITEGOUTE") }
 
-  let(:timeline)      { UserNewsFeed.new(buddy) }
+  let(:timeline)      { UserNewsFeedTimeline.new(buddy) }
   let(:routing_kind)  { 'buddy' }
   let(:activity)      { FollowBuddyActivity.new(:actor => user, :buddy => buddy) }
   let(:meta)          { { 'foo' => 'bar' } }
@@ -71,7 +71,7 @@ describe Activr::Timeline::Entry do
     # @todo FIXME
     picture.owner = owner
 
-    activity = FeaturePicture.new(:actor => user, :picture => picture)
+    activity = FeaturePictureActivity.new(:actor => user, :picture => picture)
     tl_entry = Activr::Timeline::Entry.new(timeline, 'picture_owner', activity)
 
     tl_entry.humanize.should == "Your picture Me myself and I has been featured"
@@ -81,8 +81,8 @@ describe Activr::Timeline::Entry do
     # @todo FIXME
     picture.owner = owner
 
-    activity = LikePicture.new(:actor => user, :picture => picture)
-    tl_entry = UserNewsFeed::PictureOwnerLikePicture.new(timeline, 'picture_owner', activity)
+    activity = LikePictureActivity.new(:actor => user, :picture => picture)
+    tl_entry = UserNewsFeedTimeline::PictureOwnerLikePicture.new(timeline, 'picture_owner', activity)
 
     tl_entry.humanize.should == "Jean PALE liked your picture Me myself and I"
   end
@@ -91,7 +91,7 @@ describe Activr::Timeline::Entry do
     # @todo FIXME
     user.followers = [ buddy ]
 
-    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
+    activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
     tl_entry = Activr::Timeline::Entry.new(timeline, 'actor_follower', activity)
 
     tl_entry.humanize.should == "Jean PALE added picture Me myself and I to the album Selfies"

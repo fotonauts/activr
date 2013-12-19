@@ -29,10 +29,10 @@ describe Activr::Dispatcher do
     activity.store!
 
     # test
-    recipients = dispatcher.recipients_for_timeline(UserNewsFeed, activity)
+    recipients = dispatcher.recipients_for_timeline(UserNewsFeedTimeline, activity)
 
     # check
-    recipients[buddy].should == UserNewsFeed.route_for_kind('buddy_follow_buddy')
+    recipients[buddy].should == UserNewsFeedTimeline.route_for_kind('buddy_follow_buddy')
   end
 
   it "routes to activity path" do
@@ -41,14 +41,14 @@ describe Activr::Dispatcher do
     # @todo FIXME
     album.owner = owner
 
-    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
+    activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
     activity.store!
 
     # test
-    recipients = dispatcher.recipients_for_timeline(UserNewsFeed, activity)
+    recipients = dispatcher.recipients_for_timeline(UserNewsFeedTimeline, activity)
 
     # check
-    recipients[owner].should == UserNewsFeed.route_for_kind('album_owner_add_picture')
+    recipients[owner].should == UserNewsFeedTimeline.route_for_kind('album_owner_add_picture')
   end
 
   it "routes with a custom routing kind" do
@@ -57,14 +57,14 @@ describe Activr::Dispatcher do
     # @todo FIXME
     album.owner = owner
 
-    activity = FollowAlbum.new(:actor => user, :album => album)
+    activity = FollowAlbumActivity.new(:actor => user, :album => album)
     activity.store!
 
     # test
-    recipients = dispatcher.recipients_for_timeline(UserNewsFeed, activity)
+    recipients = dispatcher.recipients_for_timeline(UserNewsFeedTimeline, activity)
 
     # check
-    recipients[owner].should == UserNewsFeed.route_for_kind('my_custom_routing_follow_album')
+    recipients[owner].should == UserNewsFeedTimeline.route_for_kind('my_custom_routing_follow_album')
   end
 
   it "routes with predefined routing" do
@@ -73,14 +73,14 @@ describe Activr::Dispatcher do
     # @todo FIXME
     user.followers = [ buddy ]
 
-    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
+    activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
     activity.store!
 
     # test
-    recipients = dispatcher.recipients_for_timeline(UserNewsFeed, activity)
+    recipients = dispatcher.recipients_for_timeline(UserNewsFeedTimeline, activity)
 
     # check
-    recipients[buddy].should == UserNewsFeed.route_for_kind('actor_follower_add_picture')
+    recipients[buddy].should == UserNewsFeedTimeline.route_for_kind('actor_follower_add_picture')
   end
 
   it "routes with timeline class method" do
@@ -89,14 +89,14 @@ describe Activr::Dispatcher do
     # @todo FIXME
     album.followers = [ follower ]
 
-    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
+    activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
     activity.store!
 
     # test
-    recipients = dispatcher.recipients_for_timeline(UserNewsFeed, activity)
+    recipients = dispatcher.recipients_for_timeline(UserNewsFeedTimeline, activity)
 
     # check
-    recipients[follower].should == UserNewsFeed.route_for_kind('album_follower_add_picture')
+    recipients[follower].should == UserNewsFeedTimeline.route_for_kind('album_follower_add_picture')
   end
 
 end

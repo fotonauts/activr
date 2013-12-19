@@ -1,4 +1,4 @@
-class AddPicture < Activr::Activity
+class AddPictureActivity < Activr::Activity
 
   entity :actor, :class => User, :humanize => :fullname
   entity :picture, :humanize => :title

@@ -7,61 +7,61 @@ describe Activr::Timeline do
 
 
   it "have routings" do
-    UserNewsFeed.routings.count.should == 2
+    UserNewsFeedTimeline.routings.count.should == 2
 
-    UserNewsFeed.routings['actor_follower'].should_not be_nil
-    UserNewsFeed.routings['actor_follower'][:to].should be_a(Proc)
+    UserNewsFeedTimeline.routings['actor_follower'].should_not be_nil
+    UserNewsFeedTimeline.routings['actor_follower'][:to].should be_a(Proc)
 
-    UserNewsFeed.routings['picture_follower'].should_not be_nil
-    UserNewsFeed.routings['picture_follower'][:to].should be_a(Proc)
+    UserNewsFeedTimeline.routings['picture_follower'].should_not be_nil
+    UserNewsFeedTimeline.routings['picture_follower'][:to].should be_a(Proc)
   end
 
   it "have routes" do
-    UserNewsFeed.routes.count.should_not be_blank
+    UserNewsFeedTimeline.routes.count.should_not be_blank
   end
 
   it "checks for route presence" do
-    UserNewsFeed.have_route?(Activr::Timeline::Route.new(UserNewsFeed, FollowBuddyActivity, { :to => :buddy })).should be_true
-    UserNewsFeed.have_route?(Activr::Timeline::Route.new(UserNewsFeed, FollowBuddyActivity, { :to => :foobarbaz })).should be_false
+    UserNewsFeedTimeline.have_route?(Activr::Timeline::Route.new(UserNewsFeedTimeline, FollowBuddyActivity, { :to => :buddy })).should be_true
+    UserNewsFeedTimeline.have_route?(Activr::Timeline::Route.new(UserNewsFeedTimeline, FollowBuddyActivity, { :to => :foobarbaz })).should be_false
   end
 
   it "defines route to activity path" do
-    route = UserNewsFeed.route_for_kind('album_owner_add_picture')
+    route = UserNewsFeedTimeline.route_for_kind('album_owner_add_picture')
     route.should_not be_nil
     route.kind.should == 'album_owner_add_picture'
 
     route.routing_kind.should == 'album_owner'
-    route.activity_class.should == AddPicture
+    route.activity_class.should == AddPictureActivity
     route.settings.should == { :to => 'album.owner', :humanize => "{{{actor}}} added a picture to your album {{{album}}}" }
   end
 
   it "defines route with custom route kind" do
-    route = UserNewsFeed.route_for_kind('my_custom_routing_follow_album')
+    route = UserNewsFeedTimeline.route_for_kind('my_custom_routing_follow_album')
     route.should_not be_nil
     route.kind.should == 'my_custom_routing_follow_album'
 
     route.routing_kind.should == 'my_custom_routing'
-    route.activity_class.should == FollowAlbum
+    route.activity_class.should == FollowAlbumActivity
     route.settings.should == { :to => 'album.owner', :kind => :my_custom_routing }
   end
 
   it "defines route to predefined routing" do
-    route = UserNewsFeed.route_for_kind('actor_follower_add_picture')
+    route = UserNewsFeedTimeline.route_for_kind('actor_follower_add_picture')
     route.should_not be_nil
     route.kind.should == 'actor_follower_add_picture'
 
     route.routing_kind.should == 'actor_follower'
-    route.activity_class.should == AddPicture
+    route.activity_class.should == AddPictureActivity
     route.settings.should == { :using => :actor_follower }
   end
 
   it "defines route to method routing" do
-    route = UserNewsFeed.route_for_kind('album_follower_add_picture')
+    route = UserNewsFeedTimeline.route_for_kind('album_follower_add_picture')
     route.should_not be_nil
     route.kind.should == 'album_follower_add_picture'
 
     route.routing_kind.should == 'album_follower'
-    route.activity_class.should == AddPicture
+    route.activity_class.should == AddPictureActivity
     route.settings.should == { :using => :album_follower }
   end
 
@@ -69,8 +69,8 @@ describe Activr::Timeline do
     activity = FollowBuddyActivity.new(:actor => user, :buddy => buddy)
 
     # test
-    timeline = UserNewsFeed.new(buddy)
-    tl_entry = timeline.handle_activity(activity, UserNewsFeed.route_for_kind('buddy_follow_buddy'))
+    timeline = UserNewsFeedTimeline.new(buddy)
+    tl_entry = timeline.handle_activity(activity, UserNewsFeedTimeline.route_for_kind('buddy_follow_buddy'))
 
     # check
     tl_entry.should_not be_blank
@@ -87,8 +87,8 @@ describe Activr::Timeline do
     activity = FollowBuddyActivity.new(:actor => user, :buddy => buddy, :bar => 'baz')
 
     # test
-    timeline = UserNewsFeed.new(buddy)
-    tl_entry = timeline.handle_activity(activity, UserNewsFeed.route_for_kind('buddy_follow_buddy'))
+    timeline = UserNewsFeedTimeline.new(buddy)
+    tl_entry = timeline.handle_activity(activity, UserNewsFeedTimeline.route_for_kind('buddy_follow_buddy'))
 
     # check
     tl_entry.should be_nil
@@ -99,8 +99,8 @@ describe Activr::Timeline do
     activity = FollowBuddyActivity.new(:actor => user, :buddy => buddy, :foo => 'bar')
 
     # test
-    timeline = UserNewsFeed.new(buddy)
-    tl_entry = timeline.handle_activity(activity, UserNewsFeed.route_for_kind('buddy_follow_buddy'))
+    timeline = UserNewsFeedTimeline.new(buddy)
+    tl_entry = timeline.handle_activity(activity, UserNewsFeedTimeline.route_for_kind('buddy_follow_buddy'))
 
     # check
     tl_entry.should_not be_blank

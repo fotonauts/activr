@@ -1,4 +1,4 @@
-class FeaturePicture < Activr::Activity
+class FeaturePictureActivity < Activr::Activity
 
   entity :actor,   :class => User
   entity :picture, :class => Picture

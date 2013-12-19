@@ -1,4 +1,4 @@
-class LikePicture < Activr::Activity
+class LikePictureActivity < Activr::Activity
 
   entity :actor,   :class => User,    :humanize => :fullname
   entity :picture, :class => Picture, :humanize => :title, :default => '[picture]' # @todo Test :default handling !

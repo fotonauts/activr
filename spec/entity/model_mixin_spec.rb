@@ -12,9 +12,9 @@ describe Activr::Entity::ModelMixin do
   let(:follower2) { User.create(:_id => 'edmond', :first_name => "Edmond", :last_name => "KUSSAIDUPOULAI") }
 
   it "fetchs entity activity feed" do
-    activity_1 = AddPicture.new(:actor => user, :picture => picture, :album => album)
+    activity_1 = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
     activity_1.store!
-    
+
     Delorean.jump(30)
 
     activity_2 = FollowBuddyActivity.new(:actor => user, :buddy => buddy)
@@ -22,7 +22,7 @@ describe Activr::Entity::ModelMixin do
 
     Delorean.jump(30)
 
-    activity_3 = LikePicture.new(:actor => user, :picture => picture)
+    activity_3 = LikePictureActivity.new(:actor => user, :picture => picture)
     activity_3.store!
 
     # user
@@ -48,9 +48,9 @@ describe Activr::Entity::ModelMixin do
   end
 
   it "counts entity activities" do
-    AddPicture.new(:actor => user, :picture => picture, :album => album).store!
+    AddPictureActivity.new(:actor => user, :picture => picture, :album => album).store!
     FollowBuddyActivity.new(:actor => user, :buddy => buddy).store!
-    LikePicture.new(:actor => user, :picture => picture).store!
+    LikePictureActivity.new(:actor => user, :picture => picture).store!
 
     user.activities_count.should == 3
     album.activities_count.should == 1
@@ -58,9 +58,9 @@ describe Activr::Entity::ModelMixin do
   end
 
   it "deletes activities when entity model is deleted" do
-    activity_1 = AddPicture.new(:actor => user, :picture => picture, :album => album)
+    activity_1 = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
     activity_1.store!
-    
+
     Delorean.jump(30)
 
     activity_2 = FollowBuddyActivity.new(:actor => user, :buddy => buddy)
@@ -68,7 +68,7 @@ describe Activr::Entity::ModelMixin do
 
     Delorean.jump(30)
 
-    activity_3 = LikePicture.new(:actor => user, :picture => picture)
+    activity_3 = LikePictureActivity.new(:actor => user, :picture => picture)
     activity_3.store!
 
     # test
@@ -90,15 +90,15 @@ describe Activr::Entity::ModelMixin do
     # @todo FIXME
     user.followers = [ follower, follower2 ]
 
-    Activr.dispatch!(AddPicture.new(:actor => user, :picture => picture, :album => album))
+    Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album))
     Delorean.jump(30)
-    Activr.dispatch!(AddPicture.new(:actor => user, :picture => picture2, :album => album))
+    Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture2, :album => album))
     Delorean.jump(30)
-    Activr.dispatch!(AddPicture.new(:actor => user, :picture => picture3, :album => album))
+    Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture3, :album => album))
 
     [ follower, follower2 ].each do |rcpt|
-      Activr.timeline(UserNewsFeed, rcpt).count.should == 3
-      Activr.timeline(UserNewsFeed, rcpt).dump.should == [
+      Activr.timeline(UserNewsFeedTimeline, rcpt).count.should == 3
+      Activr.timeline(UserNewsFeedTimeline, rcpt).dump.should == [
         "Jean PALE added picture Hihihihi to the album Selfies",
         "Jean PALE added picture Prout le mamouth to the album Selfies",
         "Jean PALE added picture Me myself and I to the album Selfies",
@@ -110,8 +110,8 @@ describe Activr::Entity::ModelMixin do
 
     # check
     [ follower, follower2 ].each do |rcpt|
-      Activr.timeline(UserNewsFeed, rcpt).count.should == 2
-      Activr.timeline(UserNewsFeed, rcpt).dump.should == [
+      Activr.timeline(UserNewsFeedTimeline, rcpt).count.should == 2
+      Activr.timeline(UserNewsFeedTimeline, rcpt).dump.should == [
         "Jean PALE added picture Hihihihi to the album Selfies",
         "Jean PALE added picture Me myself and I to the album Selfies",
       ]
@@ -122,7 +122,7 @@ describe Activr::Entity::ModelMixin do
 
     # check
     [ follower, follower2 ].each do |rcpt|
-      Activr.timeline(UserNewsFeed, rcpt).count.should == 0
+      Activr.timeline(UserNewsFeedTimeline, rcpt).count.should == 0
     end
   end
 

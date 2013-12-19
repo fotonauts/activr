@@ -4,39 +4,39 @@ describe Activr::Registry do
 
   it "registers timelines" do
     Activr.registry.timelines.should == {
-      "user_news_feed" => UserNewsFeed,
+      "user_news_feed" => UserNewsFeedTimeline,
     }
   end
 
   it "registers timeline entries" do
     Activr.registry.timeline_entries.should == {
       "user_news_feed" => {
-        "my_custom_routing_follow_album" => UserNewsFeed::MyCustomRoutingFollowAlbum,
-        "picture_owner_like_picture"     => UserNewsFeed::PictureOwnerLikePicture,
+        "my_custom_routing_follow_album" => UserNewsFeedTimeline::MyCustomRoutingFollowAlbum,
+        "picture_owner_like_picture"     => UserNewsFeedTimeline::PictureOwnerLikePicture,
       },
     }
   end
 
   it "registers activities" do
     Activr.registry.activities.should == {
-      "add_picture"     => AddPicture,
-      "feature_picture" => FeaturePicture,
-      "follow_album"    => FollowAlbum,
+      "add_picture"     => AddPictureActivity,
+      "feature_picture" => FeaturePictureActivity,
+      "follow_album"    => FollowAlbumActivity,
       "follow_buddy"    => FollowBuddyActivity,
-      "like_picture"    => LikePicture,
+      "like_picture"    => LikePictureActivity,
     }
   end
 
   it "registers entities" do
-    [ AddPicture, FollowBuddyActivity, LikePicture, FeaturePicture, FollowAlbum ].each do |klass|
+    [ AddPictureActivity, FollowBuddyActivity, LikePictureActivity, FeaturePictureActivity, FollowAlbumActivity ].each do |klass|
       Activr.registry.entities[:actor].should include(klass)
     end
 
-    [ AddPicture, LikePicture, FeaturePicture ].each do |klass|
+    [ AddPictureActivity, LikePictureActivity, FeaturePictureActivity ].each do |klass|
       Activr.registry.entities[:picture].should include(klass)
     end
 
-    [ AddPicture, FollowAlbum ].each do |klass|
+    [ AddPictureActivity, FollowAlbumActivity ].each do |klass|
       Activr.registry.entities[:album].should include(klass)
     end
 
@@ -52,11 +52,11 @@ describe Activr::Registry do
     }
 
     Activr.registry.activity_entities.should == {
-      AddPicture          => [ :actor, :picture, :album ],
-      FeaturePicture      => [ :actor, :picture ],
-      FollowAlbum         => [ :actor, :album ],
-      FollowBuddyActivity => [ :actor, :buddy ],
-      LikePicture         => [ :actor, :picture ],
+      AddPictureActivity     => [ :actor, :picture, :album ],
+      FeaturePictureActivity => [ :actor, :picture ],
+      FollowAlbumActivity    => [ :actor, :album ],
+      FollowBuddyActivity    => [ :actor, :buddy ],
+      LikePictureActivity    => [ :actor, :picture ],
     }
   end
 
@@ -74,15 +74,15 @@ describe Activr::Registry do
 
   it "computes timeline entities for a model class" do
     Activr.registry.timeline_entities_for_model(User).should == {
-      UserNewsFeed => [ :actor, :buddy ],
+      UserNewsFeedTimeline => [ :actor, :buddy ],
     }
 
     Activr.registry.timeline_entities_for_model(Album).should == {
-      UserNewsFeed => [ :album ],
+      UserNewsFeedTimeline => [ :album ],
     }
 
     Activr.registry.timeline_entities_for_model(Picture).should == {
-      UserNewsFeed => [ :picture ],
+      UserNewsFeedTimeline => [ :picture ],
     }
   end
 

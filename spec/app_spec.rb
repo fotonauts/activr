@@ -14,23 +14,23 @@ describe "Application" do
     Activr.dispatch!(FollowBuddyActivity.new(:actor => user, :buddy => buddy))
 
     # check
-    Activr.timeline(UserNewsFeed, buddy).dump.should == [
+    Activr.timeline(UserNewsFeedTimeline, buddy).dump.should == [
       "Jean PALE is now following Justine CHTITEGOUTE"
     ]
   end
 
-  it "humanizes AddPicture activity" do
-    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
+  it "humanizes AddPictureActivity activity" do
+    activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
     activity.humanize.should == "Jean PALE added picture Me myself and I to the album Selfies"
   end
 
-  it "humanizes FeaturePicture activity" do
-    activity = FeaturePicture.new(:actor => user, :picture => picture)
+  it "humanizes FeaturePictureActivity activity" do
+    activity = FeaturePictureActivity.new(:actor => user, :picture => picture)
     activity.humanize.should == "Picture Me myself and I has been featured by Jean PALE"
   end
 
-  it "humanizes FollowAlbum activity" do
-    activity = FollowAlbum.new(:actor => user, :album => album)
+  it "humanizes FollowAlbumActivity activity" do
+    activity = FollowAlbumActivity.new(:actor => user, :album => album)
     activity.humanize.should == "Jean PALE is now following the album Selfies"
   end
 
@@ -39,96 +39,96 @@ describe "Application" do
     activity.humanize.should == "Jean PALE is now following Justine CHTITEGOUTE"
   end
 
-  it "humanizes LikePicture activity" do
-    activity = LikePicture.new(:actor => user, :picture => picture)
+  it "humanizes LikePictureActivity activity" do
+    activity = LikePictureActivity.new(:actor => user, :picture => picture)
     activity.humanize.should == "Jean PALE liked the picture Me myself and I"
   end
 
-  it "routes AddPicture to actor followers" do
+  it "routes AddPictureActivity to actor followers" do
     # @todo FIXME
     user.followers = [ follower, follower2 ]
 
-    Activr.dispatch!(AddPicture.new(:actor => user, :picture => picture, :album => album))
+    Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album))
 
-    Activr.timeline(UserNewsFeed, follower).dump.should == [
+    Activr.timeline(UserNewsFeedTimeline, follower).dump.should == [
       "Jean PALE added picture Me myself and I to the album Selfies"
     ]
 
-    Activr.timeline(UserNewsFeed, follower2).dump.should == [
+    Activr.timeline(UserNewsFeedTimeline, follower2).dump.should == [
       "Jean PALE added picture Me myself and I to the album Selfies"
     ]
   end
 
-  it "routes LikePicture to picture owner" do
+  it "routes LikePictureActivity to picture owner" do
     # @todo FIXME
     picture.owner = owner
 
-    Activr.dispatch!(LikePicture.new(:actor => user, :picture => picture))
+    Activr.dispatch!(LikePictureActivity.new(:actor => user, :picture => picture))
 
-    Activr.timeline(UserNewsFeed, owner).dump.should == [
+    Activr.timeline(UserNewsFeedTimeline, owner).dump.should == [
       "Jean PALE liked your picture Me myself and I"
     ]
   end
 
-  it "routes FeaturePicture to picture owner" do
+  it "routes FeaturePictureActivity to picture owner" do
     # @todo FIXME
     picture.owner = owner
 
-    Activr.dispatch!(FeaturePicture.new(:actor => user, :picture => picture))
+    Activr.dispatch!(FeaturePictureActivity.new(:actor => user, :picture => picture))
 
-    Activr.timeline(UserNewsFeed, owner).dump.should == [
+    Activr.timeline(UserNewsFeedTimeline, owner).dump.should == [
       "Your picture Me myself and I has been featured"
     ]
   end
 
-  it "routes FollowAlbum to album owner" do
+  it "routes FollowAlbumActivity to album owner" do
     # @todo FIXME
     album.owner = owner
 
-    Activr.dispatch!(FollowAlbum.new(:actor => user, :album => album))
+    Activr.dispatch!(FollowAlbumActivity.new(:actor => user, :album => album))
 
-    Activr.timeline(UserNewsFeed, owner).dump.should == [
+    Activr.timeline(UserNewsFeedTimeline, owner).dump.should == [
       "Jean PALE is now following your album Selfies"
     ]
   end
 
-  it "routes AddPicture to album owner" do
+  it "routes AddPictureActivity to album owner" do
     # @todo FIXME
     album.owner = owner
 
-    Activr.dispatch!(AddPicture.new(:actor => user, :picture => picture, :album => album))
+    Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album))
 
-    Activr.timeline(UserNewsFeed, owner).dump.should == [
+    Activr.timeline(UserNewsFeedTimeline, owner).dump.should == [
       "Jean PALE added a picture to your album Selfies"
     ]
   end
 
-  it "routes AddPicture to picture followers" do
+  it "routes AddPictureActivity to picture followers" do
     # @todo FIXME
     picture.followers = [ follower, follower2 ]
 
-    Activr.dispatch!(AddPicture.new(:actor => user, :picture => picture, :album => album))
+    Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album))
 
-    Activr.timeline(UserNewsFeed, follower).dump.should == [
+    Activr.timeline(UserNewsFeedTimeline, follower).dump.should == [
       "Jean PALE added picture Me myself and I to the album Selfies"
     ]
 
-    Activr.timeline(UserNewsFeed, follower2).dump.should == [
+    Activr.timeline(UserNewsFeedTimeline, follower2).dump.should == [
       "Jean PALE added picture Me myself and I to the album Selfies"
     ]
   end
 
-  it "routes AddPicture to albums followers" do
+  it "routes AddPictureActivity to albums followers" do
     # @todo FIXME
     album.followers = [ follower, follower2 ]
 
-    Activr.dispatch!(AddPicture.new(:actor => user, :picture => picture, :album => album))
+    Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album))
 
-    Activr.timeline(UserNewsFeed, follower).dump.should == [
+    Activr.timeline(UserNewsFeedTimeline, follower).dump.should == [
       "Jean PALE added picture Me myself and I to the album Selfies"
     ]
 
-    Activr.timeline(UserNewsFeed, follower2).dump.should == [
+    Activr.timeline(UserNewsFeedTimeline, follower2).dump.should == [
       "Jean PALE added picture Me myself and I to the album Selfies"
     ]
   end

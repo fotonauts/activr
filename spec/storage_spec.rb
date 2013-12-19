@@ -22,7 +22,7 @@ describe Activr::Storage do
     end
 
     # test
-    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
+    activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
     activity.store!
     activity_hash = Activr.storage.driver.find_one(Activr.storage.driver.activity_collection, activity._id)
     activity_hash.should_not be_nil
@@ -47,7 +47,7 @@ describe Activr::Storage do
     end
 
     # test
-    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
+    activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
     activity.store!
 
     # check
@@ -72,8 +72,8 @@ describe Activr::Storage do
     end
 
     # test
-    timeline = UserNewsFeed.new(owner)
-    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
+    timeline = UserNewsFeedTimeline.new(owner)
+    activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
     timeline_entry = Activr::Timeline::Entry.new(timeline, 'album_owner_add_picture', activity)
     timeline_entry.store!
 
@@ -97,8 +97,8 @@ describe Activr::Storage do
     end
 
     # test
-    timeline = UserNewsFeed.new(owner)
-    activity = AddPicture.new(:actor => user, :picture => picture, :album => album)
+    timeline = UserNewsFeedTimeline.new(owner)
+    activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
     timeline_entry = Activr::Timeline::Entry.new(timeline, 'album_owner_add_picture', activity)
     timeline_entry.store!
 
