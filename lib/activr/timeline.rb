@@ -153,7 +153,7 @@ module Activr
       #
       # @example Several instance methods are injected in given `klass`, for example with timeline:
       #
-      #   class UserNewsFeed < Activr::Timeline
+      #   class UserNewsFeedTimeline < Activr::Timeline
       #     recipient User
       #
       #     # ...
