@@ -203,14 +203,13 @@ describe Activr::Activity do
   context "when class have NO suffix" do
 
     it "have a kind computed from class" do
-      pending("FIX that test")
-      AddPictureActivity.kind.should == 'add_picture'
+      TestNoSuffix.kind.should == 'test_no_suffix'
     end
 
     it "exports to a hash" do
-      activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album, :foo => 'bar')
+      activity = TestNoSuffix.new(:actor => user, :picture => picture, :album => album, :foo => 'bar')
       activity.to_hash.should == {
-        'kind'    => 'add_picture',
+        'kind'    => 'test_no_suffix',
         'at'      => activity.at,
         'actor'   => user._id,
         'picture' => picture._id,
@@ -223,7 +222,7 @@ describe Activr::Activity do
       now = Time.now.utc
 
       activity = Activr::Activity.from_hash({
-        'kind'    => 'add_picture',
+        'kind'    => 'test_no_suffix',
         'at'      => now,
         'actor'   => user._id,
         'picture' => picture._id,
@@ -231,7 +230,7 @@ describe Activr::Activity do
         'foo'     => 'bar',
       })
 
-      activity.class.should == AddPictureActivity
+      activity.class.should == TestNoSuffix
       activity.at.should == now
 
       activity.actor.should == user
@@ -270,6 +269,37 @@ describe Activr::Activity do
       })
 
       activity.class.should == FollowBuddyActivity
+    end
+
+  end
+
+  context "when class have a custom kind" do
+
+    it "have a kind computed from class" do
+      TestCustomKindActivity.kind.should == 'my_custom_kind'
+    end
+
+    it "exports to a hash" do
+      activity = TestCustomKindActivity.new(:actor => user, :buddy => buddy)
+      activity.to_hash.should == {
+        'kind'  => 'my_custom_kind',
+        'at'    => activity.at,
+        'actor' => user._id,
+        'buddy' => buddy._id,
+      }
+    end
+
+    it "instanciates from a hash" do
+      now = Time.now.utc
+
+      activity = Activr::Activity.from_hash({
+        'kind'  => 'my_custom_kind',
+        'at'    => now,
+        'actor' => user._id,
+        'buddy' => buddy._id,
+      })
+
+      activity.class.should == TestCustomKindActivity
     end
 
   end

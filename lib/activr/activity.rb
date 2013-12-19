@@ -82,11 +82,11 @@ module Activr
       #   AddPictureActivity.kind
       #   => 'add_picture'
       #
-      # @note Kind is inferred from Class name
+      # @note Kind is inferred from class name, unless `#set_kind` method is used to force a custom value
       #
       # @return [String] Activity kind
       def kind
-        @kind ||= Activr::Utils.kind_for_class(self, 'activity')
+        @kind ||= @forced_kind || Activr::Utils.kind_for_class(self, 'activity')
       end
 
       # Instanciate an activity from a hash
@@ -223,6 +223,15 @@ module Activr
         raise "Humanize already defined: #{self.humanize_tpl}" unless self.humanize_tpl.blank?
 
         self.humanize_tpl = tpl
+      end
+
+      # Set activity kind
+      #
+      # @note Default kind is inferred from class name
+      #
+      # @param forced_kind [String] Activity kind
+      def set_kind(forced_kind)
+        @forced_kind = forced_kind.to_s
       end
 
     end # class << self

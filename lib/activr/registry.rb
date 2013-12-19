@@ -237,6 +237,11 @@ module Activr
     def classes_from_path(dir_path)
       Dir["#{dir_path}/*.rb"].sort.inject({ }) do |memo, file_path|
         klass = File.basename(file_path, '.rb').camelize.constantize
+
+        if !memo[klass.kind].nil?
+          raise "Kind #{klass.kind} already used by class #{memo[klass.kind]} so can't use it for class #{klass}"
+        end
+
         memo[klass.kind] = klass
 
         memo

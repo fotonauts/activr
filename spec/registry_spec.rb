@@ -19,11 +19,13 @@ describe Activr::Registry do
 
   it "registers activities" do
     Activr.registry.activities.should == {
-      "add_picture"     => AddPictureActivity,
-      "feature_picture" => FeaturePictureActivity,
-      "follow_album"    => FollowAlbumActivity,
-      "follow_buddy"    => FollowBuddyActivity,
-      "like_picture"    => LikePictureActivity,
+      "add_picture"       => AddPictureActivity,
+      "feature_picture"   => FeaturePictureActivity,
+      "follow_album"      => FollowAlbumActivity,
+      "follow_buddy"      => FollowBuddyActivity,
+      "like_picture"      => LikePictureActivity,
+      "my_custom_kind"    => TestCustomKindActivity,
+      "test_no_suffix"    => TestNoSuffix,
     }
   end
 
@@ -57,6 +59,8 @@ describe Activr::Registry do
       FollowAlbumActivity    => [ :actor, :album ],
       FollowBuddyActivity    => [ :actor, :buddy ],
       LikePictureActivity    => [ :actor, :picture ],
+      TestCustomKindActivity => [ :actor, :buddy ],
+      TestNoSuffix           => [ :actor, :picture, :album ],
     }
   end
 
