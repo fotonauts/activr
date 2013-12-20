@@ -15,6 +15,11 @@ module Activr
 
     # Init
     def initialize
+      self.reset
+    end
+
+    # Reset registry
+    def reset
       @timelines         = nil
       @timeline_entries  = nil
       @activities        = nil
@@ -30,6 +35,8 @@ module Activr
 
     # Setup registry
     def setup
+      self.reset
+
       # eagger load all classes
       self.activities
       self.timelines
@@ -236,6 +243,12 @@ module Activr
     # @return [Hash{String=>Class}] Hash of `<kind> => <Class>`
     def classes_from_path(dir_path)
       Dir["#{dir_path}/*.rb"].sort.inject({ }) do |memo, file_path|
+        if defined?(::Rails)
+          require_dependency(file_path)
+        else
+          require(file_path)
+        end
+
         klass = File.basename(file_path, '.rb').camelize.constantize
 
         if !memo[klass.kind].nil?

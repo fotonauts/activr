@@ -4,9 +4,16 @@ module Activr
   class Railtie < ::Rails::Railtie
     initializer "activr.set_conf", :after => 'mongoid.load-config' do |app|
       Activr.configure do |config|
-        config.app_path = File.join(::Rails.root, 'app')
+        # setup app path
+        activr_dir = File.join(::Rails.root, 'app', 'activr')
+        if !File.exists?(activr_dir)
+          activr_dir = File.join(::Rails.root, 'app')
+        end
+
+        config.app_path = activr_dir
 
         if Fwissr['/activr/mongodb/uri'].blank? && defined?(Mongoid)
+          # get mongoid conf
           if Mongoid::VERSION.start_with?("2.")
             # Mongoid 2
             config.mongodb[:uri] = "mongodb://#{Mongoid.master.connection.host}:#{Mongoid.master.connection.port}/#{Mongoid.master.name}"
@@ -46,9 +53,7 @@ module Activr
     end
 
     config.after_initialize do |app|
-      app.config.paths.add('app/activities', :eager_load => true)
-      app.config.paths.add('app/timelines',  :eager_load => true)
-
+      # setup registry
       Activr.setup
     end
   end # class Railtie
