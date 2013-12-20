@@ -71,12 +71,17 @@ module Activr
         # the model knows how to safely htmlize itself
         result = self.model.__send__(@options[:htmlize])
       else
-        if @options[:humanize]
-          case self.model.method(@options[:humanize]).arity
+        humanize_meth = @options[:humanize]
+        if humanize_meth.nil? && (self.model.respond_to?(:humanize))
+          humanize_meth = :humanize
+        end
+
+        if humanize_meth
+          case self.model.method(humanize_meth).arity
           when 1
-            result = self.model.__send__(@options[:humanize], options)
+            result = self.model.__send__(humanize_meth, options)
           else
-            result = self.model.__send__(@options[:humanize])
+            result = self.model.__send__(humanize_meth)
           end
         end
       end

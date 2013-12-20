@@ -20,4 +20,14 @@ class Album
   # callbacks
   after_destroy :delete_activities!
 
+
+  # used by Activr::Entity to humanize entity
+  def humanize(options)
+    if options[:html]
+      "<span class='album'>#{self.name}</span>"
+    else
+      self.name
+    end
+  end
+
 end

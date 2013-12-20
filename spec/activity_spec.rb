@@ -13,7 +13,7 @@ describe Activr::Activity do
     AddPictureActivity.allowed_entities.should == {
       :actor   => { :class => User, :humanize => :fullname },
       :picture => { :class => Picture, :humanize => :title },
-      :album   => { :class => Album, :humanize => :name },
+      :album   => { :class => Album },
     }
 
     FollowBuddyActivity.allowed_entities.should == {

@@ -2,7 +2,8 @@ require File.join(File.dirname(__FILE__), 'spec_helper')
 
 describe Activr::Entity do
 
-  let(:user) { User.create(:_id => 'jpale', :first_name => "Jean", :last_name => "PALE") }
+  let(:user)  { User.create(:_id => 'jpale', :first_name => "Jean", :last_name => "PALE") }
+  let(:album) { Album.create(:name => "Selfies") }
 
   it "instanciates with model instance" do
     entity = Activr::Entity.new(:actor, user)
@@ -64,6 +65,18 @@ describe Activr::Entity do
     entity = Activr::Entity.new(:actor, user, :class => User, :humanize => :fullname, :htmlize => :to_html)
 
     entity.humanize(:html => true).should == "<span class='user'>Jean PALE<span>"
+  end
+
+  it "humanizes thanks to 'humanize' method of model instance" do
+    entity = Activr::Entity.new(:album, album, :class => Album)
+
+    entity.humanize.should == "Selfies"
+  end
+
+  it "humanizes to :html thanks to 'humanize' method of model instance" do
+    entity = Activr::Entity.new(:album, album, :class => Album)
+
+    entity.humanize(:html => true).should == "<span class='album'>Selfies</span>"
   end
 
 end
