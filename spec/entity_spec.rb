@@ -61,12 +61,6 @@ describe Activr::Entity do
     entity.humanize.should == ""
   end
 
-  it "humanizes to :html thanks to :htmlize option" do
-    entity = Activr::Entity.new(:actor, user, :class => User, :humanize => :fullname, :htmlize => :to_html)
-
-    entity.humanize(:html => true).should == "<span class='user'>Jean PALE<span>"
-  end
-
   it "humanizes thanks to 'humanize' method of model instance" do
     entity = Activr::Entity.new(:album, album, :class => Album)
 

@@ -164,7 +164,6 @@ module Activr
       # @option options [Class]       :class    Entity model class
       # @option options [Symbol]      :humanize A method name to call on entity model instance to humanize it
       # @option options [String]      :default  Default humanization value
-      # @option options [Symbol]      :htmlize  A method name to call on entity model instance to render an HTML version of itself
       # @option options [true, false] :optional Is it an optional entity ?
       def entity(name, options = { })
         name = name.to_sym

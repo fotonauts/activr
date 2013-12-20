@@ -65,24 +65,21 @@ module Activr
     # @option options [true,false] :html Generate HTML ?
     # @return [String] Humanized sentence
     def humanize(options = { })
-      result = nil
+      result   = nil
+      htmlized = false
 
-      if options[:html] && @options[:htmlize]
-        # the model knows how to safely htmlize itself
-        result = self.model.__send__(@options[:htmlize])
-      else
-        humanize_meth = @options[:humanize]
-        if humanize_meth.nil? && (self.model.respond_to?(:humanize))
-          humanize_meth = :humanize
-        end
+      humanize_meth = @options[:humanize]
+      if humanize_meth.nil? && (self.model.respond_to?(:humanize))
+        humanize_meth = :humanize
+      end
 
-        if humanize_meth
-          case self.model.method(humanize_meth).arity
-          when 1
-            result = self.model.__send__(humanize_meth, options)
-          else
-            result = self.model.__send__(humanize_meth)
-          end
+      if humanize_meth
+        case self.model.method(humanize_meth).arity
+        when 1
+          result = self.model.__send__(humanize_meth, options)
+          htmlized = true
+        else
+          result = self.model.__send__(humanize_meth)
         end
       end
 
@@ -90,7 +87,7 @@ module Activr
         result = @options[:default]
       end
 
-      if !result.blank? && options[:html] && !@options[:htmlize] && Activr::RailsCtx.view_context
+      if !result.blank? && options[:html] && !htmlized && Activr::RailsCtx.view_context
         # let Rails sanitize and htmlize the entity
         result = Activr::RailsCtx.view_context.sanitize(result)
         result = Activr::RailsCtx.view_context.link_to(result, self.model)
