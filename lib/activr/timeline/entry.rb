@@ -123,6 +123,11 @@ class Activr::Timeline::Entry
     end
   end
 
+  # (see Activity#humanization_bindings)
+  def humanization_bindings(options = { })
+    @activity.humanization_bindings(options)
+  end
+
   # Humanize that timeline entry
   #
   # @note MAY be overriden by child class for specialized humanization
@@ -133,7 +138,7 @@ class Activr::Timeline::Entry
   def humanize(options = { })
     if !self.timeline_route.settings[:humanize].blank?
       # specialized humanization
-      Activr.sentence(self.timeline_route.settings[:humanize], @activity.humanization_bindings(options))
+      Activr.sentence(self.timeline_route.settings[:humanize], self.humanization_bindings(options))
     else
       # default humanization
       @activity.humanize(options)

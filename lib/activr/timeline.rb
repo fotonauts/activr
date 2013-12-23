@@ -325,9 +325,16 @@ module Activr
 
     # Dump humanization of last timeline entries
     #
+    # @param options [Hash] Options hash
+    # @option options (see Activr::Timeline::Entry#humanize)
+    # @option options [Integer] :nb Number of timeline entries to dump (default: 100)
     # @return [Array<String>] Array of humanized sentences
-    def dump(limit = 10)
-      self.find(limit).map{ |tl_entry| tl_entry.humanize }
+    def dump(options = { })
+      options = options.dup
+
+      limit = options.delete(:nb) || 100
+
+      self.find(limit).map{ |tl_entry| tl_entry.humanize(options) }
     end
 
 
