@@ -11,7 +11,7 @@ GIT
 PATH
   remote: .
   specs:
-    activr (0.0.8)
+    activr (0.0.9)
       activemodel
       activesupport
       fwissr
@@ -61,7 +61,7 @@ GEM
     thread_safe (0.1.3)
       atomic
     tzinfo (0.3.38)
-    yajl-ruby (1.1.0)
+    yajl-ruby (1.2.0)
 
 PLATFORMS
   ruby
