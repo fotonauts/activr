@@ -28,6 +28,13 @@ module Activr
       end
     end
 
+    initializer 'activr.autoload', :after => "activr.set_conf", :before => :set_autoload_paths do |app|
+      app.config.autoload_paths += [
+        File.join(Activr.config.app_path, 'activities'),
+        File.join(Activr.config.app_path, 'timelines'),
+      ]
+    end
+
     initializer "activr.setup_async_hooks" do |app|
       if defined?(::Resque) && (ENV['ACTIVR_FORCE_SYNC'] != 'true')
         Activr.configure do |config|
