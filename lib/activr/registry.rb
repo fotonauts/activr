@@ -243,11 +243,7 @@ module Activr
     # @return [Hash{String=>Class}] Hash of `<kind> => <Class>`
     def classes_from_path(dir_path)
       Dir["#{dir_path}/*.rb"].sort.inject({ }) do |memo, file_path|
-        if defined?(::Rails)
-          require_dependency(file_path)
-        else
-          require(file_path)
-        end
+        require(file_path)
 
         klass = File.basename(file_path, '.rb').camelize.constantize
 
