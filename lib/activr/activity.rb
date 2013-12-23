@@ -167,7 +167,7 @@ module Activr
       # @option options [true, false] :optional Is it an optional entity ?
       def entity(name, options = { })
         name = name.to_sym
-        raise "Entity already defined: #{name}" unless self.allowed_entities[name].blank?
+        raise "Entity already defined: #{name}" unless self.allowed_entities[name].nil?
 
         if options[:class].nil?
           options = options.dup
