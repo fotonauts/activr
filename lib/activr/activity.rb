@@ -364,7 +364,7 @@ module Activr
       result = { }
 
       @entities.each do |entity_name, entity|
-        result[entity_name] = entity.humanize(options)
+        result[entity_name] = entity.humanize(options.merge(:activity => self))
         result["#{entity_name}_model".to_sym] = entity.model
       end
 
