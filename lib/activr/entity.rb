@@ -83,11 +83,11 @@ module Activr
         end
       end
 
-      if result.blank? && @options[:default]
+      if result.nil? && @options[:default]
         result = @options[:default]
       end
 
-      if !result.blank? && options[:html] && !htmlized && Activr::RailsCtx.view_context
+      if !result.nil? && options[:html] && !htmlized && Activr::RailsCtx.view_context
         # let Rails sanitize and htmlize the entity
         result = Activr::RailsCtx.view_context.sanitize(result)
         result = Activr::RailsCtx.view_context.link_to(result, self.model)
