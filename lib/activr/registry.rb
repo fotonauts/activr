@@ -15,11 +15,8 @@ module Activr
 
     # Init
     def initialize
-      self.reset
-    end
+      @setup = false
 
-    # Reset registry
-    def reset
       @timelines         = nil
       @timeline_entries  = nil
       @activities        = nil
@@ -35,12 +32,14 @@ module Activr
 
     # Setup registry
     def setup
-      self.reset
+      return if @setup
 
       # eagger load all classes
       self.activities
       self.timelines
       self.timeline_entries
+
+      @setup = true
     end
 
 
