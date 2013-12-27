@@ -26,10 +26,6 @@ class User
     "#{self.first_name} #{self.last_name}"
   end
 
-  def blank_meth
-    ""
-  end
-
   # I know this is bad, this is just for testing purpose
   def to_html
     "<span class='user'>#{fullname}<span>"

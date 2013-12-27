@@ -49,12 +49,6 @@ describe Activr::Entity do
     entity.humanize.should == "Mr Proutman"
   end
 
-  it "humanizes to :default option if model humanization is blank" do
-    entity = Activr::Entity.new(:actor, user, :class => User, :humanize => :blank_meth, :default => 'Miss Proutman')
-
-    entity.humanize.should == "Miss Proutman"
-  end
-
   it "humanizes to an empty string if no humanization is possible" do
     entity = Activr::Entity.new(:actor, user, :class => User)
 
