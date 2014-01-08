@@ -8,10 +8,10 @@ Activr is the Ruby gem created by Fotonauts to manage activity feeds on [Fotoped
 
 With Activr you can create:
 
-- a Global Activity Feed: display all activities in your website in a single feed
-- a User Activity Feed: display all actions performed by a specific user
-- a User News Feeds: each user can get news from friends they follow, from albums they own or follow, etc.
-- an Album Activity Feed: display what happens in a specific album
+- a Global Activity Feed to display all activities in your website in a single feed
+- a User Activity Feed to display all actions performed by a specific user
+- a User News Feeds so thar each user can get news from friends they follow, from albums they own or follow, etc.
+- an Album Activity Feed to display what happens in a specific album
 - ...
 
 Activities are stored in a [MongoDB](http://www.mongodb.org/) database.
@@ -139,35 +139,6 @@ class Album
 end
 ```
 
-For reference, the corresponding controller code is:
-
-```ruby
-class AlbumsController < ApplicationController
-
-  # ...
-
-  def create_picture
-    @album = Album.find(params[:id])
-
-    # create picture
-    picture = Picture.create!(picture_params)
-
-    # add picture to album
-    @album.add_picture(picture, current_user)
-
-    flash[:success] = "Picture '#{picture.title}' added to album: '#{@album.name}'"
-    redirect_to @album
-  end
-
-  private
-
-  def picture_params
-    params.require(:picture).permit(:title, :image)
-  end
-
-end
-```
-
 Once dispatched the activity is stored in the `activities` MongoDB collection:
 
 ```
@@ -227,7 +198,7 @@ $ rake activr:create_indexes
 ```
 
 
-#### Actor activity feed
+#### Example: actor activity feed
 
 To fetch actor activities, include the mixin `Activr::Entity::ModelMixin` into your actor class:
 
@@ -265,7 +236,7 @@ end
 ```
 
 
-#### Album activity feed
+#### Example: album activity feed
 
 You can also fetch a per-album activity feed by including the mixin `Activr::Entity::ModelMixin` into the `Album` class:
 
@@ -585,7 +556,7 @@ end
 
 ### Fetching / Display
 
-Two methods are injected in the timeline recipient class: `#<timeline_kind>` and `#<timeline_kind>_count`. So in our case: `#news_feed` and `#news_feed_count`:
+Two methods are injected in the timeline recipient class: `#<timeline_kind>` and `#<timeline_kind>_count`. So in our case: `#user_news_feed` and `#user_news_feed_count`:
 
 ```ruby
 class UsersController < ApplicationController
