@@ -155,7 +155,7 @@ module Activr
     def add_entity(entity_name, entity_options, activity_klass)
       entity_name = entity_name.to_sym
 
-      if @entity_classes[entity_name] && (@entity_classes[entity_name] != entity_options[:class])
+      if @entity_classes[entity_name] && (@entity_classes[entity_name].name != entity_options[:class].name)
         # otherwise this would break timeline entries deletion mecanism
         raise "Entity name #{entity_name} already used with class #{@entity_classes[entity_name]}, can't redefine it with class #{entity_options[:class]}"
       end
