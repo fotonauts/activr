@@ -165,7 +165,7 @@ module Activr
       timeline_entry_hash = timeline_entry.to_hash
 
       # run hook
-      self.run_hook(:will_insert_timeline_entry, timeline_entry_hash)
+      self.run_hook(:will_insert_timeline_entry, timeline_entry_hash, timeline_entry.timeline.class)
 
       # insert
       self.driver.insert_timeline_entry(timeline_entry.timeline.kind, timeline_entry_hash)
@@ -180,7 +180,7 @@ module Activr
       timeline_entry_hash = self.driver.find_timeline_entry(timeline.kind, tl_entry_id)
       if timeline_entry_hash
         # run hook
-        self.run_hook(:did_find_timeline_entry, timeline_entry_hash)
+        self.run_hook(:did_find_timeline_entry, timeline_entry_hash, timeline.class)
 
         # unserialize
         Activr::Timeline::Entry.from_hash(timeline_entry_hash, timeline)
@@ -198,7 +198,7 @@ module Activr
     def find_timeline(timeline, recipient_id, limit, skip = 0)
       result = self.driver.find_timeline_entries(timeline.kind, timeline.recipient_id, limit, skip).map do |timeline_entry_hash|
         # run hook
-        self.run_hook(:did_find_timeline_entry, timeline_entry_hash)
+        self.run_hook(:did_find_timeline_entry, timeline_entry_hash, timeline.class)
 
         # unserialize
         Activr::Timeline::Entry.from_hash(timeline_entry_hash, timeline)
@@ -367,7 +367,7 @@ module Activr
     #
     # @example Insert the 'bar' field into all timeline entries documents
     #
-    #   Activr.storage.will_insert_timeline_entry do |timeline_entry_hash|
+    #   Activr.storage.will_insert_timeline_entry do |timeline_entry_hash, timeline_class|
     #     timeline_entry_hash['bar'] = 'baz'
     #   end
     #
@@ -379,7 +379,7 @@ module Activr
     #
     # @example Ignore the 'bar' field
     #
-    #   Activr.storage.did_find_timeline_entry do |timeline_entry_hash|
+    #   Activr.storage.did_find_timeline_entry do |timeline_entry_hash, timeline_class|
     #     timeline_entry_hash.delete('bar')
     #   end
     #

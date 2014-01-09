@@ -61,12 +61,12 @@ describe Activr::Storage do
   end
 
   it "runs :will_insert_timeline_entry hook" do
-    Activr.storage.will_insert_timeline_entry do |timeline_entry_hash|
+    Activr.storage.will_insert_timeline_entry do |timeline_entry_hash, timeline_class|
       timeline_entry_hash['meta'] ||= { }
       timeline_entry_hash['meta']['foo'] = 'bar'
     end
 
-    Activr.storage.will_insert_timeline_entry do |timeline_entry_hash|
+    Activr.storage.will_insert_timeline_entry do |timeline_entry_hash, timeline_class|
       timeline_entry_hash['meta'] ||= { }
       timeline_entry_hash['meta']['bar'] = 'baz'
     end
@@ -86,12 +86,12 @@ describe Activr::Storage do
   end
 
   it "runs :did_find_timeline_entry hook" do
-    Activr.storage.did_find_timeline_entry do |timeline_entry_hash|
+    Activr.storage.did_find_timeline_entry do |timeline_entry_hash, timeline_class|
       timeline_entry_hash['meta'] ||= { }
       timeline_entry_hash['meta']['foo'] = 'bar'
     end
 
-    Activr.storage.did_find_timeline_entry do |timeline_entry_hash|
+    Activr.storage.did_find_timeline_entry do |timeline_entry_hash, timeline_class|
       timeline_entry_hash['meta'] ||= { }
       timeline_entry_hash['meta']['bar'] = 'baz'
     end
