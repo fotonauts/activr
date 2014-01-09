@@ -237,8 +237,11 @@ class Activr::Storage::MongoDriver
   # @return [Mongo::Collection, Moped::Collection] Collection handler
   def activity_collection
     @activity_collection ||= begin
-      col_name = "activities"
-      col_name = "#{self.config[:col_prefix]}_#{col_name}" unless self.config[:col_prefix].blank?
+      col_name = self.config[:activities_col]
+      if col_name.nil?
+        col_name = "activities"
+        col_name = "#{self.config[:col_prefix]}_#{col_name}" unless self.config[:col_prefix].blank?
+      end
 
       self.collection(col_name)
     end
@@ -253,8 +256,11 @@ class Activr::Storage::MongoDriver
   def timeline_collection(kind)
     @timeline_collection ||= { }
     @timeline_collection[kind] ||= begin
-      col_name = "#{kind}_timelines"
-      col_name = "#{self.config[:col_prefix]}_#{col_name}" unless self.config[:col_prefix].blank?
+      col_name = self.config[:timelines_col]
+      if col_name.nil?
+        col_name = "#{kind}_timelines"
+        col_name = "#{self.config[:col_prefix]}_#{col_name}" unless self.config[:col_prefix].blank?
+      end
 
       self.collection(col_name)
     end

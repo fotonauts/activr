@@ -16,8 +16,10 @@ module Activr
       config.app_path = Dir.pwd
 
       config.mongodb = {
-        :uri        => 'mongodb://127.0.0.1/activr',
-        :col_prefix => nil,
+        :uri            => 'mongodb://127.0.0.1/activr',
+        :col_prefix     => nil,
+        :activities_col => nil,
+        :timelines_col  => nil,
       }
 
       config.async = { }
