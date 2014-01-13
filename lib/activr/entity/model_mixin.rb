@@ -92,10 +92,10 @@ module Activr::Entity::ModelMixin
   # Fetch activities
   #
   # @param limit [Integer] Max number of activities to fetch
-  # @param skip  [Integer] Number of activities to skip
+  # @param options (see Storage#find_activities)
   # @return [Array<Activity>] A list of activities
-  def activities(limit, skip = 0)
-    Activr.activities(limit, :skip => skip, self.activr_entity_feed_actual_name => self.id)
+  def activities(limit, options = { })
+    Activr.activities(limit, options.merge(self.activr_entity_feed_actual_name => self.id))
   end
 
   # Get total number of activities

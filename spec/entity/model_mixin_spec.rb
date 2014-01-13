@@ -33,6 +33,12 @@ describe Activr::Entity::ModelMixin do
     activities[1]._id.should == activity_2._id
     activities[2]._id.should == activity_1._id
 
+    # user with :skip
+    activities = user.activities(10, :skip => 1)
+    activities.size.should == 2
+    activities[0]._id.should == activity_2._id
+    activities[1]._id.should == activity_1._id
+
     # album
     activities = album.activities(10)
     activities.size.should == 1
