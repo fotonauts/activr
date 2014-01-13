@@ -2,9 +2,11 @@ require File.join(File.dirname(__FILE__), 'spec_helper')
 
 describe Activr::Timeline do
 
-  let(:user)  { User.create(:_id => 'jpale', :first_name => "Jean", :last_name => "PALE") }
-  let(:buddy) { User.create(:_id => 'justine', :first_name => "Justine", :last_name => "CHTITEGOUTE") }
-
+  let(:user)     { User.create(:_id => 'jpale',   :first_name => "Jean",    :last_name => "PALE") }
+  let(:buddy)    { User.create(:_id => 'justine', :first_name => "Justine", :last_name => "CHTITEGOUTE") }
+  let(:follower) { User.create(:_id => 'anne',    :first_name => "Anne",    :last_name => "CHTITEGOUTE") }
+  let(:picture)  { Picture.create(:title => "Me myself and I") }
+  let(:album)    { Album.create(:name => "Selfies") }
 
   it "have routings" do
     UserNewsFeedTimeline.routings.count.should == 2
@@ -81,6 +83,15 @@ describe Activr::Timeline do
     ary.first.activity.kind.should == 'follow_buddy'
     ary.first.activity.actor.should == user
     ary.first.activity.buddy.should == buddy
+  end
+
+  it "does not handle activity if should_handle_activity callback returns false" do
+    # @todo FIXME
+    user.followers = [ follower ]
+
+    Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album, :do_not_handle_me => true))
+
+    Activr.timeline(UserNewsFeedTimeline, follower).dump.should be_blank
   end
 
   it "does not store timeline entry if should_store_timeline_entry callback returns false" do

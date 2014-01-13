@@ -10,7 +10,7 @@ module Activr
     # Route an activity
     #
     # @param activity [Activity] Activity to route
-    # @return [Integer] The number of resolved recipient
+    # @return [Integer] The number of resolved recipients that will handle activity
     def route(activity)
       raise "Activity must be stored before routing: #{activity.inspect}" if activity._id.nil?
 
@@ -27,8 +27,9 @@ module Activr
             result += 1
 
             timeline = timeline_class.new(recipient)
-
-            Activr::Async.hook(:timeline_handle, timeline, activity, route)
+            if timeline.should_handle_activity?(activity, route)
+              Activr::Async.hook(:timeline_handle, timeline, activity, route)
+            end
           end
         end
       end

@@ -57,6 +57,11 @@ class UserNewsFeedTimeline < Activr::Timeline
 
   end # class << self
 
+  # callback to check if given activity should be handled
+  def should_handle_activity?(activity, route)
+    activity[:do_not_handle_me] != true
+  end
+
   # callback to check if given timeline entry should be stored
   def should_store_timeline_entry?(timeline_entry)
     timeline_entry.activity[:bar] != 'baz'
