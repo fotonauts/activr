@@ -127,14 +127,14 @@ class Activr::Storage::MongoDriver
   # @api private
   #
   # @param col    [Mongo::Collection, Moped::Collection]  Collection handler
-  # @param doc_id [BSON::ObjectId, Moped::BSON::ObjectId] Document id to find
+  # @param selector [Hash] Selector hash
   # @return [Hash, OrderedHash, Nil] Document
-  def find_one(col, doc_id)
+  def find_one(col, selector)
     case @kind
     when :moped_1, :moped
-      col.find({ "_id" => doc_id }).one
+      col.find(selector).one
     when :mongo
-      col.find_one({ '_id' => doc_id })
+      col.find_one(selector)
     end
   end
 
@@ -329,7 +329,7 @@ class Activr::Storage::MongoDriver
   # @param activity_id [BSON::ObjectId, Moped::BSON::ObjectId] The activity id
   # @return [Hash, OrderedHash, Nil] Activity document
   def find_activity(activity_id)
-    self.find_one(self.activity_collection, activity_id)
+    self.find_one(self.activity_collection, { '_id' => activity_id })
   end
 
   # Compute selector for querying `activities` collection
@@ -418,7 +418,7 @@ class Activr::Storage::MongoDriver
   # @param tl_entry_id   [BSON::ObjectId, Moped::BSON::ObjectId] Timeline entry document id
   # @return [Hash, OrderedHash, Nil] Timeline entry document
   def find_timeline_entry(timeline_kind, tl_entry_id)
-    self.find_one(self.timeline_collection(timeline_kind), tl_entry_id)
+    self.find_one(self.timeline_collection(timeline_kind), { '_id' => tl_entry_id })
   end
 
   # Compute selector for querying a `*_timelines` collection
