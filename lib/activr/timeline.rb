@@ -94,12 +94,13 @@ module Activr
         end
       end
 
-      # Check if given route was already defined
+      # Get route defined with given kind
       #
-      # @param route_to_check [Timeline::Route] Route to check
-      # @return [true, false]
-      def have_route?(route_to_check)
-        (route_to_check.timeline_class == self) && !self.route_for_kind(route_to_check.kind).blank?
+      # @param routing_kind   [String] Routing kind
+      # @param activity_class [Class]  Activity class
+      # @return [Timeline::Route] Corresponding Route instance
+      def route_for_routing_and_activity(routing_kind, activity_class)
+        self.route_for_kind(Activr::Timeline::Route.kind_for_routing_and_activity(routing_kind, activity_class.kind))
       end
 
       # Get all routes defined for given activity
@@ -110,6 +111,14 @@ module Activr
         self.routes.find_all do |defined_route|
           (defined_route.activity_class == activity.class)
         end
+      end
+
+      # Check if given route was already defined
+      #
+      # @param route_to_check [Timeline::Route] Route to check
+      # @return [true, false]
+      def have_route?(route_to_check)
+        (route_to_check.timeline_class == self) && !self.route_for_kind(route_to_check.kind).blank?
       end
 
       # Callback: just before trying to route given activity
@@ -163,7 +172,7 @@ module Activr
       #
       #   class User
       #     # fetch latest timeline entries
-      #     def user_news(limit, skip = 0)
+      #     def user_news(limit, options = { })
       #       # ...
       #     end
       #
@@ -180,8 +189,8 @@ module Activr
         # inject sugar methods
         klass.class_eval <<-EOS, __FILE__, __LINE__
           # fetch latest timeline entries
-          def #{self.kind}(limit, skip = 0)
-            Activr.timeline(#{self.name}, self.id).find(limit, skip)
+          def #{self.kind}(limit, options = { })
+            Activr.timeline(#{self.name}, self.id).find(limit, options)
           end
 
           # get total number of timeline entries
@@ -249,7 +258,7 @@ module Activr
     # Forward methods to class
     def_delegators "self.class",
       :kind,
-      :route_for_kind, :have_route?, :routes_for_activity
+      :route_for_kind, :route_for_routing_and_activity, :routes_for_activity, :have_route?
 
 
     # @param rcpt Recipient instance, or recipient id
@@ -309,18 +318,21 @@ module Activr
 
     # Find timeline entries by descending timestamp
     #
-    # @param limit [Integer] Max number of entries to find
-    # @param skip  [Integer] Number of entries to skip (default: 0)
-    # @return [Array<Timeline::Entry>] An array of timeline entries
-    def find(limit, skip = 0)
-      Activr.storage.find_timeline(self, limit, skip)
+    # @param limit (see Storage#find_timeline)
+    # @param options (see Storage#find_timeline)
+    # @option options (see Storage#find_timeline)
+    # @return (see Storage#find_timeline)
+    def find(limit, options = { })
+      Activr.storage.find_timeline(self, limit, options)
     end
 
     # Get total number of timeline entries
     #
-    # @return [Integer]
-    def count
-      Activr.storage.count_timeline(self.kind, self.recipient_id)
+    # @param options (see Storage#count_timeline)
+    # @option options (see Storage#count_timeline)
+    # @return (see Storage#count_timeline)
+    def count(options = { })
+      Activr.storage.count_timeline(self, options)
     end
 
     # Dump humanization of last timeline entries

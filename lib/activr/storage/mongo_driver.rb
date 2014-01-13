@@ -427,11 +427,18 @@ class Activr::Storage::MongoDriver
   #
   # @param timeline_kind [String] Timeline kind
   # @param recipient_id  [String, BSON::ObjectId, Moped::BSON::ObjectId] Recipient id
+  # @param options (see Storage#find_timeline)
   # @return [Hash] The computed selector
-  def timeline_selector(timeline_kind, recipient_id)
-    {
-      'rcpt' => recipient_id,
-    }
+  def timeline_selector(timeline_kind, recipient_id, options = { })
+    result = { 'rcpt' => recipient_id }
+
+    if !options[:only].blank?
+      result['$or'] = options[:only].map do |route|
+        { 'routing' => route.routing_kind, 'activity.kind' => route.activity_class.kind }
+      end
+    end
+
+    result
   end
 
   # Find several timeline entry documents
@@ -441,10 +448,10 @@ class Activr::Storage::MongoDriver
   # @param timeline_kind [String] Timeline kind
   # @param recipient_id  [String, BSON::ObjectId, Moped::BSON::ObjectId] Recipient id
   # @param limit         [Integer] Max number of entries to find
-  # @param skip          [Integer] Number of entries to skip (default: 0)
+  # @param options (see Storage#find_timeline)
   # @return [Array<Hash>] An array of timeline entry documents
-  def find_timeline_entries(timeline_kind, recipient_id, limit, skip = 0)
-    self.find(self.timeline_collection(timeline_kind), self.timeline_selector(timeline_kind, recipient_id), limit, skip, 'activity.at')
+  def find_timeline_entries(timeline_kind, recipient_id, limit, options = { })
+    self.find(self.timeline_collection(timeline_kind), self.timeline_selector(timeline_kind, recipient_id, options), limit, options[:skip], 'activity.at')
   end
 
   # Count number of timeline entry documents
@@ -453,9 +460,10 @@ class Activr::Storage::MongoDriver
   #
   # @param timeline_kind [String] Timeline kind
   # @param recipient_id  [String, BSON::ObjectId, Moped::BSON::ObjectId] Recipient id
+  # @param options (see Storage#find_timeline)
   # @return [Integer] Number of documents in given timeline
-  def count_timeline_entries(timeline_kind, recipient_id)
-    self.count(self.timeline_collection(timeline_kind), self.timeline_selector(timeline_kind, recipient_id))
+  def count_timeline_entries(timeline_kind, recipient_id, options = { })
+    self.count(self.timeline_collection(timeline_kind), self.timeline_selector(timeline_kind, recipient_id, options))
   end
 
   # (see Storage#delete_timeline_entries)

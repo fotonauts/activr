@@ -6,10 +6,16 @@ describe Activr::Storage do
   let(:picture) { Picture.create(:title => "Me myself and I") }
   let(:album)   { Album.create(:name => "Selfies") }
   let(:owner)   { User.create(:_id => 'corinne', :first_name => "Corinne", :last_name => "CHTITEGOUTE") }
+  let(:buddy)   { User.create(:_id => 'justine', :first_name => "Justine", :last_name => "CHTITEGOUTE") }
 
   after(:each) do
     Activr.storage.clear_hooks!
   end
+
+
+  #
+  # Hooks
+  #
 
   it "runs :will_insert_activity hook" do
     Activr.storage.will_insert_activity do |activity_hash|
@@ -111,6 +117,113 @@ describe Activr::Storage do
     tl_entries = timeline.find(10)
     tl_entries.first[:foo].should == 'bar'
     tl_entries.first[:bar].should == 'baz'
+  end
+
+
+  #
+  # Activities
+  #
+
+  context "with stored activities" do
+
+    before(:each) do
+      @activity_1 = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
+      @activity_1.store!
+
+      Delorean.jump(30)
+
+      @activity_2 = FollowAlbumActivity.new(:actor => user, :album => album)
+      @activity_2.store!
+    end
+
+    it "finds activities" do
+      Activr.storage.find_activities(10).map(&:_id).should == [ @activity_2._id, @activity_1._id ]
+    end
+
+    it "counts activities" do
+      Activr.storage.count_activities.should == 2
+    end
+
+    it "finds activities filtered with :only option" do
+
+      Activr.storage.find_activities(10, :only => AddPictureActivity).map(&:_id).should  == [ @activity_1._id ]
+      Activr.storage.find_activities(10, :only => FollowAlbumActivity).map(&:_id).should == [ @activity_2._id ]
+      Activr.storage.find_activities(10, :only => LikePictureActivity).should == [ ]
+      Activr.storage.find_activities(10, :only => [ AddPictureActivity, FollowAlbumActivity ]).map(&:_id).should  == [ @activity_2._id, @activity_1._id ]
+      Activr.storage.find_activities(10, :only => [ AddPictureActivity, LikePictureActivity ]).map(&:_id).should  == [ @activity_1._id ]
+    end
+
+    it "counts activities filtered with :only option" do
+      Activr.storage.count_activities(:only => AddPictureActivity).should  == 1
+      Activr.storage.count_activities(:only => FollowAlbumActivity).should == 1
+      Activr.storage.count_activities(:only => LikePictureActivity).should == 0
+      Activr.storage.count_activities(:only => [ AddPictureActivity, FollowAlbumActivity ]).should == 2
+      Activr.storage.count_activities(:only => [ AddPictureActivity, LikePictureActivity ]).should == 1
+    end
+
+  end
+
+
+  #
+  # Timelines
+  #
+
+  context "with stored timelines entries" do
+
+    before(:each) do
+      @timeline = UserNewsFeedTimeline.new(owner)
+
+      @activity_1 = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
+      @activity_1.store!
+
+      @timeline_entry_1 = Activr::Timeline::Entry.new(@timeline, 'album_owner', @activity_1)
+      @timeline_entry_1.store!
+
+      Delorean.jump(30)
+
+      @activity_2 = FollowAlbumActivity.new(:actor => user, :album => album)
+      @activity_2.store!
+
+      @timeline_entry_2 = Activr::Timeline::Entry.new(@timeline, 'my_custom_routing', @activity_2)
+      @timeline_entry_2.store!
+    end
+
+    it "finds timeline entries" do
+      Activr.storage.find_timeline(@timeline, 10).map(&:_id).should == [ @timeline_entry_2._id, @timeline_entry_1._id ]
+    end
+
+    it "counts timeline entries" do
+      Activr.storage.count_timeline(@timeline).should == 2
+    end
+
+    it "finds timeline entries filtered with :only option" do
+      route = @timeline.route_for_routing_and_activity('my_custom_routing', FollowAlbumActivity)
+      route.should_not be_nil
+      Activr.storage.find_timeline(@timeline, 10, :only => route).map(&:_id).should == [ @timeline_entry_2._id ]
+
+      route = @timeline.route_for_routing_and_activity('album_owner', AddPictureActivity)
+      route.should_not be_nil
+      Activr.storage.find_timeline(@timeline, 10, :only => route).map(&:_id).should == [ @timeline_entry_1._id ]
+
+      route = @timeline.route_for_routing_and_activity('picture_owner', LikePictureActivity)
+      route.should_not be_nil
+      Activr.storage.find_timeline(@timeline, 10, :only => route).should == [ ]
+    end
+
+    it "counts timeline entries filtered with :only option" do
+      route = @timeline.route_for_routing_and_activity('my_custom_routing', FollowAlbumActivity)
+      route.should_not be_nil
+      Activr.storage.count_timeline(@timeline, :only => route).should == 1
+
+      route = @timeline.route_for_routing_and_activity('album_owner', AddPictureActivity)
+      route.should_not be_nil
+      Activr.storage.count_timeline(@timeline, :only => route).should == 1
+
+      route = @timeline.route_for_routing_and_activity('picture_owner', LikePictureActivity)
+      route.should_not be_nil
+      Activr.storage.count_timeline(@timeline, :only => route).should == 0
+    end
+
   end
 
 end

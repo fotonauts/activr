@@ -112,6 +112,8 @@ module Activr
         :except   => [ ],
       }.merge(options)
 
+      options[:only] = [ options[:only] ] if (options[:only] && !options[:only].is_a?(Array))
+
       # find
       result = self.driver.find_activities(limit, options).map do |activity_hash|
         # run hook
@@ -146,6 +148,8 @@ module Activr
         :only     => [ ],
         :except   => [ ],
       }.merge(options)
+
+      options[:only] = [ options[:only] ] if (options[:only] && !options[:only].is_a?(Array))
 
       # count
       self.driver.count_activities(options)
@@ -193,10 +197,19 @@ module Activr
     #
     # @param timeline [Timeline] Timeline instance
     # @param limit    [Integer]  Max number of entries to find
-    # @param skip     [Integer]  Number of entries to skip (default: 0)
-    # @return [Array<Timeline::Entry>] Timeline entries
-    def find_timeline(timeline, recipient_id, limit, skip = 0)
-      result = self.driver.find_timeline_entries(timeline.kind, timeline.recipient_id, limit, skip).map do |timeline_entry_hash|
+    # @param options  [Hash]     Options hash
+    # @option options [Integer]                :skip Number of entries to skip (default: 0)
+    # @option options [Array<Timeline::Route>] :only An array of routes to fetch
+    # @return [Array<Timeline::Entry>] An array of timeline entries
+    def find_timeline(timeline, limit, options = { })
+      options = {
+        :skip => 0,
+        :only => [ ],
+      }.merge(options)
+
+      options[:only] = [ options[:only] ] if (options[:only] && !options[:only].is_a?(Array))
+
+      result = self.driver.find_timeline_entries(timeline.kind, timeline.recipient_id, limit, options).map do |timeline_entry_hash|
         # run hook
         self.run_hook(:did_find_timeline_entry, timeline_entry_hash, timeline.class)
 
@@ -209,11 +222,18 @@ module Activr
 
     # Count number of timeline entries
     #
-    # @param timeline_kind [String] Timeline kind
-    # @param recipient_id  [Object] Recipient id
-    # @return [Intger] Number of timeline entries in given timeline
-    def count_timeline(timeline_kind, recipient_id)
-      self.driver.count_timeline_entries(timeline_kind, recipient_id)
+    # @param timeline [Timeline] Timeline instance
+    # @param options  [Hash]     Options hash
+    # @option options [Array<Timeline::Route>] :only An array of routes to count
+    # @return [Integer] Number of timeline entries in given timeline
+    def count_timeline(timeline, options = { })
+      options = {
+        :only => [ ],
+      }.merge(options)
+
+      options[:only] = [ options[:only] ] if (options[:only] && !options[:only].is_a?(Array))
+
+      self.driver.count_timeline_entries(timeline.kind, timeline.recipient_id, options)
     end
 
 
