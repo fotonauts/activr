@@ -301,7 +301,8 @@ module Activr
     # @return [Timeline::Entry] Created timeline entry
     def handle_activity(activity, route)
       # create timeline entry
-      timeline_entry = Activr::Timeline::Entry.new(self, route.routing_kind, activity)
+      klass = Activr.registry.class_for_timeline_entry(self.kind, route.kind)
+      timeline_entry = klass.new(self, route.routing_kind, activity)
 
       # store with callbacks
       if self.should_store_timeline_entry?(timeline_entry)
