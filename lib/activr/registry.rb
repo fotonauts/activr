@@ -80,20 +80,24 @@ module Activr
 
             Dir["#{dir_path}/*.rb"].sort.inject(result[timeline_kind]) do |memo, file_path|
               base_name = File.basename(file_path, '.rb')
-              klass = "#{timeline_class.name}::#{base_name.camelize}".constantize
 
-              route_kind = if (match_data = base_name.match(/(.+)_timeline_entry$/))
-                match_data[1]
-              else
-                base_name
+              # skip base class
+              if (base_name != "base_timeline_entry")
+                klass = "#{timeline_class.name}::#{base_name.camelize}".constantize
+
+                route_kind = if (match_data = base_name.match(/(.+)_timeline_entry$/))
+                  match_data[1]
+                else
+                  base_name
+                end
+
+                route = timeline_class.routes.find do |timeline_route|
+                  timeline_route.kind == route_kind
+                end
+
+                raise "Timeline entry class found for an unspecified timeline route: #{file_path} / routes: #{timeline_class.routes.inspect}" unless route
+                memo[route_kind] = klass
               end
-
-              route = timeline_class.routes.find do |timeline_route|
-                timeline_route.kind == route_kind
-              end
-
-              raise "Timeline entry class found for an unspecified timeline route: #{file_path} / routes: #{timeline_class.routes.inspect}" unless route
-              memo[route_kind] = klass
 
               memo
             end
