@@ -72,8 +72,13 @@ module Activr
         result = { }
 
         self.timelines.each do |(timeline_kind, timeline_class)|
-          dir_path = File.join(Activr.timelines_path, timeline_kind)
-          dir_path = File.directory?(dir_path) ? dir_path : File.join(Activr.timelines_path, "#{timeline_kind}_timeline")
+          dir_name = Activr::Utils.kind_for_class(timeline_class)
+          dir_path = File.join(Activr.timelines_path, dir_name)
+
+          if !File.directory?(dir_path)
+            dir_name = Activr::Utils.kind_for_class(timeline_class, 'timeline')
+            dir_path = File.join(Activr.timelines_path, dir_name)
+          end
 
           if File.directory?(dir_path)
             result[timeline_kind] = { }

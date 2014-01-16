@@ -77,11 +77,20 @@ module Activr
       #   UserNewsFeedTimeline.kind
       #   # => 'user_news_feed'
       #
-      # @note Kind is inferred from Class name
+      # @note Kind is inferred from Class name, unless `#set_kind` method is used to force a custom value
       #
       # @return [String] Kind
       def kind
-        @kind ||= Activr::Utils.kind_for_class(self, 'timeline')
+        @kind ||= @forced_kind || Activr::Utils.kind_for_class(self, 'timeline')
+      end
+
+      # Set timeline kind
+      #
+      # @note Default kind is inferred from class name
+      #
+      # @param forced_kind [String] Timeline kind
+      def set_kind(forced_kind)
+        @forced_kind = forced_kind.to_s
       end
 
       # Get route defined with given kind
