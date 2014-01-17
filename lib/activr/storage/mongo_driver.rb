@@ -373,14 +373,18 @@ class Activr::Storage::MongoDriver
   #
   # @api private
   def find_activities(limit, options = { })
-    self.find(self.activity_collection, self.activities_selector(options), limit, options[:skip], 'at')
+    selector = options[:mongo_selector] || self.activities_selector(options)
+
+    self.find(self.activity_collection, selector, limit, options[:skip], 'at')
   end
 
   # (see Storage#count_activities)
   #
   # @api private
   def count_activities(options = { })
-    self.count(self.activity_collection, self.activities_selector(options))
+    selector = options[:mongo_selector] || self.activities_selector(options)
+
+    self.count(self.activity_collection, selector)
   end
 
   # (see Storage#delete_activities)
@@ -451,7 +455,9 @@ class Activr::Storage::MongoDriver
   # @param options (see Storage#find_timeline)
   # @return [Array<Hash>] An array of timeline entry documents
   def find_timeline_entries(timeline_kind, recipient_id, limit, options = { })
-    self.find(self.timeline_collection(timeline_kind), self.timeline_selector(timeline_kind, recipient_id, options), limit, options[:skip], 'activity.at')
+    selector = options[:mongo_selector] || self.timeline_selector(timeline_kind, recipient_id, options)
+
+    self.find(self.timeline_collection(timeline_kind), selector, limit, options[:skip], 'activity.at')
   end
 
   # Count number of timeline entry documents
@@ -463,7 +469,9 @@ class Activr::Storage::MongoDriver
   # @param options (see Storage#find_timeline)
   # @return [Integer] Number of documents in given timeline
   def count_timeline_entries(timeline_kind, recipient_id, options = { })
-    self.count(self.timeline_collection(timeline_kind), self.timeline_selector(timeline_kind, recipient_id, options))
+    selector = options[:mongo_selector] || self.timeline_selector(timeline_kind, recipient_id, options)
+
+    self.count(self.timeline_collection(timeline_kind), selector)
   end
 
   # (see Storage#delete_timeline_entries)
