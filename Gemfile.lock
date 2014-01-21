@@ -1,12 +1,12 @@
 GIT
   remote: git://github.com/mongoid/mongoid.git
-  revision: bbc0df51f9c1fec19dd15e4c5d478d6474adefdc
+  revision: a65bd5f9cd6c46e25e99cfe5f0db7d9ecc179eba
   specs:
-    mongoid (4.0.0.alpha1)
-      activemodel (~> 4.0.0)
-      moped (~> 2.0.beta4)
-      origin (~> 1.0)
-      tzinfo (~> 0.3.37)
+    mongoid (4.0.0.alpha2)
+      activemodel (>= 4.0.0)
+      moped (~> 2.0.beta5)
+      origin (~> 2.1)
+      tzinfo (>= 0.3.37)
 
 PATH
   remote: .
@@ -30,7 +30,7 @@ GEM
       thread_safe (~> 0.1)
       tzinfo (~> 0.3.37)
     atomic (1.1.14)
-    bson (2.0.0)
+    bson (2.1.2)
     builder (3.1.4)
     chronic (0.10.2)
     connection_pool (1.2.0)
@@ -42,14 +42,14 @@ GEM
       yajl-ruby
     i18n (0.6.9)
     minitest (4.7.5)
-    moped (2.0.0.beta4)
-      bson (~> 2.0)
+    moped (2.0.0.beta5)
+      bson (~> 2.1)
       connection_pool (~> 1.2)
       optionable (~> 0.2.0)
     multi_json (1.8.2)
     mustache (0.99.5)
     optionable (0.2.0)
-    origin (1.1.0)
+    origin (2.1.0)
     rspec (2.14.1)
       rspec-core (~> 2.14.0)
       rspec-expectations (~> 2.14.0)
@@ -70,5 +70,5 @@ DEPENDENCIES
   activr!
   database_cleaner
   delorean
-  mongoid (~> 4.0.0.alpha1)!
+  mongoid (~> 4.0.0.alpha2)!
   rspec
