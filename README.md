@@ -695,6 +695,12 @@ Hook classes are specified thanks to the `config.async` hash.
 If you are writing a Rails application you just need to add the `Resque` gem to your `Gemfile` to enable async hooks. If you want to use another job system then you have to write your own async hook handlers. If you want to force disabling of async hooks, for example when deploying your app on Heroku with only one dyno, just set the environment variable `ACTIVR_FORCE_SYNC` to `true`.
 
 
+Railties
+========
+
+The default mongodb connection uri is `mongodb://127.0.0.1/activr`, but if you are using Activr inside a Rails application with mongoid gem loaded then the mongoid database connection will be used instead. If you don't want that behaviour then set the environment variable  `ACTIVR_SKIP_MONGOID_RAILTIE` to `true`, or set the [Fwissr](https://github.com/fotonauts/fwissr) key `/activr/skip_mongoid_railtie` to true.
+
+
 Todo
 ====
 

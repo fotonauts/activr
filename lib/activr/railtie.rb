@@ -12,7 +12,12 @@ module Activr
 
         config.app_path = activr_dir
 
-        if Fwissr['/activr/mongodb/uri'].blank? && defined?(Mongoid)
+        use_mongoid_conn = Fwissr['/activr/mongodb/uri'].blank? &&
+                           (Fwissr['/activr/skip_mongoid_railtie'] != true) &&
+                           (ENV['ACTIVR_SKIP_MONGOID_RAILTIE'] != 'true') &&
+                           defined?(Mongoid)
+
+        if use_mongoid_conn
           # get mongoid conf
           if Mongoid::VERSION.start_with?("2.")
             # Mongoid 2
