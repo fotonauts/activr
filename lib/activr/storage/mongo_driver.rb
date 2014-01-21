@@ -40,7 +40,7 @@ class Activr::Storage::MongoDriver
       raise "Can't find any suitable mongodb driver: please install 'mongo' or 'moped' gem"
     end
 
-    Activr.logger.info("Using mongodb driver: #{@kind}")
+    # Activr.logger.info("Using mongodb driver: #{@kind}")
 
     if @kind == :mongo
       uri = URI.parse(self.config[:uri])
