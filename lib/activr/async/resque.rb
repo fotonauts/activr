@@ -43,7 +43,7 @@ module Activr::Async::Resque
         recipient_id = Activr.storage.unserialize_id_if_necessary(recipient_id)
         activity_hash = Activr::Activity.unserialize_hash(activity_hash)
 
-        timeline_klass = Activr::Utils.class_for_kind(timeline_kind, 'timeline')
+        timeline_klass = Activr.registry.class_for_timeline(timeline_kind)
 
         timeline = timeline_klass.new(recipient_id)
         activity = Activr::Activity.from_hash(activity_hash)
