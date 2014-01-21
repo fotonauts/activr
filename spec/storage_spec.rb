@@ -30,7 +30,7 @@ describe Activr::Storage do
     # test
     activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
     activity.store!
-    activity_hash = Activr.storage.driver.find_one(Activr.storage.driver.activity_collection, activity._id)
+    activity_hash = Activr.storage.driver.find_activity(activity._id)
     activity_hash.should_not be_nil
     activity_hash['foo'].should == 'bar'
     activity_hash['meta'].should == {
@@ -57,7 +57,7 @@ describe Activr::Storage do
     activity.store!
 
     # check
-    activity_hash = Activr.storage.driver.find_one(Activr.storage.driver.activity_collection, activity._id)
+    activity_hash = Activr.storage.driver.find_activity(activity._id)
     activity_hash['foo'].should be_blank
     activity_hash['meta'].should be_blank
 
@@ -84,7 +84,7 @@ describe Activr::Storage do
     timeline_entry.store!
 
     # check
-    timeline_entry_hash = Activr.storage.driver.find_one(Activr.storage.driver.timeline_collection(timeline.kind), timeline_entry._id)
+    timeline_entry_hash = Activr.storage.driver.find_timeline_entry(timeline.kind, timeline_entry._id)
     timeline_entry_hash['meta'].should == {
       'foo' => 'bar',
       'bar' => 'baz',
