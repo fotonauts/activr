@@ -50,6 +50,23 @@ describe Activr::Activity do
     activity.buddy_id.should == buddy._id
   end
 
+  it "computes humanization bindings" do
+    activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album, :meta => { :foo => 'bar' })
+
+    bindings = activity.humanization_bindings
+
+    bindings[:actor].should == "Jean PALE"
+    bindings[:actor_model].should_not be_nil
+
+    bindings[:picture].should == "Me myself and I"
+    bindings[:picture_model].should_not be_nil
+
+    bindings[:album].should == "Selfies"
+    bindings[:album_model].should_not be_nil
+
+    bindings[:foo].should == "bar"
+  end
+
   it "humanizes thanks to :humanize setting" do
     activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
     activity.humanize.should == "Jean PALE added picture Me myself and I to the album Selfies"
@@ -151,6 +168,15 @@ describe Activr::Activity do
     fetched_activity.album.should == activity.album
   end
 
+  it "have a store status" do
+    activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
+    activity.should_not be_stored
+
+    activity.store!
+
+    activity.should be_stored
+  end
+
   it "run before_store callback before storing in database" do
     activity = LikePictureActivity.new(:actor => user, :picture => picture)
 
@@ -198,6 +224,14 @@ describe Activr::Activity do
 
     tl_entries = UserNewsFeedTimeline.new(owner).find(10)
     tl_entries.should be_blank
+  end
+
+  it "stub calls to entities defined in others activities" do
+    activity = LikePictureActivity.new(:actor => user, :picture => picture)
+
+    activity.buddy.should be_nil
+
+    lambda { activity.prout }.should raise_error(NoMethodError)
   end
 
   context "when class have NO suffix" do
@@ -275,7 +309,7 @@ describe Activr::Activity do
 
   context "when class have a custom kind" do
 
-    it "have a kind computed from class" do
+    it "have a kind" do
       TestCustomKindActivity.kind.should == 'my_custom_kind'
     end
 
