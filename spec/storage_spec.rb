@@ -45,13 +45,7 @@ describe Activr::Storage do
     hash_doc_id = { '$oid' => '51a5bb06b7b95d7282000005' }
     doc_id = Activr.storage.unserialize_id(hash_doc_id)
 
-    if defined?(::Moped::BSON)
-      doc_id.should be_a(::Moped::BSON)
-    elsif defined?(::BSON::ObjectId)
-      doc_id.should be_a(::BSON::ObjectId)
-    else
-      doc_id.should be_a(String)
-    end
+    Activr.storage.valid_id?(doc_id).should be_true
   end
 
 
@@ -63,13 +57,7 @@ describe Activr::Storage do
     activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
     doc_id = Activr.storage.insert_activity(activity)
 
-    if defined?(::Moped::BSON)
-      doc_id.should be_a(::Moped::BSON)
-    elsif defined?(::BSON::ObjectId)
-      doc_id.should be_a(::BSON::ObjectId)
-    else
-      doc_id.should be_a(String)
-    end
+    Activr.storage.valid_id?(doc_id).should be_true
   end
 
   it "finds an activity by id" do
