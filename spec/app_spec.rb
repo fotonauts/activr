@@ -45,7 +45,6 @@ describe "Application" do
   end
 
   it "routes AddPictureActivity to actor followers" do
-    # @todo FIXME
     user.followers = [ follower, follower2 ]
 
     Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album))
@@ -60,7 +59,6 @@ describe "Application" do
   end
 
   it "routes LikePictureActivity to picture owner" do
-    # @todo FIXME
     picture.owner = owner
 
     Activr.dispatch!(LikePictureActivity.new(:actor => user, :picture => picture))
@@ -71,7 +69,6 @@ describe "Application" do
   end
 
   it "routes FeaturePictureActivity to picture owner" do
-    # @todo FIXME
     picture.owner = owner
 
     Activr.dispatch!(FeaturePictureActivity.new(:actor => user, :picture => picture))
@@ -82,7 +79,6 @@ describe "Application" do
   end
 
   it "routes FollowAlbumActivity to album owner" do
-    # @todo FIXME
     album.owner = owner
 
     Activr.dispatch!(FollowAlbumActivity.new(:actor => user, :album => album))
@@ -93,7 +89,6 @@ describe "Application" do
   end
 
   it "routes AddPictureActivity to album owner" do
-    # @todo FIXME
     album.owner = owner
 
     Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album))
@@ -104,7 +99,6 @@ describe "Application" do
   end
 
   it "routes AddPictureActivity to picture followers" do
-    # @todo FIXME
     picture.followers = [ follower, follower2 ]
 
     Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album))
@@ -119,7 +113,6 @@ describe "Application" do
   end
 
   it "routes AddPictureActivity to albums followers" do
-    # @todo FIXME
     album.followers = [ follower, follower2 ]
 
     Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album))

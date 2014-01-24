@@ -68,7 +68,6 @@ describe Activr::Timeline::Entry do
   end
 
   it "humanizes thanks to :humanize setting" do
-    # @todo FIXME
     picture.owner = owner
 
     activity = FeaturePictureActivity.new(:actor => user, :picture => picture)
@@ -78,7 +77,6 @@ describe Activr::Timeline::Entry do
   end
 
   it "humanizes thanks to :humanize method in subclass" do
-    # @todo FIXME
     picture.owner = owner
 
     activity = LikePictureActivity.new(:actor => user, :picture => picture)
@@ -88,7 +86,6 @@ describe Activr::Timeline::Entry do
   end
 
   it "humanizes thanks to embedded activity" do
-    # @todo FIXME
     user.followers = [ buddy ]
 
     activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)

@@ -193,7 +193,6 @@ describe Activr::Timeline do
   #
 
   it "does not handle activity if should_handle_activity callback returns false" do
-    # @todo FIXME
     user.followers = [ follower ]
 
     Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album, :do_not_handle_me => true))

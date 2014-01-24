@@ -46,7 +46,6 @@ describe Activr do
   end
 
   it "dispatches activities" do
-    # @todo FIXME
     user.followers = [ follower ]
 
     Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album))

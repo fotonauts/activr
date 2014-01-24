@@ -38,7 +38,6 @@ describe Activr::Dispatcher do
   it "routes to activity path" do
     dispatcher = Activr::Dispatcher.new
 
-    # @todo FIXME
     album.owner = owner
 
     activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
@@ -54,7 +53,6 @@ describe Activr::Dispatcher do
   it "routes with a custom routing kind" do
     dispatcher = Activr::Dispatcher.new
 
-    # @todo FIXME
     album.owner = owner
 
     activity = FollowAlbumActivity.new(:actor => user, :album => album)
@@ -70,7 +68,6 @@ describe Activr::Dispatcher do
   it "routes with predefined routing" do
     dispatcher = Activr::Dispatcher.new
 
-    # @todo FIXME
     user.followers = [ buddy ]
 
     activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
@@ -86,7 +83,6 @@ describe Activr::Dispatcher do
   it "routes with timeline class method" do
     dispatcher = Activr::Dispatcher.new
 
-    # @todo FIXME
     album.followers = [ follower ]
 
     activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)

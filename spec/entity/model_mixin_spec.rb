@@ -93,7 +93,6 @@ describe Activr::Entity::ModelMixin do
   end
 
   it "deletes timeline entries when entity model is deleted" do
-    # @todo FIXME
     user.followers = [ follower, follower2 ]
 
     Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album))

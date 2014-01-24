@@ -200,7 +200,6 @@ describe Activr::Activity do
   end
 
   it "run before_route callback before routing to timelines" do
-    # @todo FIXME
     picture.owner = owner
 
     activity = LikePictureActivity.new(:actor => user, :picture => picture)
@@ -215,7 +214,6 @@ describe Activr::Activity do
   end
 
   it "is not routed to timelines if before_route callback returns false" do
-    # @todo FIXME
     picture.owner = owner
 
     activity = LikePictureActivity.new(:actor => user, :picture => picture, :baz => 'belongtous')

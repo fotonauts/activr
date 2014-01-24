@@ -55,7 +55,6 @@ describe Activr::Timeline::Route do
 
   # route AddPictureActivity, :to => 'album.owner'
   it "resolves routing to activity path" do
-    # @todo save in model
     album.owner = buddy
 
     activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
@@ -69,7 +68,6 @@ describe Activr::Timeline::Route do
 
   # route AddPictureActivity, :using => :actor_follower
   it "resolves predefined routing" do
-    # @todo save in model
     user.followers = [ buddy, marcel ]
 
     activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
@@ -85,7 +83,6 @@ describe Activr::Timeline::Route do
 
   # route AddPictureActivity, :using => :album_follower
   it "resolves routing with timeline method" do
-    # @todo save in model
     album.followers = [ marcel ]
 
     activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)

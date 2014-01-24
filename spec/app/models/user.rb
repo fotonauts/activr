@@ -18,7 +18,6 @@ class User
     attr_accessible :id, :_id, :first_name, :last_name, :nil_field
   end
 
-  # @todo change to a real field
   attr_accessor :followers
 
 

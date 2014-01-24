@@ -13,7 +13,6 @@ class Album
     attr_accessible :id, :_id, :name
   end
 
-  # @todo change to real fields
   attr_accessor :owner
   attr_accessor :followers
 
