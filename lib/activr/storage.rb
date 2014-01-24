@@ -155,6 +155,15 @@ module Activr
       self.driver.count_activities(options)
     end
 
+    # Delete activities referring to given entity model instance
+    #
+    # @param model [Object] Model instance
+    def delete_activities_for_entity_model(model)
+      Activr.registry.activity_entities_for_model(model.class).each do |entity_name|
+        self.driver.delete_activities(entity_name => model.id)
+      end
+    end
+
 
     #
     # Timeline Entries
@@ -236,20 +245,6 @@ module Activr
       self.driver.count_timeline_entries(timeline.kind, timeline.recipient_id, options)
     end
 
-
-    #
-    # Entity model deletion
-    #
-
-    # Delete activities referring to given entity model instance
-    #
-    # @param model [Object] Model instance
-    def delete_activities_for_entity_model(model)
-      Activr.registry.activity_entities_for_model(model.class).each do |entity_name|
-        self.driver.delete_activities(entity_name => model.id)
-      end
-    end
-
     # Delete timeline entries referring to given entity model instance
     #
     # @param model [Object] Model instance
@@ -304,7 +299,7 @@ module Activr
           fields = [ model_class.activr_entity_feed_actual_name.to_s, 'at' ]
 
           index_name = Activr.storage.add_activity_index(fields)
-          yield("activity / #{index_name}")
+          yield("activity / #{index_name}") if block_given?
         end
       end
 
@@ -316,7 +311,7 @@ module Activr
         fields = [ 'rcpt', 'activity.at' ]
 
         index_name = Activr.storage.add_timeline_index(timeline_kind, fields)
-        yield("#{timeline_kind} timeline / #{index_name}")
+        yield("#{timeline_kind} timeline / #{index_name}") if block_given?
       end
 
       # Create sparse indexes to remove activities and timeline entries when entity is deleted
@@ -336,7 +331,7 @@ module Activr
             if !model_class.activr_entity_settings[:feed_index] || (entity_name != model_class.activr_entity_feed_actual_name)
               # ... else we create an index
               index_name = Activr.storage.add_activity_index(entity_name.to_s, :sparse => true)
-              yield("activity / #{index_name}")
+              yield("activity / #{index_name}") if block_given?
             end
           end
 
@@ -344,7 +339,7 @@ module Activr
           Activr.registry.timeline_entities_for_model(model_class).each do |timeline_class, entities|
             entities.each do |entity_name|
               index_name = Activr.storage.add_timeline_index(timeline_class.kind, "activity.#{entity_name}", :sparse => true)
-              yield("#{timeline_class.kind} timeline / #{index_name}")
+              yield("#{timeline_class.kind} timeline / #{index_name}") if block_given?
             end
           end
         end

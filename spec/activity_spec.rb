@@ -9,7 +9,7 @@ describe Activr::Activity do
   let(:owner)   { User.create(:_id => 'corinne', :first_name => "Corinne", :last_name => "CHTITEGOUTE") }
 
 
-  it "have allowed entities" do
+  it "has allowed entities" do
     AddPictureActivity.allowed_entities.should == {
       :actor   => { :class => User, :humanize => :fullname },
       :picture => { :class => Picture, :humanize => :title },
@@ -168,7 +168,7 @@ describe Activr::Activity do
     fetched_activity.album.should == activity.album
   end
 
-  it "have a store status" do
+  it "has a store status" do
     activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
     activity.should_not be_stored
 
@@ -234,9 +234,9 @@ describe Activr::Activity do
     lambda { activity.prout }.should raise_error(NoMethodError)
   end
 
-  context "when class have NO suffix" do
+  context "when class has NO suffix" do
 
-    it "have a kind computed from class" do
+    it "has a kind computed from class" do
       TestNoSuffix.kind.should == 'test_no_suffix'
     end
 
@@ -276,9 +276,9 @@ describe Activr::Activity do
 
   end
 
-  context "when class have an Activity suffix" do
+  context "when class has an Activity suffix" do
 
-    it "have a kind computed from class" do
+    it "has a kind computed from class" do
       FollowBuddyActivity.kind.should == 'follow_buddy'
     end
 
@@ -307,9 +307,9 @@ describe Activr::Activity do
 
   end
 
-  context "when class have a custom kind" do
+  context "when class has a custom kind" do
 
-    it "have a kind" do
+    it "has a kind" do
       TestCustomKindActivity.kind.should == 'my_custom_kind'
     end
 

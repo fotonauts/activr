@@ -60,7 +60,7 @@ describe Activr::Timeline::Entry do
     }
   end
 
-  it "have timeline route" do
+  it "has a timeline route" do
     route = tl_entry.timeline_route
     route.should_not be_nil
     route.kind.should == 'buddy_follow_buddy'
@@ -99,10 +99,13 @@ describe Activr::Timeline::Entry do
 
   it "stores in database" do
     tl_entry._id.should be_nil
+    tl_entry.should_not be_stored
 
     tl_entry.store!
 
     tl_entry._id.should_not be_nil
+    tl_entry.should be_stored
+
     tl_entry[:foo].should == 'bar'
 
     fetched_tl_entry = Activr.storage.find_timeline_entry(timeline, tl_entry._id)

@@ -14,7 +14,7 @@ describe Activr do
     Activr.config.async = { }
   end
 
-  it "have a configuration" do
+  it "has a configuration" do
     Activr.config.async.should be_blank
     Activr.config.foo.should be_nil
   end

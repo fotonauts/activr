@@ -116,9 +116,9 @@ module Activr
       #
       # @param activity [Activity] Activity instance
       # @return [Array<Timeline::Route>] List of Route instances
-      def routes_for_activity(activity)
+      def routes_for_activity(activity_class)
         self.routes.find_all do |defined_route|
-          (defined_route.activity_class == activity.class)
+          (defined_route.activity_class == activity_class)
         end
       end
 

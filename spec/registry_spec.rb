@@ -8,6 +8,10 @@ describe Activr::Registry do
     }
   end
 
+  it "computes timeline class from timeline kind" do
+    Activr.registry.class_for_timeline('user_news_feed').should == UserNewsFeedTimeline
+  end
+
   it "registers timeline entries" do
     Activr.registry.timeline_entries.should == {
       "user_news_feed" => {
@@ -15,6 +19,11 @@ describe Activr::Registry do
         "picture_owner_like_picture"     => UserNewsFeedTimeline::PictureOwnerLikePicture,
       },
     }
+  end
+
+  it "computes timeline entry class from a timeline route" do
+    Activr.registry.class_for_timeline_entry('user_news_feed', 'my_custom_routing_follow_album').should == UserNewsFeedTimeline::MyCustomRoutingFollowAlbum
+    Activr.registry.class_for_timeline_entry('user_news_feed', 'picture_owner_like_picture').should == UserNewsFeedTimeline::PictureOwnerLikePicture
   end
 
   it "registers activities" do
@@ -27,6 +36,16 @@ describe Activr::Registry do
       "my_custom_kind"    => TestCustomKindActivity,
       "test_no_suffix"    => TestNoSuffix,
     }
+  end
+
+  it "computes activity class from an activity kind" do
+    Activr.registry.class_for_activity('add_picture').should == AddPictureActivity
+    Activr.registry.class_for_activity('feature_picture').should == FeaturePictureActivity
+    Activr.registry.class_for_activity('follow_album').should == FollowAlbumActivity
+    Activr.registry.class_for_activity('follow_buddy').should == FollowBuddyActivity
+    Activr.registry.class_for_activity('like_picture').should == LikePictureActivity
+    Activr.registry.class_for_activity('my_custom_kind').should == TestCustomKindActivity
+    Activr.registry.class_for_activity('test_no_suffix').should == TestNoSuffix
   end
 
   it "registers entities" do
@@ -62,6 +81,10 @@ describe Activr::Registry do
       TestCustomKindActivity => [ :actor, :buddy ],
       TestNoSuffix           => [ :actor, :picture, :album ],
     }
+  end
+
+  it "computes regitered entities names" do
+    Activr.registry.entities_names.sort.should == [ :actor, :album, :buddy, :picture ]
   end
 
   it "registers models" do

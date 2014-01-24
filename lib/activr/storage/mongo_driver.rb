@@ -203,7 +203,7 @@ class Activr::Storage::MongoDriver
   # @api private
   #
   # @param col        [Mongo::Collection, Moped::Collection] Collection handler
-  # @param index_spec [Array] Array of {String}, {Integer} tuplets with {String} being a field to index and {Integer} the order (`-1` of DESC and `1` for ASC)
+  # @param index_spec [Array] Array of [ {String}, {Integer} ] tuplets with {String} being a field to index and {Integer} the order (`-1` of DESC and `1` for ASC)
   # @param options    [Hash] Options hash
   # @option options [Boolean] :background Background indexing ? (default: `true`)
   # @option options [Boolean] :sparse     Is it a sparse index ? (default: `false`)
@@ -227,6 +227,43 @@ class Activr::Storage::MongoDriver
 
     when :mongo
       col.create_index(index_spec, options)
+    end
+  end
+
+  # Get all indexes for given collection
+  #
+  # @api private
+  #
+  # @param col [Mongo::Collection, Moped::Collection] Collection handler
+  # @return [Array<String>] Indexes names
+  def indexes(col)
+    result = [ ]
+
+    case @kind
+    when :moped_1, :moped
+      col.indexes.each do |index_spec|
+        result << index_spec["name"]
+      end
+
+    when :mongo
+      result = col.index_information.keys
+    end
+
+    result
+  end
+
+  # Drop all indexes for given collection
+  #
+  # @api private
+  #
+  # @param col [Mongo::Collection, Moped::Collection] Collection handler
+  def drop_indexes(col)
+    case @kind
+    when :moped_1, :moped
+      col.indexes.drop
+
+    when :mongo
+      col.drop_indexes
     end
   end
 
@@ -311,6 +348,11 @@ class Activr::Storage::MongoDriver
       end
     end
   end
+
+
+  #
+  # Activities
+  #
 
   # Insert an activity document
   #
@@ -403,6 +445,11 @@ class Activr::Storage::MongoDriver
 
     self.add_index(self.activity_collection, index_spec, options)
   end
+
+
+  #
+  # Timeline entries
+  #
 
   # Insert a timeline entry document
   #
