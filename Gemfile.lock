@@ -11,7 +11,7 @@ GIT
 PATH
   remote: .
   specs:
-    activr (0.0.17)
+    activr (0.0.18)
       activemodel
       activesupport
       fwissr
