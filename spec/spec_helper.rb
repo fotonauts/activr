@@ -48,14 +48,25 @@ end
 
 Mongoid.configure do |config|
   if config.respond_to?(:sessions)
-    # since mongoid 3
-    config.sessions = {
-      default: {
-        database: rspec_mongo_db,
-        hosts: [ "#{rspec_mongo_host}:#{rspec_mongo_port}" ],
-        options: { read: :primary }
+    if Mongoid::VERSION.start_with?("3.")
+      # mongoid 3
+      config.sessions = {
+        default: {
+          database: rspec_mongo_db,
+          hosts: [ "#{rspec_mongo_host}:#{rspec_mongo_port}" ],
+          options: { read: :primary, safe: true }
+        }
       }
-    }
+    else
+      # mongoid 4
+      config.sessions = {
+        default: {
+          database: rspec_mongo_db,
+          hosts: [ "#{rspec_mongo_host}:#{rspec_mongo_port}" ],
+          options: { read: :primary }
+        }
+      }
+    end
   else
     # mongoid 2
     config.master = Mongo::Connection.new(rspec_mongo_host, rspec_mongo_port).db(rspec_mongo_db)
