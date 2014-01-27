@@ -112,12 +112,12 @@ module Activr
     #
     # @param activity [Activity] Activity instance to dispatch
     # @param options [Hash] Options hash
-    # @option options [Integer] :skip_dup_period Activity is skipped if a duplicate one is found in that period of time, in seconds (default: nil)
+    # @option options [Integer] :skip_dup_period Activity is skipped if a duplicate one is found in that period of time, in seconds (default: `Activr.config.skip_dup_period`)
     # @return [Activity] The activity
     def dispatch!(activity, options = { })
       # default options
       options = {
-        :skip_dup_period => nil,
+        :skip_dup_period => Activr.config.skip_dup_period,
       }.merge(options)
 
       # check for duplicates

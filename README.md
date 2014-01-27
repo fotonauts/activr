@@ -713,6 +713,12 @@ Use the `:skip_dup_period` option when dispatching an activity to avoid duplicat
   Activr.dispatch!(activity, :skip_dup_period => 3600)
 ```
 
+Or you can set that option in global activr configuration>:
+
+```ruby
+  Activr.config.skip_dup_period = 3600
+```
+
 
 Trim Timelines
 ==============

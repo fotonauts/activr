@@ -12,6 +12,7 @@ describe Activr do
 
   after(:each) do
     Activr.config.async = { }
+    Activr.config.skip_dup_period = nil
   end
 
   it "has a configuration" do
@@ -83,6 +84,27 @@ describe Activr do
     Delorean.jump(10)
 
     Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album), :skip_dup_period => 60)
+
+    Activr.timeline(UserNewsFeedTimeline, follower).dump.should == [
+      "Jean PALE is now following Justine CHTITEGOUTE",
+      "Jean PALE added picture Me myself and I to the album Selfies",
+    ]
+  end
+
+  it "skips duplicate activity thanks to skip_dup_period global configuration" do
+    Activr.config.skip_dup_period = 60
+
+    user.followers = [ follower ]
+
+    Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album))
+
+    Delorean.jump(10)
+
+    Activr.dispatch!(FollowBuddyActivity.new(:actor => user, :buddy => buddy))
+
+    Delorean.jump(10)
+
+    Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album))
 
     Activr.timeline(UserNewsFeedTimeline, follower).dump.should == [
       "Jean PALE is now following Justine CHTITEGOUTE",
