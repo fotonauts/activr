@@ -27,7 +27,6 @@ A demo app is available [on heroku](http://activr-demo.herokuapp.com), feel free
 - Code documentation [on rubydoc](http://rubydoc.info/github/fotonauts/activr/frames)
 
 [![Build Status](https://travis-ci.org/fotonauts/activr.png)](https://travis-ci.org/fotonauts/activr)
-[![Code Climate](https://codeclimate.com/github/fotonauts/activr.png)](https://codeclimate.com/github/fotonauts/activr)
 
 
 Install
@@ -701,12 +700,25 @@ Railties
 The default mongodb connection uri is `mongodb://127.0.0.1/activr`, but if you are using Activr inside a Rails application with mongoid gem loaded then the mongoid database connection will be used instead. If you don't want that behaviour then set the environment variable  `ACTIVR_SKIP_MONGOID_RAILTIE` to `true`, or set the [Fwissr](https://github.com/fotonauts/fwissr) key `/activr/skip_mongoid_railtie` to true.
 
 
+Skipping duplicates activities
+==============================
+
+Use the `:skip_dup_period` option when dispatching an activity to avoid duplicates.
+
+```ruby
+  # User is now following Buddy
+  activity = FollowBuddyActivity.new(:actor => user, :buddy => followee)
+
+  # skip activity if User already followed Buddy during the last hour
+  Activr.dispatch!(activity, :skip_dup_period => 3600)
+```
+
+
 Todo
 ====
 
 - Trim timelines
 - Activities aggregation in timelines
-- Remove duplicate activities in a given period of time
 - Rails generator to setup basic views
 - Rails generator to setup admin controllers
 - Permits "Fanout on read" for inactive entities, to preserve db size

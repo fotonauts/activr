@@ -111,12 +111,30 @@ module Activr
     # Dispatch an activity
     #
     # @param activity [Activity] Activity instance to dispatch
-    # @return [Object] The activity id in main activities collection
-    def dispatch!(activity)
-      # store activity in main collection
-      activity.store! unless activity.stored?
+    # @param options [Hash] Options hash
+    # @option options [Integer] :skip_dup_period Activity is skipped if a duplicate one is found in that period of time, in seconds (default: nil)
+    # @return [Activity] The activity
+    def dispatch!(activity, options = { })
+      # default options
+      options = {
+        :skip_dup_period => nil,
+      }.merge(options)
 
-      Activr::Async.hook(:route_activity, activity)
+      # check for duplicates
+      skip_it = options[:skip_dup_period] && (options[:skip_dup_period] > 0) &&
+                (Activr.storage.count_duplicate_activities(activity, Time.now - options[:skip_dup_period]) > 0)
+
+      if !skip_it
+        if !activity.stored?
+          # store activity in main collection
+          activity.store!
+        end
+
+        # check if storing failed
+        if activity.stored?
+          Activr::Async.hook(:route_activity, activity)
+        end
+      end
 
       activity
     end

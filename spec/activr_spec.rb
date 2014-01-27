@@ -45,13 +45,68 @@ describe Activr do
     Activr.timelines_path.should == File.join(File.dirname(__FILE__), "app", "timelines")
   end
 
-  it "dispatches activities" do
+  it "dispatches activity" do
     user.followers = [ follower ]
 
     Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album))
 
     Activr.timeline(UserNewsFeedTimeline, follower).dump.should == [
       "Jean PALE added picture Me myself and I to the album Selfies"
+    ]
+  end
+
+  it "does not skip duplicate activity by default" do
+    user.followers = [ follower ]
+
+    Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album))
+
+    Delorean.jump(30)
+
+    Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album))
+
+    Activr.timeline(UserNewsFeedTimeline, follower).dump.should == [
+      "Jean PALE added picture Me myself and I to the album Selfies",
+      "Jean PALE added picture Me myself and I to the album Selfies",
+    ]
+
+  end
+
+  it "skips duplicate activity thanks to :skip_dup_period option" do
+    user.followers = [ follower ]
+
+    Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album), :skip_dup_period => 60)
+
+    Delorean.jump(10)
+
+    Activr.dispatch!(FollowBuddyActivity.new(:actor => user, :buddy => buddy), :skip_dup_period => 60)
+
+    Delorean.jump(10)
+
+    Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album), :skip_dup_period => 60)
+
+    Activr.timeline(UserNewsFeedTimeline, follower).dump.should == [
+      "Jean PALE is now following Justine CHTITEGOUTE",
+      "Jean PALE added picture Me myself and I to the album Selfies",
+    ]
+  end
+
+  it "does not skip duplicate activity if it is before :skip_dup_period period" do
+    user.followers = [ follower ]
+
+    Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album))
+
+    Delorean.jump(60)
+
+    Activr.dispatch!(FollowBuddyActivity.new(:actor => user, :buddy => buddy), :skip_dup_period => 30)
+
+    Delorean.jump(60)
+
+    Activr.dispatch!(AddPictureActivity.new(:actor => user, :picture => picture, :album => album), :skip_dup_period => 30)
+
+    Activr.timeline(UserNewsFeedTimeline, follower).dump.should == [
+      "Jean PALE added picture Me myself and I to the album Selfies",
+      "Jean PALE is now following Justine CHTITEGOUTE",
+      "Jean PALE added picture Me myself and I to the album Selfies",
     ]
   end
 

@@ -43,6 +43,7 @@ class UserNewsFeedTimeline < Activr::Timeline
   # route using predefined routing
   route AddPictureActivity, :using => :actor_follower
   route AddPictureActivity, :using => :picture_follower
+  route FollowBuddyActivity, :using => :actor_follower
 
   # route using the timeline class method call: UserNewsFeedTimeline.album_follower
   route AddPictureActivity, :using => :album_follower

@@ -155,6 +155,25 @@ module Activr
       self.driver.count_activities(options)
     end
 
+    # Find number of duplicate activities
+    #
+    # @param activity [Activity] Activity to search
+    # @param after [Time] Search after that datetime
+    # @return [Integer] Number of activity duplicates
+    def count_duplicate_activities(activity, after)
+      entities = { }
+
+      activity.entities.each do |entity_name, entity|
+        entities[entity_name.to_sym] = entity.model_id
+      end
+
+      self.count_activities({
+        :only     => activity.class,
+        :entities => entities,
+        :after    => after,
+      })
+    end
+
     # Delete activities referring to given entity model instance
     #
     # @param model [Object] Model instance
