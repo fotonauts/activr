@@ -179,7 +179,7 @@ module Activr
     # @param model [Object] Model instance
     def delete_activities_for_entity_model(model)
       Activr.registry.activity_entities_for_model(model.class).each do |entity_name|
-        self.driver.delete_activities(entity_name => model.id)
+        self.driver.delete_activities(:entities => { entity_name => model.id })
       end
     end
 
@@ -264,13 +264,29 @@ module Activr
       self.driver.count_timeline_entries(timeline.kind, timeline.recipient_id, options)
     end
 
+    # Delete timeline entries
+    #
+    # @param timeline [Timeline] Timeline instance
+    # @param options  [Hash] Options hash
+    # @option options [Time] :before Delete only timeline entries which timestamp is before that datetime (excluding)
+    # @option options [Hash{Sym=>String}] :entity Delete only timeline entries with these entities values
+    def delete_timeline(timeline, options = { })
+      # default options
+      options = {
+        :before   => nil,
+        :entities => { },
+      }.merge(options)
+
+      self.driver.delete_timeline_entries(timeline.kind, timeline.recipient_id, options)
+    end
+
     # Delete timeline entries referring to given entity model instance
     #
     # @param model [Object] Model instance
     def delete_timeline_entries_for_entity_model(model)
       Activr.registry.timeline_entities_for_model(model.class).each do |timeline_class, entities|
         entities.each do |entity_name|
-          self.driver.delete_timeline_entries(timeline_class.kind, "activity.#{entity_name}" => model.id)
+          self.driver.delete_timeline_entries(timeline_class.kind, nil, :entities => { entity_name => model.id })
         end
       end
     end

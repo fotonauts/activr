@@ -60,6 +60,10 @@ module Activr
     class_attribute :recipient_class, :instance_writer => false
     self.recipient_class = nil
 
+    # Maximum length (0 means 'no limit')
+    class_attribute :trim_max_length, :instance_writer => false
+    self.trim_max_length = 0
+
     # Predefined routings
     class_attribute :routings, :instance_writer => false
     self.routings = { }
@@ -211,6 +215,13 @@ module Activr
         self.recipient_class = klass
       end
 
+      # Set maximum length
+      #
+      # @param value [Integer] Maximum timeline length
+      def max_length(value)
+        self.trim_max_length = value
+      end
+
       # Creates a predefined routing
       #
       # You can either specify a `Proc` (with the `:to` setting) to execute or a `block` to yield everytime
@@ -321,6 +332,9 @@ module Activr
         timeline_entry.store!
 
         self.did_store_timeline_entry(timeline_entry)
+
+        # trim timeline
+        self.trim!
       end
 
       timeline_entry._id.blank? ? nil :timeline_entry
@@ -357,6 +371,25 @@ module Activr
       limit = options.delete(:nb) || 100
 
       self.find(limit).map{ |tl_entry| tl_entry.humanize(options) }
+    end
+
+    # Delete timeline entries
+    #
+    # @param options (see Storage#delete_timeline)
+    # @option options (see Storage#delete_timeline)
+    def delete(options = { })
+      Activr.storage.delete_timeline(self, options)
+    end
+
+    # Remove old timeline entries
+    def trim!
+      # check if trimming is needed
+      if (self.trim_max_length > 0) && (self.count > self.trim_max_length)
+        last_tle = self.find(1, :skip => self.trim_max_length - 1).first
+        if last_tle
+          self.delete(:before => last_tle.activity.at)
+        end
+      end
     end
 
 

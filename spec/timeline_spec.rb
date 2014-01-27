@@ -185,6 +185,64 @@ describe Activr::Timeline do
       ]
     end
 
+    it "deletes timeline entries" do
+      @timeline.delete(:before => Time.now.utc - 15)
+
+      @timeline.count.should == 1
+
+      Delorean.jump(30)
+
+      @timeline.delete(:before => Time.now.utc - 15)
+
+      @timeline.count.should == 0
+    end
+
+  end
+
+  it "trims old timeline entries" do
+    timeline = UserNewsFeedTimeline.new(owner)
+
+    1.upto(15) do
+      activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
+      activity.store!
+      tl_entry = Activr::Timeline::Entry.new(timeline, 'album_owner', activity)
+      tl_entry.store!
+      Delorean.jump(10)
+    end
+
+    timeline.count.should == 15
+
+    # test
+    timeline.trim!
+
+    # check
+    timeline.count.should == 10
+  end
+
+  it "trims automatically when handling a new timeline entry" do
+    timeline = UserNewsFeedTimeline.new(follower)
+
+    user.followers = [ follower ]
+
+    activity_ids = [ ]
+
+    1.upto(15) do
+      activity = AddPictureActivity.new(:actor => user, :picture => picture, :album => album)
+      Activr.dispatch!(activity)
+
+      activity_ids << activity._id
+
+      Delorean.jump(10)
+    end
+
+    # check
+    timeline.count.should == 10
+
+    timeline_ids = timeline.find(10).map do |timeline_entry|
+      timeline_entry.activity._id
+    end
+
+    timeline_ids.should == activity_ids.reverse[0,10]
   end
 
 

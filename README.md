@@ -714,10 +714,28 @@ Use the `:skip_dup_period` option when dispatching an activity to avoid duplicat
 ```
 
 
+Trim Timelines
+==============
+
+Set `max_length` on a timeline class to specify the maximum number of timeline entries allowed. When a recipient timeline exceed that number then old timeline entries are automatically deleted.
+
+
+```ruby
+class UserNewsFeedTimeline < Activr::Timeline
+
+  recipient User
+
+  max_length 100
+
+  # ...
+
+end
+```
+
+
 Todo
 ====
 
-- Trim timelines
 - Activities aggregation in timelines
 - Rails generator to setup basic views
 - Rails generator to setup admin controllers

@@ -432,7 +432,9 @@ class Activr::Storage::MongoDriver
   # (see Storage#delete_activities)
   #
   # @api private
-  def delete_activities(selector)
+  def delete_activities(options = { })
+    selector = options[:mongo_selector] || self.activities_selector(options)
+
     self.delete(self.activity_collection, selector)
   end
 
@@ -481,7 +483,18 @@ class Activr::Storage::MongoDriver
   # @param options (see Storage#find_timeline)
   # @return [Hash] The computed selector
   def timeline_selector(timeline_kind, recipient_id, options = { })
-    result = { 'rcpt' => recipient_id }
+    result = { }
+
+    # compute selector
+    result['rcpt'] = recipient_id unless recipient_id.nil?
+
+    if options[:before]
+      result['activity.at'] = { "$lt" => options[:before] }
+    end
+
+    (options[:entities] || { }).each do |name, value|
+      result["activity.#{name}"] = value
+    end
 
     if !options[:only].blank?
       result['$or'] = options[:only].map do |route|
@@ -513,7 +526,7 @@ class Activr::Storage::MongoDriver
   #
   # @param timeline_kind [String] Timeline kind
   # @param recipient_id  [String, BSON::ObjectId, Moped::BSON::ObjectId] Recipient id
-  # @param options (see Storage#find_timeline)
+  # @param options (see Storage#count_timeline)
   # @return [Integer] Number of documents in given timeline
   def count_timeline_entries(timeline_kind, recipient_id, options = { })
     selector = options[:mongo_selector] || self.timeline_selector(timeline_kind, recipient_id, options)
@@ -521,10 +534,21 @@ class Activr::Storage::MongoDriver
     self.count(self.timeline_collection(timeline_kind), selector)
   end
 
-  # (see Storage#delete_timeline_entries)
+  # Delete timeline entry documents
   #
   # @api private
-  def delete_timeline_entries(timeline_kind, selector)
+  #
+  # WARNING: If recipient_id is `nil` then documents are deleted for ALL recipients
+  #
+  # @param timeline_kind [String] Timeline kind
+  # @param recipient_id  [String, BSON::ObjectId, Moped::BSON::ObjectId, nil] Recipient id
+  # @param options (see Storage#delete_timeline)
+  def delete_timeline_entries(timeline_kind, recipient_id, options = { })
+    selector = options[:mongo_selector] || self.timeline_selector(timeline_kind, recipient_id, options)
+
+    # "end of the world" check
+    raise "Deleting everything is not the solution" if selector.blank?
+
     self.delete(self.timeline_collection(timeline_kind), selector)
   end
 

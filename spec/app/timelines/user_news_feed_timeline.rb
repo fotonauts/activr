@@ -8,6 +8,9 @@ class UserNewsFeedTimeline < Activr::Timeline
   # set recipient class
   recipient User
 
+  # trim old timeline entries
+  max_length 10
+
 
   #
   # Predefined Routings
