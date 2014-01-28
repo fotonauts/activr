@@ -701,8 +701,8 @@ Railties
 The default mongodb connection uri is `mongodb://127.0.0.1/activr`, but if you are using Activr inside a Rails application with mongoid gem loaded then the mongoid database connection will be used instead. If you don't want that behaviour then set the environment variable  `ACTIVR_SKIP_MONGOID_RAILTIE` to `true`, or set the [Fwissr](https://github.com/fotonauts/fwissr) key `/activr/skip_mongoid_railtie` to true.
 
 
-Skipping duplicates activities
-==============================
+Skip duplicates activities
+==========================
 
 Use the `:skip_dup_period` option when dispatching an activity to avoid duplicates.
 
@@ -714,7 +714,7 @@ Use the `:skip_dup_period` option when dispatching an activity to avoid duplicat
   Activr.dispatch!(activity, :skip_dup_period => 3600)
 ```
 
-Or you can set that option in global activr configuration>:
+Or you can set that option in global activr configuration:
 
 ```ruby
   Activr.config.skip_dup_period = 3600
