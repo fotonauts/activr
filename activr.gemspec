@@ -21,6 +21,7 @@ spec = Gem::Specification.new do |s|
   s.add_dependency("activesupport")
   s.add_dependency("activemodel")
 
+  s.add_development_dependency("rake")
   s.add_development_dependency("rspec")
   s.add_development_dependency("mongoid")
   s.add_development_dependency("database_cleaner")
