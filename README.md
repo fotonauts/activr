@@ -763,4 +763,4 @@ From Fotonauts:
 
 - Aymerick Jéhanne [@aymerick](https://github.com/aymerick)
 
-Copyright (c) 2013 Fotonauts released under the MIT license.
+Copyright (c) 2013-2014 Fotonauts released under the MIT license.
