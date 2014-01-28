@@ -27,6 +27,7 @@ A demo app is available [on heroku](http://activr-demo.herokuapp.com), feel free
 - Code documentation [on rubydoc](http://rubydoc.info/github/fotonauts/activr/frames)
 
 [![Build Status](https://travis-ci.org/fotonauts/activr.png)](https://travis-ci.org/fotonauts/activr)
+[![Coverage Status](https://coveralls.io/repos/fotonauts/activr/badge.png)](https://coveralls.io/r/fotonauts/activr)
 
 
 Install

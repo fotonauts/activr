@@ -5,6 +5,9 @@ require 'rspec'
 require 'database_cleaner'
 require 'delorean'
 
+require 'coveralls'
+Coveralls.wear!
+
 $:.unshift(File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib')))
 require 'activr'
 
