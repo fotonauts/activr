@@ -296,89 +296,11 @@ module Activr
     # Indexes
     #
 
-    # Add index for activities
-    #
-    # @param index [String,Array<String>] Field or array of fields
-    # @param options [Hash] Options hash
-    # @option options (see Activr::Storage::MongoDriver#add_index)
-    # @return [String] Index created
-    def add_activity_index(index, options = { })
-      self.driver.add_activity_index(index, options)
-    end
-
-    # Add index for timeline entries
-    #
-    # @param timeline_kind [String] Timeline kind
-    # @param index         [String,Array<String>] Field or array of fields
-    # @param options [Hash] Options hash
-    # @option options (see Activr::Storage::MongoDriver#add_index)
-    # @return [String] Index created
-    def add_timeline_index(timeline_kind, index, options = { })
-      self.driver.add_timeline_index(timeline_kind, index, options)
-    end
-
     # Ensure all necessary indexes
     #
     # @yield [String] Created index name
     def create_indexes
-      # Create indexes on 'activities' collection for models that includes Activr::Entity::ModelMixin
-      #
-      # eg: activities
-      #   [['actor', Mongo::ASCENDING], ['at', Mongo::ASCENDING]]
-      #   [['album', Mongo::ASCENDING], ['at', Mongo::ASCENDING]]
-      #   [['picture', Mongo::ASCENDING], ['at', Mongo::ASCENDING]]
-      Activr.registry.models.each do |model_class|
-        if !model_class.activr_entity_settings[:feed_index]
-          # @todo Output a warning to remove the index if it exists
-        else
-          fields = [ model_class.activr_entity_feed_actual_name.to_s, 'at' ]
-
-          index_name = Activr.storage.add_activity_index(fields)
-          yield("activity / #{index_name}") if block_given?
-        end
-      end
-
-      # Create indexes on '*_timelines' collections for defined timeline classes
-      #
-      # eg: user_news_feed_timelines
-      #   [['rcpt', Mongo::ASCENDING], ['activity.at', Mongo::ASCENDING]]
-      Activr.registry.timelines.each do |timeline_kind, timeline_class|
-        fields = [ 'rcpt', 'activity.at' ]
-
-        index_name = Activr.storage.add_timeline_index(timeline_kind, fields)
-        yield("#{timeline_kind} timeline / #{index_name}") if block_given?
-      end
-
-      # Create sparse indexes to remove activities and timeline entries when entity is deleted
-      #
-      # eg: activities
-      #   [['actor', Mongo::ASCENDING]], :sparse => true
-      #
-      # eg: user_news_feed_timelines
-      #   [['activity.actor', Mongo::ASCENDING]], :sparse => true
-      #   [['activity.album', Mongo::ASCENDING]], :sparse => true
-      #   [['activity.picture', Mongo::ASCENDING]], :sparse => true
-      Activr.registry.models.each do |model_class|
-        if model_class.activr_entity_settings[:deletable]
-          # create sparse index on `activities`
-          Activr.registry.activity_entities_for_model(model_class).each do |entity_name|
-            # if entity activity feed is enabled and this is the entity name used to fetch that feed then we can use the existing index...
-            if !model_class.activr_entity_settings[:feed_index] || (entity_name != model_class.activr_entity_feed_actual_name)
-              # ... else we create an index
-              index_name = Activr.storage.add_activity_index(entity_name.to_s, :sparse => true)
-              yield("activity / #{index_name}") if block_given?
-            end
-          end
-
-          # create sparse index on timeline classes where that entity can be present
-          Activr.registry.timeline_entities_for_model(model_class).each do |timeline_class, entities|
-            entities.each do |entity_name|
-              index_name = Activr.storage.add_timeline_index(timeline_class.kind, "activity.#{entity_name}", :sparse => true)
-              yield("#{timeline_class.kind} timeline / #{index_name}") if block_given?
-            end
-          end
-        end
-      end
+      self.driver.create_indexes
     end
 
 
