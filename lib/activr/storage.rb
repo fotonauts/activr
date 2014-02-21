@@ -90,8 +90,6 @@ module Activr
     #
     # @note If you use others selectors then 'limit' argument and 'skip' option then you have to setup corresponding indexes in database.
     #
-    # @todo Add doc explaining howto setup indexes
-    #
     # @param limit [Integer] Max number of activities to find
     # @param options [Hash] Options hash
     # @option options [Integer]           :skip     Number of activities to skip (default: 0)
@@ -129,8 +127,6 @@ module Activr
     # Count number of activities
     #
     # @note If you use one of options selectors then you have to setup corresponding indexes in database.
-    #
-    # @todo Add doc explaining howto setup indexes
     #
     # @param options [Hash] Options hash
     # @option options [Time]              :before   Find activities generated before that datetime (excluding)

@@ -1,6 +1,3 @@
-# WARNING: This is BETA code, please stay tuned for the upcoming 1.0 version
-
-
 Activr
 ======
 
