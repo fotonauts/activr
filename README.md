@@ -7,7 +7,7 @@ With Activr you can create:
 
 - a Global Activity Feed to display all activities in your website in a single feed
 - a User Activity Feed to display all actions performed by a specific user
-- a User News Feeds so thar each user can get news from friends they follow, from albums they own or follow, etc.
+- a User News Feeds so that each user can get news from friends they follow, from albums they own or follow, etc.
 - an Album Activity Feed to display what happens in a specific album
 - ...
 
