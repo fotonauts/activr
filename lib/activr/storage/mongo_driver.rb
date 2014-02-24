@@ -415,9 +415,10 @@ class Activr::Storage::MongoDriver
   #
   # @api private
   def find_activities(limit, options = { })
-    selector = options[:mongo_selector] || self.activities_selector(options)
+    selector   = options[:mongo_selector]   || self.activities_selector(options)
+    sort_field = options[:mongo_sort_field] || 'at'
 
-    self.find(self.activity_collection, selector, limit, options[:skip], 'at')
+    self.find(self.activity_collection, selector, limit, options[:skip], sort_field)
   end
 
   # (see Storage#count_activities)
@@ -520,9 +521,10 @@ class Activr::Storage::MongoDriver
   # @param options (see Storage#find_timeline)
   # @return [Array<Hash>] An array of timeline entry documents
   def find_timeline_entries(timeline_kind, recipient_id, limit, options = { })
-    selector = options[:mongo_selector] || self.timeline_selector(timeline_kind, recipient_id, options)
+    selector   = options[:mongo_selector]   || self.timeline_selector(timeline_kind, recipient_id, options)
+    sort_field = options[:mongo_sort_field] || 'activity.at'
 
-    self.find(self.timeline_collection(timeline_kind), selector, limit, options[:skip], 'activity.at')
+    self.find(self.timeline_collection(timeline_kind), selector, limit, options[:skip], sort_field)
   end
 
   # Count number of timeline entry documents
