@@ -337,7 +337,7 @@ module Activr
         self.trim!
       end
 
-      timeline_entry._id.blank? ? nil :timeline_entry
+      timeline_entry._id.blank? ? nil : timeline_entry
     end
 
     # Find timeline entries by descending timestamp
